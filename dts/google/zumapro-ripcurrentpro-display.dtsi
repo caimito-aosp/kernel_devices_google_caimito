@@ -1,0 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Display nodes for slider-related boards.
+ *
+ * Copyright 2023 Google LLC
+ *
+ */
+
+#include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-display.dtsi"
+
+&drmdp {
+	status = "disabled";
+};

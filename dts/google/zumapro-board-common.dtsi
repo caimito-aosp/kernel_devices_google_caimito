@@ -7,12 +7,12 @@
 
 #include "google-dts-base/zumapro-common.dtsi"
 #include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-touch.dtsi"
+#include "zumapro-ripcurrentpro-display.dtsi"
 
 /*
 #include "zuma-ripcurrent-battery.dtsi"
 #include "zuma-ripcurrent-camera-pmic.dtsi"
 #include "zuma-ripcurrent-camera.dtsi"
-#include "zuma-ripcurrent-display.dtsi"
 #include "zuma-ripcurrent-gsa-gsc.dtsi"
 #include "zuma-ripcurrent-pmic.dtsi"
 #include "zuma-ripcurrent-usb.dtsi"
