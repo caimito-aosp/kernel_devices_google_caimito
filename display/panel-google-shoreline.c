@@ -1,0 +1,1 @@
+../../shusky/display/panel-google-shoreline.c

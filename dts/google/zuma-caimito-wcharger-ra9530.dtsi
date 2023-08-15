@@ -1,0 +1,62 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Wireless Charger device tree entries.
+ *
+ * Copyright 2022 Google LLC
+ */
+
+#include <dt-bindings/pinctrl/samsung.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+/ {
+	fragment@wlc {
+		target-path = "/";
+		__overlay__ {
+			google,charger {
+				google,wlc-power-supply = "wireless";
+			};
+		};
+	};
+};
+
+&max77779_pinctrl {
+	/* QI_INT_ODL Wireless Charger Interrupt */
+	wc_irq: wc_irq {
+		pins = "gpio4";
+		function = "normal";
+		input-enable;
+		bias-pull-up;
+	};
+
+	/* QI_RX_COMM_EN_L Wireless Charger Enable */
+	wc_en: wc_en {
+		pins = "gpio1";
+		function = "gpio";
+		bias-disable;
+		output-low;
+	};
+
+	/* QI_PDET_GPOD6 */
+	det_int: det_int {
+		pins = "gpio2";
+		function = "normal";
+		input-enable;
+		bias-pull-up;
+	};
+};
+
+&hsi2c_10 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	#include "zuma-caimito-wcharger.dtsi"
+};
+
+&ra9530 {
+	idt,gpio_wlc_en = <&max77779_sgpio 1 GPIO_ACTIVE_LOW>;
+	idt,gpio_qien = <&max77779_sgpio 1 GPIO_ACTIVE_LOW>;
+	idt,irq_gpio = <&max77779_sgpio 4 GPIO_ACTIVE_LOW>;
+	idt,irq_flag = <0x2002>;	/* IRQF_TRIGGER_FALLING | IRQF_ONESHOT */
+	idt,irq_det_gpio = <&max77779_sgpio 2 GPIO_ACTIVE_LOW>;
+};
+

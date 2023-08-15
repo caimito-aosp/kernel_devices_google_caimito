@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-2.0
+
+obj-$(CONFIG_DRM_PANEL_GOOGLE_BIGSURF)		+= panel-google-bigsurf.o
+obj-$(CONFIG_DRM_PANEL_GOOGLE_CM4)		+= panel-google-cm4.o
+obj-$(CONFIG_DRM_PANEL_GOOGLE_HK3)		+= panel-google-hk3.o
+obj-$(CONFIG_DRM_PANEL_GOOGLE_KM4)		+= panel-google-km4.o
+obj-$(CONFIG_DRM_PANEL_GOOGLE_SHORELINE)	+= panel-google-shoreline.o
+obj-$(CONFIG_DRM_PANEL_GOOGLE_TK4B)		+= panel-google-tk4b.o

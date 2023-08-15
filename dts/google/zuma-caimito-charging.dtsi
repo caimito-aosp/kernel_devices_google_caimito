@@ -1,0 +1,12 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Charging device tree entries for the Caimito platform
+ *
+ * Copyright 2023 Google LLC
+ *
+ */
+#include "google-dts-base/zuma-charging.dtsi"
+
+&google_cpm {
+	google,max77779_chg = <&max77779_chg>;
+};

@@ -1,0 +1,23 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Charging device tree entries specific to the Sapwood Caimito platform
+ *
+ * Copyright 2022 Google LLC
+ *
+ */
+
+#include "google-dts-base/zuma-charging.dtsi"
+
+&hsi2c_9 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+	clock-frequency = <400000>;
+
+	#include "google-dts-base/zuma-charge-pump-ln8411.dtsi"
+	#include "google-dts-base/zuma-charge-pump-pca9468.dtsi"
+};
+
+&google_cpm {
+	google,max77779_chg = <&max77779_chg>;
+};

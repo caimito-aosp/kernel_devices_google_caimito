@@ -1,0 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Usecases specific to Komodo and Caiman platforms
+ *
+ * Copyright 2023 Google LLC
+ *
+ */
+
+/* system use cases */
+&max77779_chg {
+	max77779,reverse_12-en;
+	max77779,usb_dc_mode = /bits/ 8 <0x0>;
+};

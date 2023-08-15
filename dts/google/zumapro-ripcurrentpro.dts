@@ -1,0 +1,35 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Ripcurrentpro board device tree source
+ *
+ * Copyright 2023 Google LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+
+#include "zumapro-board-common.dtsi"
+/*
+#include "zuma-24-common.dtsi"
+#include "google-dts-base/zumapro-board-gps.dtsi"
+#include "zuma-ripcurrent24-ultrasonic-udfps.dtsi"
+#include "zuma-ripcurrent24-battery.dtsi"
+#include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-charging.dtsi"
+#include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-wcharger.dtsi"
+#include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-typec.dtsi"
+*/
+
+
+
+/ {
+	board_id = <0x60d01>;
+	board_rev = <0x010000>;
+	fragment@boardbase {
+		target-path = "/";
+		__overlay__ {
+			model = "ZUMA_PRO Ripcurrentpro board based on ZUMA_PRO";
+			compatible = "google,ZUMA_PRO Ripcurrentpro", "google,ZUMA_PRO";
+		};
+	};
+};

@@ -1,0 +1,20 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Charging device tree entries specific to Komodo and Caiman devices
+ *
+ * Copyright 2023 Google LLC
+ *
+ */
+
+&hsi2c_10 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+	clock-frequency = <400000>;
+
+	#include "google-dts-base/zuma-charge-pump-ln8411.dtsi"
+};
+
+&ln8411_dc {
+	status = "okay";
+};

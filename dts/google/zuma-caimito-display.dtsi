@@ -1,0 +1,47 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Display nodes for caimito boards.
+ *
+ * Copyright 2023 Google LLC
+ *
+ */
+
+#include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-display.dtsi"
+
+&drmdsim0 {
+	panel@1 {
+		compatible = "samsung,emul";
+		label = "samsung-emul";
+		channel = <0>;
+
+		/* reset, power */
+		reset-gpios = <&gpp0 0 GPIO_ACTIVE_HIGH>;
+	};
+	panel@2 {
+		compatible = "google,hk3";
+		label = "google-hk3";
+		channel = <0>;
+
+		/* reset, power */
+		reset-gpios = <&gpp0 0 GPIO_ACTIVE_HIGH>;
+		vci-supply = <&m_ldo14_reg>;
+		vddi-supply = <&s_bucka_reg>;
+		vddd-supply = <&disp_vddd>;
+	};
+	panel@3 {
+		compatible = "google,bigsurf";
+		label = "google-bigsurf";
+		channel = <0>;
+
+		/* reset, power */
+		reset-gpios = <&gpp0 0 GPIO_ACTIVE_HIGH>;
+		vci-supply = <&m_ldo14_reg>;
+		vddi-supply = <&s_bucka_reg>;
+		vddd-supply = <&disp_vddd>;
+	};
+};
+
+&disp_vddd {
+	gpio = <&gpp21 4 GPIO_ACTIVE_HIGH>;
+};
+
