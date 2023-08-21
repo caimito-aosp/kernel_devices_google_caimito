@@ -81,6 +81,10 @@ static DEFINE_EXYNOS_CMD_SET(tk4b_off);
 static const struct exynos_dsi_cmd tk4b_init_cmds[] = {
 	/* CMD2, Page0 */
 	EXYNOS_DSI_CMD_SEQ(0xF0, 0x55, 0xAA, 0x52, 0x08, 0x00),
+	/* b/295134228 correct EM pulse and EM-off time */
+	EXYNOS_DSI_CMD_SEQ(0x6F, 0x18),
+	EXYNOS_DSI_CMD_SEQ(0xB2, 0x38, 0xB0, 0x3F, 0xFF),
+
 	EXYNOS_DSI_CMD_SEQ(0x6F, 0x1B),
 	EXYNOS_DSI_CMD_SEQ(0xBA, 0x18),
 	EXYNOS_DSI_CMD_SEQ(0x6F, 0x1C),
@@ -726,20 +730,20 @@ static const struct exynos_brightness_configuration tk4b_btr_configs[] = {
 				},
 				.percentage = {
 					.min = 0,
-					.max = 57,
+					.max = 67,
 				},
 			},
 			.hbm = {
 				.nits = {
 					.min = 1200,
-					.max = 2100,
+					.max = 1800,
 				},
 				.level = {
 					.min = 3629,
-					.max = 4095,
+					.max = 3939,
 				},
 				.percentage = {
-					.min = 57,
+					.min = 67,
 					.max = 100,
 				},
 			},
