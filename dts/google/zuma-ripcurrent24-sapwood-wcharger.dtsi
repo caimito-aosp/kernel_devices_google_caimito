@@ -44,10 +44,13 @@
 	#address-cells = <1>;
 	#size-cells = <0>;
 
-	#include "zuma-caimito-wcharger.dtsi"
+	#include "google-dts-base/zuma-wcharger-ra9530.dtsi"
 };
 
 &ra9530 {
+	status = "okay";
+	pinctrl-0 = <&wc_irq &wc_en>;
+
 	idt,gpio_wlc_en = <&gph1 4 GPIO_ACTIVE_LOW>;
 	idt,gpio_qien = <&gph1 4 GPIO_ACTIVE_LOW>;
 	idt,irq_gpio = <&gpa8 1 GPIO_ACTIVE_LOW>;

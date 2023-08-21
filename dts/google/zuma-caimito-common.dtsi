@@ -14,7 +14,7 @@
 #include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-gsa-gsc.dtsi"
 #include "zuma-caimito-usecases-proto.dtsi"
 #include "zuma-caimito-pmic.dtsi"
-#include "zuma-caimito-wcharger-ra9530.dtsi"
+#include "zuma-caimito-wcharger.dtsi"
 #include "zuma-caimito-wlan.dtsi"
 #include "google-dts-base/zumapro-board-cp-s5400-sit.dtsi"
 #include "google-dts-base/zuma-board-bluetooth.dtsi"
