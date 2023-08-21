@@ -8,5 +8,8 @@
 #include "google-dts-base/zuma-charging.dtsi"
 
 &google_cpm {
-	google,max77779_chg = <&max77779_chg>;
+	google,cop-supported;
+
+	interrupt-parent = <&max77779_chg>;
+	interrupts = <12 IRQ_TYPE_LEVEL_LOW>;
 };
