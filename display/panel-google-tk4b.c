@@ -778,6 +778,7 @@ struct exynos_panel_desc google_tk4b = {
 		{PANEL_REG_ID_VCI, 0},
 		{PANEL_REG_ID_VDDI, 0},
 	},
+	.refresh_on_lp = true,
 };
 
 static int tk4b_panel_config(struct exynos_panel *ctx)
