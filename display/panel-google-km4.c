@@ -480,22 +480,22 @@ static void km4_set_panel_feat(struct exynos_panel *ctx,
 
 	EXYNOS_DCS_BUF_ADD_SET(ctx, unlock_cmd_f0);
 
-	/* TE width setting */
-	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x04, 0xB9);
-	/* Changeable TE setting: default */
-	EXYNOS_DCS_BUF_ADD(ctx, 0xB9, 0x0B, 0x9A, 0x00, 0x1F,
-		/* Fixed TE setting */
-		0x0B, 0x9A, 0x00, 0x1F, 0x0B, 0x9A, 0x00, 0x1F);
-
 	/* TE setting */
 	if (test_bit(FEAT_EARLY_EXIT, changed_feat) ||
 		test_bit(FEAT_OP_NS, changed_feat)) {
 		if (test_bit(FEAT_EARLY_EXIT, feat) && !spanel->force_changeable_te) {
+			/* TODO: b/296929080 - verify correct TE setting for NS */
 			/* Fixed TE */
 			EXYNOS_DCS_BUF_ADD(ctx, 0xB9, 0x51);
+			/* TE width */
+			EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x08, 0xB9);
+			EXYNOS_DCS_BUF_ADD(ctx, 0xB9, 0x0B, 0x9A, 0x00, 0x1F, 0x0B, 0x9A, 0x00, 0x1F);
 		} else {
 			/* Changeable TE */
 			EXYNOS_DCS_BUF_ADD(ctx, 0xB9, 0x04);
+			/* TE width */
+			EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x04, 0xB9);
+			EXYNOS_DCS_BUF_ADD(ctx, 0xB9, 0x0B, 0x9A, 0x00, 0x1F);
 		}
 	}
 
@@ -548,7 +548,6 @@ static void km4_set_panel_feat(struct exynos_panel *ctx,
 	 *
 	 * Description: early-exit sequence overrides some configs HBM set.
 	 */
-	// TODO: Review this
 	if (test_bit(FEAT_EARLY_EXIT, feat)) {
 		if (test_bit(FEAT_HBM, feat))
 			EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x21, 0x00, 0x83, 0x03, 0x01);
@@ -560,28 +559,19 @@ static void km4_set_panel_feat(struct exynos_panel *ctx,
 		else
 			EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x21, 0x81, 0x83, 0x03, 0x03);
 	}
+	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x01, 0xBD);
+	val = test_bit(FEAT_EARLY_EXIT, feat) ? 0x01 : 0x81;
+	EXYNOS_DCS_BUF_ADD(ctx, 0xBD, val);
 	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x10, 0xBD);
 	val = test_bit(FEAT_EARLY_EXIT, feat) ? 0x22 : 0x00;
 	EXYNOS_DCS_BUF_ADD(ctx, 0xBD, val);
 	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x82, 0xBD);
 	EXYNOS_DCS_BUF_ADD(ctx, 0xBD, val, val, val, val);
-	val = test_bit(FEAT_OP_NS, feat) ? 0x4E : 0x1E;
-	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, val, 0xBD);
-	if (test_bit(FEAT_HBM, feat)) {
-		if (test_bit(FEAT_OP_NS, feat))
-			EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x00, 0x00, 0x00, 0x02,
-				0x00, 0x04, 0x00, 0x0A, 0x00, 0x16, 0x00, 0x76);
-		else
-			EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x00, 0x00, 0x00, 0x01,
-				0x00, 0x03, 0x00, 0x0B, 0x00, 0x17, 0x00, 0x77);
-	} else {
-		if (test_bit(FEAT_OP_NS, feat))
-			EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x00, 0x00, 0x00, 0x04,
-				0x00, 0x08, 0x00, 0x14, 0x00, 0x2C, 0x00, 0xEC);
-		else
-			EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x00, 0x00, 0x00, 0x02,
-				0x00, 0x06, 0x00, 0x16, 0x00, 0x2E, 0x00, 0xEE);
-	}
+
+	/* TODO: b/296940829 - Verify correct VSYNC/EE setting for 80Hz*/
+	/* VSYNC setting */
+	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x01, 0xBD);
+	EXYNOS_DCS_BUF_ADD(ctx, 0xBD, (vrefresh == 80) ? 0x81 : 0x01);
 
 	/*
 	 * Frequency setting: FI, frequency, idle frequency
@@ -731,6 +721,8 @@ static void km4_set_panel_feat(struct exynos_panel *ctx,
 				val = 0x02;
 			} else if (vrefresh == 60) {
 				val = 0x01;
+			} else if (vrefresh == 80) {
+				val = 0x04;
 			} else {
 				if (vrefresh != 120)
 					dev_warn(ctx->dev,
@@ -744,7 +736,7 @@ static void km4_set_panel_feat(struct exynos_panel *ctx,
 	}
 
 	EXYNOS_DCS_BUF_ADD_SET(ctx, freq_update);
-	EXYNOS_DCS_BUF_ADD_SET_AND_FLUSH(ctx, lock_cmd_f0);;
+	EXYNOS_DCS_BUF_ADD_SET_AND_FLUSH(ctx, lock_cmd_f0);
 }
 
 /**
@@ -1676,6 +1668,35 @@ static const struct exynos_panel_mode km4_modes[] = {
 		},
 		.idle_mode = IDLE_MODE_UNSUPPORTED,
 	},
+	{
+		.mode = {
+			.name = "1344x2992x80",
+			.clock = 361176,
+			.hdisplay = 1344,
+			.hsync_start = 1344 + 80, // add hfp
+			.hsync_end = 1344 + 80 + 24, // add hsa
+			.htotal = 1344 + 80 + 24 + 42, // add hbp
+			.vdisplay = 2992,
+			.vsync_start = 2992 + 12, // add vfp
+			.vsync_end = 2992 + 12 + 4, // add vsa
+			.vtotal = 2992 + 12 + 4 + 22, // add vbp
+			.flags = 0,
+			.width_mm = WIDTH_MM,
+			.height_mm = HEIGHT_MM,
+		},
+		.exynos_mode = {
+			.mode_flags = MIPI_DSI_CLOCK_NON_CONTINUOUS,
+			.vblank_usec = 120,
+			.bpc = 8,
+			.dsc = KM4_WQHD_DSC,
+			.underrun_param = &underrun_param,
+		},
+		.te2_timing = {
+			.rising_edge = KM4_TE2_RISING_EDGE_OFFSET,
+			.falling_edge = KM4_TE2_FALLING_EDGE_OFFSET,
+		},
+		.idle_mode = IDLE_MODE_UNSUPPORTED,
+	},
 #endif
 	{
 		.mode = {
@@ -2036,7 +2057,7 @@ static const struct exynos_brightness_configuration km4_btr_configs[] = {
 	},
 };
 
-struct exynos_panel_desc google_km4 = {
+static struct exynos_panel_desc google_km4 = {
 	.data_lane_cnt = 4,
 	.dbv_extra_frame = true,
 	/* supported HDR format bitmask : 1(DOLBY_VISION), 2(HDR10), 3(HLG) */
@@ -2052,9 +2073,7 @@ struct exynos_panel_desc google_km4 = {
 	.lp_mode_count = ARRAY_SIZE(km4_lp_modes),
 	.binned_lp = km4_binned_lp,
 	.num_binned_lp = ARRAY_SIZE(km4_binned_lp),
-#ifndef PANEL_FACTORY_BUILD
 	.is_panel_idle_supported = true,
-#endif
 	/*
 	 * After waiting for TE, wait for extra time to make sure the frame start
 	 * happens after both DPU and panel PPS are set and before the next VSYNC.
