@@ -76,3 +76,7 @@
 		#include "google-dts-base/zuma-1p5c-battery-data.dtsi"
 	};
 };
+
+&max77779_vimon {
+	status = "okay";
+};
