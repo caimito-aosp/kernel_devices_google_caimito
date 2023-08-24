@@ -8,7 +8,7 @@
 
 &ra9530 {
 	/* HPP */
-	google,hpp_neg_pwr = <21500>;
+	google,hpp_neg_pwr = <23000>;
 	google,epp_neg_pwr = <13500>;
 	google,wait_prop_irq_ms = <6000>;
 	/* RTx */
