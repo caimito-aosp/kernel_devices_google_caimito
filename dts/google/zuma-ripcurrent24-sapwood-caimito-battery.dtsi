@@ -14,8 +14,22 @@
 		__overlay__ {
 
 			google_bms {
-				nvmem-names = "6-00500";
-				google,bee-name = "6-00500";
+				nvmem-names = "9-00500";
+				google,bee-name = "9-00500";
+			};
+
+		};
+	};
+};
+
+/ {
+	fragment@battery {
+		target-path = "/";
+		__overlay__ {
+
+			google_bms {
+				nvmem-names = "9-00500";
+				google,bee-name = "9-00500";
 			};
 
 		};

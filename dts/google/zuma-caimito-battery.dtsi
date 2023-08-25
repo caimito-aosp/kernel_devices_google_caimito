@@ -8,6 +8,34 @@
 
 #include "google-dts-base/zuma-battery.dtsi"
 
+/ {
+	fragment@charging {
+		target-path = "/";
+		__overlay__ {
+
+			google_bms {
+				nvmem-names = "10-00500";
+				google,bee-name = "10-00500";
+			};
+
+		};
+	};
+};
+
+/ {
+	fragment@battery {
+		target-path = "/";
+		__overlay__ {
+
+			google_bms {
+				nvmem-names = "10-00500";
+				google,bee-name = "10-00500";
+			};
+
+		};
+	};
+};
+
 &pinctrl_0 {
 /* [MAX77729FEWN : INTB] > IF_PMIC_IRQ_L > [XEINT_22 : SC59845XWE] */
 	if_pmic_irq: if-pmic-irq {
