@@ -23,7 +23,7 @@
 		__overlay__ {
 			tbn: tbn {
 				compatible = "touch_bus_negotiator";
-				tbn,mode = <3>;
+				tbn,mode = <2>;
 			};
 		};
 	};
@@ -109,9 +109,8 @@
 		synaptics,touch_offload_id = /bits/ 8 <'c' '1' '0' '0'>;
 		synaptics,udfps-coords = <720 2360>;
 		synaptics,dynamic-report-rate;
-
-		goog,tbn-enabled;
 */
+		goog,tbn-enabled;
 
 		controller-data {
 			samsung,spi-feedback-delay = <0>;
