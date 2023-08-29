@@ -560,18 +560,13 @@ static void km4_set_panel_feat(struct exynos_panel *ctx,
 			EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x21, 0x81, 0x83, 0x03, 0x03);
 	}
 	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x01, 0xBD);
-	val = test_bit(FEAT_EARLY_EXIT, feat) ? 0x01 : 0x81;
+	val = (test_bit(FEAT_EARLY_EXIT, feat) && vrefresh != 80) ? 0x01 : 0x81;
 	EXYNOS_DCS_BUF_ADD(ctx, 0xBD, val);
 	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x10, 0xBD);
 	val = test_bit(FEAT_EARLY_EXIT, feat) ? 0x22 : 0x00;
 	EXYNOS_DCS_BUF_ADD(ctx, 0xBD, val);
 	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x82, 0xBD);
 	EXYNOS_DCS_BUF_ADD(ctx, 0xBD, val, val, val, val);
-
-	/* TODO: b/296940829 - Verify correct VSYNC/EE setting for 80Hz*/
-	/* VSYNC setting */
-	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x01, 0xBD);
-	EXYNOS_DCS_BUF_ADD(ctx, 0xBD, (vrefresh == 80) ? 0x81 : 0x01);
 
 	/*
 	 * Frequency setting: FI, frequency, idle frequency
