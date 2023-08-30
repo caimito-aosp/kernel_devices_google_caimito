@@ -8,8 +8,8 @@
 /dts-v1/;
 /plugin/;
 
-#include "zuma-caimito-common.dtsi"
-#include "zuma-tokay-common.dtsi"
+#include "zumapro-caimito-common.dtsi"
+#include "zumapro-tokay-common.dtsi"
 
 / {
 	board_id = <0x40a03>;
