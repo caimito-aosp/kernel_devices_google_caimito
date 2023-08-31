@@ -11,4 +11,4 @@
 #include "zuma-ripcurrent24-sapwood-caimito-charging.dtsi"
 #include "zuma-ripcurrent24-sapwood-caimito-typec.dtsi"
 #include "zuma-ripcurrent24-sapwood-wcharger.dtsi"
-#include "zuma-caimito-usecases-proto.dtsi"
+#include "zuma-caimito-usecases-evt.dtsi"
