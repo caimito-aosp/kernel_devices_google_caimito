@@ -9,5 +9,4 @@
 /* system use cases */
 &max77779_chg {
 	max77779,reverse_12-en;
-	max77779,usb_dc_mode = /bits/ 8 <0x0>;
 };
