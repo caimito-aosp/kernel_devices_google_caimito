@@ -19,7 +19,7 @@
 #include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-wcharger.dtsi"
 #include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-typec.dtsi"
 */
-
+#include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-gsa-gsc.dtsi"
 
 
 / {
