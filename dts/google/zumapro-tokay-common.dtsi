@@ -13,4 +13,5 @@
 #include "zuma-tokay-camera.dtsi"
 #include "zuma-tokay-display.dtsi"
 #include "zuma-tokay-ldaf.dtsi"
+#include "zuma-tokay-pmic.dtsi"
 #include "zuma-tokay-touch.dtsi"
