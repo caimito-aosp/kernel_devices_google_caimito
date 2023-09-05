@@ -256,11 +256,11 @@ static const struct exynos_dsi_cmd km4_lp_high_cmds[] = {
 	EXYNOS_DSI_CMD0(lock_cmd_f0),
 };
 
-/* TODO: get the right nit values*/
 static const struct exynos_binned_lp km4_binned_lp[] = {
-	BINNED_LP_MODE_TIMING("low", 766, km4_lp_low_cmds,
+	/* low threshold 40 nits */
+	BINNED_LP_MODE_TIMING("low", 718, km4_lp_low_cmds,
 				KM4_TE2_RISING_EDGE_OFFSET, KM4_TE2_FALLING_EDGE_OFFSET),
-	BINNED_LP_MODE_TIMING("high", 3307, km4_lp_high_cmds,
+	BINNED_LP_MODE_TIMING("high", 3427, km4_lp_high_cmds,
 				KM4_TE2_RISING_EDGE_OFFSET, KM4_TE2_FALLING_EDGE_OFFSET),
 };
 
@@ -1525,10 +1525,9 @@ static const struct exynos_display_underrun_param underrun_param = {
 };
 
 static const u32 km4_bl_range[] = {
-	94, 180, 270, 360, 3307
+	94, 180, 270, 360, 3427
 };
 
-// update?
 #define KM4_WQHD_DSC {\
 	.enabled = true,\
 	.dsc_count = 2,\
