@@ -256,11 +256,11 @@ static const struct exynos_dsi_cmd cm4_lp_high_cmds[] = {
 	EXYNOS_DSI_CMD0(lock_cmd_f0),
 };
 
-/* TODO: get the right nit values*/
 static const struct exynos_binned_lp cm4_binned_lp[] = {
-	BINNED_LP_MODE_TIMING("low", 766, cm4_lp_low_cmds,
+	/* low threshold 40 nits */
+	BINNED_LP_MODE_TIMING("low", 718, cm4_lp_low_cmds,
 				CM4_TE2_RISING_EDGE_OFFSET, CM4_TE2_FALLING_EDGE_OFFSET),
-	BINNED_LP_MODE_TIMING("high", 3307, cm4_lp_high_cmds,
+	BINNED_LP_MODE_TIMING("high", 3427, cm4_lp_high_cmds,
 				CM4_TE2_RISING_EDGE_OFFSET, CM4_TE2_FALLING_EDGE_OFFSET),
 };
 
@@ -1523,7 +1523,7 @@ static const struct exynos_display_underrun_param underrun_param = {
 };
 
 static const u32 cm4_bl_range[] = {
-	94, 180, 270, 360, 3307
+	94, 180, 270, 360, 3427
 };
 
 #define CM4_WQHD_DSC {\
