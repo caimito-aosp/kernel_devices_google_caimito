@@ -33,6 +33,7 @@
 struct tk4b_panel {
 	/** @base: base panel struct */
 	struct exynos_panel base;
+	ktime_t idle_exit_dimming_delay_ts;
 };
 
 #define to_spanel(ctx) container_of(ctx, struct tk4b_panel, base)
@@ -68,7 +69,8 @@ static const struct exynos_dsi_cmd tk4b_lp_high_cmds[] = {
 static const struct exynos_binned_lp tk4b_binned_lp[] = {
 	BINNED_LP_MODE("off", 0, tk4b_lp_off_cmds),
 	/* rising = 0, falling = 32 */
-	BINNED_LP_MODE_TIMING("low", 332, tk4b_lp_low_cmds, 0, 32),
+	/* low threshold 40 nits */
+	BINNED_LP_MODE_TIMING("low", 932, tk4b_lp_low_cmds, 0, 32),
 	BINNED_LP_MODE_TIMING("high", 3574, tk4b_lp_high_cmds, 0, 32),
 };
 
@@ -335,16 +337,17 @@ static void tk4b_set_dimming_on(struct exynos_panel *ctx,
 static void tk4b_set_nolp_mode(struct exynos_panel *ctx,
 				  const struct exynos_panel_mode *pmode)
 {
+	struct tk4b_panel *spanel = to_spanel(ctx);
+	int vrefresh = drm_mode_vrefresh(&pmode->mode);
 	if (!is_panel_active(ctx))
 		return;
 
 	/* exit AOD */
-	EXYNOS_DCS_BUF_ADD(ctx, 0xF0, 0x55, 0xAA, 0x52, 0x08, 0x00);
-	EXYNOS_DCS_BUF_ADD(ctx, MIPI_DCS_EXIT_IDLE_MODE);
-	EXYNOS_DCS_BUF_ADD_AND_FLUSH(ctx, MIPI_DCS_WRITE_CONTROL_DISPLAY,
-					ctx->dimming_on ? 0x28 : 0x20);
+	EXYNOS_DCS_WRITE_SEQ(ctx, MIPI_DCS_EXIT_IDLE_MODE);
 
 	tk4b_change_frequency(ctx, pmode);
+	spanel->idle_exit_dimming_delay_ts = ktime_add_us(
+		ktime_get(), 100 + EXYNOS_VREFRESH_TO_PERIOD_USEC(vrefresh) * 2);
 
 	dev_info(ctx->dev, "exit LP mode\n");
 }
@@ -365,6 +368,7 @@ static int tk4b_enable(struct drm_panel *panel)
 {
 	struct exynos_panel *ctx = container_of(panel, struct exynos_panel, panel);
 	const struct exynos_panel_mode *pmode = ctx->current_mode;
+	struct tk4b_panel *spanel = to_spanel(ctx);
 
 	if (!pmode) {
 		dev_err(ctx->dev, "no current mode set\n");
@@ -377,6 +381,7 @@ static int tk4b_enable(struct drm_panel *panel)
 	exynos_panel_send_cmd_set(ctx, &tk4b_init_cmd_set);
 	tk4b_change_frequency(ctx, pmode);
 	tk4b_dimming_frame_setting(ctx, TK4B_DIMMING_FRAME);
+	spanel->idle_exit_dimming_delay_ts = 0;
 
 	if (pmode->exynos_mode.is_lp_mode) {
 		exynos_panel_set_lp_mode(ctx, pmode);
@@ -430,6 +435,7 @@ static int tk4b_atomic_check(struct exynos_panel *ctx, struct drm_atomic_state *
 
 static int tk4b_set_brightness(struct exynos_panel *ctx, u16 br)
 {
+	struct tk4b_panel *spanel = to_spanel(ctx);
 	u16 brightness;
 
 	if (ctx->current_mode->exynos_mode.is_lp_mode) {
@@ -447,6 +453,13 @@ static int tk4b_set_brightness(struct exynos_panel *ctx, u16 br)
 	}
 
 	brightness = (br & 0xff) << 8 | br >> 8;
+
+	if (spanel->idle_exit_dimming_delay_ts &&
+		(ktime_sub(spanel->idle_exit_dimming_delay_ts, ktime_get()) <= 0)) {
+		EXYNOS_DCS_WRITE_SEQ(ctx, MIPI_DCS_WRITE_CONTROL_DISPLAY,
+					ctx->dimming_on ? 0x28 : 0x20);
+		spanel->idle_exit_dimming_delay_ts = 0;
+	}
 
 	return exynos_dcs_set_brightness(ctx, brightness);
 }
