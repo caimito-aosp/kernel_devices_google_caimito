@@ -12,7 +12,6 @@
 #include "zuma-caimito-charging.dtsi"
 #include "zuma-caimito-display.dtsi"
 #include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-gsa-gsc.dtsi"
-#include "zuma-caimito-pmic.dtsi"
 #include "zuma-caimito-wcharger.dtsi"
 #include "zuma-caimito-wlan.dtsi"
 #include "google-dts-base/zumapro-board-cp-s5400-sit.dtsi"
