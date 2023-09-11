@@ -61,6 +61,20 @@
 	regulator-max-microvolt = <3300000>;
 };
 
+&pinctrl_1 {
+	ldaf_irq: ldaf-irq {
+		samsung,pins = "gpn3-0";
+		samsung,pin-function = <EXYNOS_PIN_FUNC_EINT>;
+		samsung,pin-pud = <EXYNOS_PIN_PULL_UP>;
+	};
+	ldaf_irq_off: ldaf-irq-off {
+		samsung,pins = "gpn3-0";
+		samsung,pin-function = <EXYNOS_PIN_FUNC_OUTPUT>;
+		samsung,pin-val = <0>;
+		samsung,pin-pud = <EXYNOS_PIN_PULL_NONE>;
+	};
+};
+
 &pinctrl_11 {
 	hsi2c1_bus: hsi2c1-bus {
 		samsung,pin-pud = <EXYNOS_PIN_PULL_UP>;
@@ -241,9 +255,10 @@
 		s2mpg15_ldo26-supply = <&s_ldo26_reg>;
 
 		/* MCLK Control*/
-		pinctrl-names = "mclk_on", "mclk_off";
-		pinctrl-0 = <>;
-		pinctrl-1 = <>;
+		pinctrl-names = "default", "mclk_on", "mclk_off";
+		pinctrl-0 = <&ldaf_irq_off>;
+		pinctrl-1 = <&ldaf_irq>;
+		pinctrl-2 = <&ldaf_irq_off>;
 
 		/* XAOC_GPIO3: GPN3[0] */
 		irq-gpios = <&gpn3 0 GPIO_ACTIVE_LOW>;
@@ -254,19 +269,25 @@
 
 		/* Power up sequence */
 		power-up-seqs =
-			"s2mpg15_ldo26";
+			"s2mpg15_ldo26",
+			"mclk_on";
 		power-up-seq-types =
-			"regulator";
+			"regulator",
+			"pinctrl";
 		power-up-seq-delays-us =
-			<1000>;
+			<1000
+			 0>;
 
 		/* Power down sequence */
 		power-down-seqs =
+			"mclk_off",
 			"s2mpg15_ldo26";
 		power-down-seq-types =
+			"pinctrl",
 			"regulator";
 		power-down-seq-delays-us =
-			<1000>;
+			<0
+			 1000>;
 
 		controller-data {
 			samsung,spi-feedback-delay = <0>;
