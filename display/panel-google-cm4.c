@@ -1251,6 +1251,11 @@ static int cm4_enable(struct drm_panel *panel)
 	if (needs_reset)
 		exynos_panel_reset(ctx);
 
+	/* wait TE falling for RRS since DSC and framestart must in the same VSYNC */
+	if (ctx->mode_in_progress == MODE_RES_IN_PROGRESS ||
+	    ctx->mode_in_progress == MODE_RES_AND_RR_IN_PROGRESS)
+		cm4_wait_for_vsync_done(ctx, pmode);
+
 	/* 8bit config for QHD/FHD */
 	EXYNOS_DCS_WRITE_SEQ(ctx, 0xF2, 0x01, 0x01);
 	/* DSC related configuration */

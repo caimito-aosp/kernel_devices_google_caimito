@@ -1251,7 +1251,11 @@ static int km4_enable(struct drm_panel *panel)
 	if (needs_reset)
 		exynos_panel_reset(ctx);
 
-	//PANEL_SEQ_LABEL_BEGIN("init");
+	/* wait TE falling for RRS since DSC and framestart must in the same VSYNC */
+	if (ctx->mode_in_progress == MODE_RES_IN_PROGRESS ||
+	    ctx->mode_in_progress == MODE_RES_AND_RR_IN_PROGRESS)
+		km4_wait_for_vsync_done(ctx, pmode);
+
 	/* DSC related configuration */
 	drm_dsc_pps_payload_pack(&pps_payload,
 				 is_fhd ? &fhd_pps_config : &wqhd_pps_config);
@@ -1262,7 +1266,6 @@ static int km4_enable(struct drm_panel *panel)
 		EXYNOS_DCS_WRITE_SEQ_DELAY(ctx, 120, MIPI_DCS_EXIT_SLEEP_MODE);
 		exynos_panel_send_cmd_set(ctx, &km4_init_cmd_set);
 	}
-	//PANEL_SEQ_LABEL_END("init");
 
 	EXYNOS_DCS_BUF_ADD_SET(ctx, unlock_cmd_f0);
 	EXYNOS_DCS_BUF_ADD(ctx, 0xC3, is_fhd ? 0x0D : 0x0C); // res setting
