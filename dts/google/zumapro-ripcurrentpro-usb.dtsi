@@ -1,0 +1,15 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * USB device tree source code for Zuma SoC
+ *
+ * Copyright 2023 Google LLC.
+ */
+
+&udc {
+	extcon = <&max77759tcpc>;
+	force_gen1;
+};
+
+&usbdrd_dwc3 {
+	maximum-speed = "super-speed";
+};
