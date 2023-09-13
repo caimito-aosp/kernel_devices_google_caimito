@@ -15,6 +15,7 @@
 	aoc-board-cfg = "RC";
 	aoc-board-id = <0x40101>;
 	aoc-board-rev = <0x10000>;
+	prevent-fw-load = <0x0>;
 };
 
 /* DP audio */
