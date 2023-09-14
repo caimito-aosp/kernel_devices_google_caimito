@@ -54,5 +54,7 @@
 	idt,gpio_wlc_en = <&gph1 4 GPIO_ACTIVE_LOW>;
 	idt,gpio_qien = <&gph1 4 GPIO_ACTIVE_LOW>;
 	idt,irq_gpio = <&gpa8 1 GPIO_ACTIVE_LOW>;
+
+	idt,ramp-disable;
 };
 

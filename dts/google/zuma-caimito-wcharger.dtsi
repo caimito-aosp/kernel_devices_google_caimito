@@ -68,4 +68,6 @@
 	idt,irq_gpio = <&max77779_sgpio 4 GPIO_ACTIVE_LOW>;
 	idt,irq_det_gpio = <&max77779_sgpio 2 GPIO_ACTIVE_LOW>;
 	idt,gpio_ldo_en = <&max77779_sgpio 3 GPIO_ACTIVE_LOW>;
+
+	idt,ramp-disable;
 };
