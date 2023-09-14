@@ -6,7 +6,7 @@
  *
  */
 
-#include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-display.dtsi"
+#include "zuma-ripcurrent24-display.dtsi"
 
 &drmdp {
 	status = "disabled";
