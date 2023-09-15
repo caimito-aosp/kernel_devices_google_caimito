@@ -20,7 +20,7 @@
 		/* CAM_MVBUCK_EN */
 		dlg,buck-gpios = <&s2mpg15_gpio 2 GPIO_ACTIVE_HIGH>;
 		/* CAM_BB_EN */
-		dlg,bb-supply = <&rt6160_reg>;
+		dlg,bb-gpios = <&s2mpg15_gpio 1 GPIO_ACTIVE_HIGH>;
 		/* CAM_PMIC_EN */
 		dlg,cs-gpios = <&s2mpg15_gpio 0 GPIO_ACTIVE_HIGH>;
 		dlg,reg-init-cells = <2>;
@@ -110,15 +110,12 @@
 		};
 	};
 
-	rt6160_reg: rt6160@77 {
+	rt6160: rt6160@77 {
 		compatible = "richtek,rt6160";
 		reg = <0x77>;
 		status = "ok";
-		enable-gpios = <&s2mpg15_gpio 1 GPIO_ACTIVE_HIGH>;
 		regulator-name = "rt6160-buckboost";
 		regulator-min-microvolt = <3200000>;
 		regulator-max-microvolt = <3200000>;
-		/* FPWM mode (REGULATOR_MODE_FAST) */
-		regulator-initial-mode = <0x1>;
 	};
 };
