@@ -10,8 +10,8 @@
 
 
 #include "zumapro-board-common.dtsi"
-#include "zuma-ripcurrent-camera-pmic.dtsi"
-#include "zuma-ripcurrent-camera.dtsi"
+#include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-camera-pmic.dtsi"
+#include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-camera.dtsi"
 /*
 #include "zuma-24-common.dtsi"
 #include "google-dts-base/zumapro-board-gps.dtsi"
