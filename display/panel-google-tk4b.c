@@ -68,10 +68,10 @@ static const struct exynos_dsi_cmd tk4b_lp_high_cmds[] = {
 
 static const struct exynos_binned_lp tk4b_binned_lp[] = {
 	BINNED_LP_MODE("off", 0, tk4b_lp_off_cmds),
-	/* rising = 0, falling = 32 */
+	/* rising = 0, falling = 45 */
 	/* low threshold 40 nits */
-	BINNED_LP_MODE_TIMING("low", 932, tk4b_lp_low_cmds, 0, 32),
-	BINNED_LP_MODE_TIMING("high", 3574, tk4b_lp_high_cmds, 0, 32),
+	BINNED_LP_MODE_TIMING("low", 932, tk4b_lp_low_cmds, 0, 45),
+	BINNED_LP_MODE_TIMING("high", 3574, tk4b_lp_high_cmds, 0, 45),
 };
 
 static const struct exynos_dsi_cmd tk4b_off_cmds[] = {
@@ -187,7 +187,8 @@ static const struct exynos_dsi_cmd tk4b_init_cmds[] = {
 	EXYNOS_DSI_CMD_SEQ(0xFF, 0xAA, 0x55, 0xA5, 0x00),
 
 	EXYNOS_DSI_CMD_SEQ(MIPI_DCS_SET_TEAR_SCANLINE, 0x00, 0x00),
-	EXYNOS_DSI_CMD_SEQ(MIPI_DCS_SET_TEAR_ON, 0x00, 0x20),
+	/* TE2 width 45H */
+	EXYNOS_DSI_CMD_SEQ(MIPI_DCS_SET_TEAR_ON, 0x00, 0x2D),
 	EXYNOS_DSI_CMD_SEQ(0x5A, 0x04),
 	/* BC Dimming OFF */
 	EXYNOS_DSI_CMD_SEQ(MIPI_DCS_WRITE_CONTROL_DISPLAY, 0x20),
@@ -212,7 +213,7 @@ static DEFINE_EXYNOS_CMD_SET(tk4b_init);
 static void tk4b_update_te2(struct exynos_panel *ctx)
 {
 	struct exynos_panel_te2_timing timing;
-	u8 width = 0x20; /* default width */
+	u8 width = 0x2D; /* default width 45H */
 	u32 rising = 0, falling;
 	int ret;
 
@@ -597,7 +598,7 @@ static const struct exynos_panel_mode tk4b_modes[] = {
 		},
 		.te2_timing = {
 			.rising_edge = 0,
-			.falling_edge = 32,
+			.falling_edge = 45,
 		},
 	},
 	{
@@ -626,7 +627,7 @@ static const struct exynos_panel_mode tk4b_modes[] = {
 		},
 		.te2_timing = {
 			.rising_edge = 0,
-			.falling_edge = 32,
+			.falling_edge = 45,
 		},
 	},
 };
