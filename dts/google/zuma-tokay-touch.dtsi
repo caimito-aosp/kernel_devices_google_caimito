@@ -19,28 +19,32 @@
 	goog,default-grip-disabled;
 	goog,default-palm-disabled;
 
-	goog,panel_map = <&google_tk4b 1>;
+	goog,panel_map = <&google_tk4a 0>,
+			 <&google_tk4b 1>;
 
-	synaptics,panel_map = <&google_tk4b>;
-	synaptics,firmware_names = "synaptics_b.img";
-	synaptics,test_algo = <1>;
-	synaptics,pt05_high_name = "synaptics,pt05_high_b";
-	synaptics,pt05_low_name = "synaptics,pt05_low_b";
-	synaptics,pt05_gap_x_name = "synaptics,pt05_gap_x_b";
-	synaptics,pt05_gap_y_name = "synaptics,pt05_gap_y_b";
-	synaptics,pt0a_high_name = "synaptics,pt0a_high_b";
-	synaptics,pt0a_low_name = "synaptics,pt0a_low_b";
-	synaptics,pt10_high_name = "synaptics,pt10_high_b";
-	synaptics,pt10_low_name = "synaptics,pt10_low_b";
-	synaptics,pt10_gap_x_name = "synaptics,pt10_gap_x_b";
-	synaptics,pt10_gap_y_name = "synaptics,pt10_gap_y_b";
-	synaptics,pt11_high_name = "synaptics,pt11_high_b";
-	synaptics,pt11_low_name = "synaptics,pt11_low_b";
-	synaptics,pt12_high_name = "synaptics,pt12_high_b";
-	synaptics,pt12_low_name = "synaptics,pt12_low_b";
-	synaptics,pt16_high_name = "synaptics,pt16_high_b";
-	synaptics,pt16_low_name = "synaptics,pt16_low_b";
-	synaptics,pt_tag_moisture_name = "synaptics,pt_tag_moisture_b";
+	synaptics,panel_map = <&google_tk4a>,
+			      <&google_tk4b>;
+	synaptics,firmware_names = "synaptics.img",
+				   "synaptics_b.img";
+	synaptics,test_algo = <0 1>;
+
+	synaptics,pt05_high_name = "synaptics,pt05_high", "synaptics,pt05_high_b";
+	synaptics,pt05_low_name = "synaptics,pt05_low", "synaptics,pt05_low_b";
+	synaptics,pt05_gap_x_name = "synaptics,pt05_gap_x", "synaptics,pt05_gap_x_b";
+	synaptics,pt05_gap_y_name = "synaptics,pt05_gap_y", "synaptics,pt05_gap_y_b";
+	synaptics,pt0a_high_name = "synaptics,pt0a_high", "synaptics,pt0a_high_b";
+	synaptics,pt0a_low_name = "synaptics,pt0a_high", "synaptics,pt0a_low_b";
+	synaptics,pt10_high_name = "synaptics,pt10_high", "synaptics,pt10_high_b";
+	synaptics,pt10_low_name = "synaptics,pt10_low", "synaptics,pt10_low_b";
+	synaptics,pt10_gap_x_name = "synaptics,pt10_gap_x", "synaptics,pt10_gap_x_b";
+	synaptics,pt10_gap_y_name = "synaptics,pt10_gap_y", "synaptics,pt10_gap_y_b";
+	synaptics,pt11_high_name = "synaptics,pt11_high", "synaptics,pt11_high_b";
+	synaptics,pt11_low_name = "synaptics,pt11_low", "synaptics,pt11_low_b";
+	synaptics,pt12_high_name = "synaptics,pt12_high", "synaptics,pt12_high_b";
+	synaptics,pt12_low_name = "synaptics,pt12_low", "synaptics,pt12_low_b";
+	synaptics,pt16_high_name = "synaptics,pt16_high", "synaptics,pt16_high_b";
+	synaptics,pt16_low_name = "synaptics,pt16_low", "synaptics,pt16_low_b";
+	synaptics,pt_tag_moisture_name = "synaptics,pt_tag_moisture", "synaptics,pt_tag_moisture_b";
 
 	synaptics,pt05_high_b = /bits/ 16 <
 404 941 1089 1096 1092 1082 1079 1079 1082 1077 1077 1072 1066 1071 1077 1078 1088 1104 971 973 970 975 969 997 973 972 973 975 970 968 971 981 973 961 844 334
