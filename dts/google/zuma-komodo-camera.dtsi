@@ -713,8 +713,9 @@
 				/* GPIOs */
 				/* RTCAM_RST_L GPP2[2] */
 				/* RTCAM_AF_OIS_RST GPP24[2] */
-				reset-gpios = <&gpp2 2 GPIO_ACTIVE_HIGH>;
-				reset_afois-gpios = <&gpp24 2 GPIO_ACTIVE_HIGH>;
+				reset-gpios =
+					<&gpp2 2 GPIO_ACTIVE_HIGH
+					 &gpp24 2 GPIO_ACTIVE_HIGH>;
 
 				/* Power supplies */
 				s2mpg15_ldo12-supply = <&s_ldo12_reg>;
@@ -871,8 +872,9 @@
 				/* GPIOs */
 				/* RTCAM_RST_L GPP2[2] */
 				/* RTCAM_AF_OIS_RST GPP24[2] */
-				reset-gpios = <&gpp2 2 GPIO_ACTIVE_HIGH>;
-				reset_afois-gpios = <&gpp24 2 GPIO_ACTIVE_HIGH>;
+				reset-gpios =
+					<&gpp2 2 GPIO_ACTIVE_HIGH
+					 &gpp24 2 GPIO_ACTIVE_HIGH>;
 
 				/* Power supplies */
 				s2mpg15_ldo12-supply = <&s_ldo12_reg>;
@@ -1073,8 +1075,9 @@
 				/* GPIOs */
 				/* RTCAM_RST_L GPP2[2] */
 				/* RTCAM_AF_OIS_RST GPP24[2] */
-				reset-gpios = <&gpp2 2 GPIO_ACTIVE_HIGH>;
-				reset_afois-gpios = <&gpp24 2 GPIO_ACTIVE_HIGH>;
+				reset-gpios =
+					<&gpp2 2 GPIO_ACTIVE_HIGH
+					 &gpp24 2 GPIO_ACTIVE_HIGH>;
 
 				/* Power supplies */
 				s2mpg15_ldo12-supply = <&s_ldo12_reg>;
