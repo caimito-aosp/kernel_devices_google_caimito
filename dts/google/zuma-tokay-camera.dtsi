@@ -186,15 +186,20 @@
 			/* Power sequence for FRONT CAMERA combo */
 			front_camera_power_seq: module_power_seq@0 {
 				/* Power supplies will be defined on each module. */
+				/* Common supplies */
+				/* PP3200_BB_CAM pp3200_bb */
+				/* PP1350_CAM    pp1350 */
 				/* Sensor */
-				/* VDDIO  s5mpg15_ldo12 */
-				/* VDIG   ldo7          */
-				/* VDDA   ldo3          */
-				/* RESET  reset         */
-				/* MCLK_ON  mclk_on     */
+				/* VDDIO         s5mpg15_ldo12 */
+				/* VDIG          ldo7          */
+				/* VDDA          ldo3          */
+				/* RESET         reset         */
+				/* MCLK_ON       mclk_on       */
 				/* Actuator */
-				/* AF_VM   ldo5         */
+				/* AF_VM         ldo5          */
 				power-up-seqs =
+					"pp3200_bb",
+					"pp1350",
 					"s2mpg15_ldo12",
 					"ldo7",
 					"ldo3",
@@ -206,10 +211,14 @@
 					"regulator",
 					"regulator",
 					"regulator",
+					"regulator",
+					"regulator",
 					"gpio",
 					"pinctrl";
 				power-up-seq-delays-us =
 					<0
+					 0
+					 0
 					 0
 					 0
 					 1000
@@ -222,10 +231,14 @@
 					"ldo5",
 					"ldo3",
 					"ldo7",
-					"s2mpg15_ldo12";
+					"s2mpg15_ldo12",
+					"pp1350",
+					"pp3200_bb";
 				power-down-seq-types =
 					"pinctrl",
 					"gpio",
+					"regulator",
+					"regulator",
 					"regulator",
 					"regulator",
 					"regulator",
@@ -236,24 +249,31 @@
 					 0
 					 0
 					 0
-					 0>;
+					 0
+					 2000
+					 2000>;
 			};
 
 			/* Power sequence for REAR MAIN CAMERA combo */
 			rear_main_camera_power_seq: module_power_seq@1 {
 				/* Power supplies will be defined on each module. */
+				/* Common supplies */
+				/* PP3200_BB_CAM pp3200_bb */
+				/* PP1350_CAM    pp1350 */
 				/* Sensor */
-				/* VDDIO     s2mpg15_ldo12 */
-				/* VDIG      enable[0] */
-				/* VDDA      enable[1] */
-				/* RESET     reset */
-				/* MCLK_ON   mclk_on */
+				/* VDDIO         s2mpg15_ldo12 */
+				/* VDIG          enable[0] */
+				/* VDDA          enable[1] */
+				/* RESET         reset */
+				/* MCLK_ON       mclk_on */
 				/* OIS */
-				/* AVDD      ldo1 */
-				/* OIS_VM    enable[2] */
+				/* AVDD          ldo1 */
+				/* OIS_VM        enable[2] */
 				/* Actuator */
-				/* AF_VM     ldo4 */
+				/* AF_VM         ldo4 */
 				power-up-seqs =
+					"pp3200_bb",
+					"pp1350",
 					"s2mpg15_ldo12",
 					"enable",
 					"ldo1",
@@ -262,13 +282,17 @@
 					"mclk_on";
 				power-up-seq-types =
 					"regulator",
+					"regulator",
+					"regulator",
 					"gpio",
 					"regulator",
 					"regulator",
 					"gpio",
 					"pinctrl";
 				power-up-seq-delays-us =
-					<1000
+					<0
+					 0
+					 1000
 					 1000
 					 0
 					 0
@@ -281,13 +305,17 @@
 					"ldo4",
 					"ldo1",
 					"enable",
-					"s2mpg15_ldo12";
+					"s2mpg15_ldo12",
+					"pp1350",
+					"pp3200_bb";
 				power-down-seq-types =
 					"pinctrl",
 					"gpio",
 					"regulator",
 					"regulator",
 					"gpio",
+					"regulator",
+					"regulator",
 					"regulator";
 				power-down-seq-delays-us =
 					<1000
@@ -295,21 +323,28 @@
 					 0
 					 0
 					 0
-					 0>;
+					 0
+					 2000
+					 2000>;
 			};
 
 			/* Power sequence for REAR ULTRA WIDE combo */
 			rear_uw_camera_power_seq: module_power_seq@2 {
 				/* Power supplies will be defined on each module. */
+				/* Common supplies */
+				/* PP3200_BB_CAM pp3200_bb */
+				/* PP1350_CAM    pp1350 */
 				/* Sensor */
-				/* VDIG      ldo6 */
-				/* VANA      ldo2 */
-				/* VIO       s2mpg15_ldo12 */
-				/* RESET     reset */
-				/* MCLK_ON   mclk_on */
+				/* VDIG          ldo6 */
+				/* VANA          ldo2 */
+				/* VIO           s2mpg15_ldo12 */
+				/* RESET         reset */
+				/* MCLK_ON       mclk_on */
 				/* Actuator  */
-				/* AF_VM     ldo4 */
+				/* AF_VM         ldo4 */
 				power-up-seqs =
+					"pp3200_bb",
+					"pp1350",
 					"ldo6",
 					"ldo2",
 					"s2mpg15_ldo12",
@@ -321,10 +356,14 @@
 					"regulator",
 					"regulator",
 					"regulator",
+					"regulator",
+					"regulator",
 					"gpio",
 					"pinctrl";
 				power-up-seq-delays-us =
 					<0
+					 0
+					 0
 					 0
 					 1000
 					 0
@@ -339,10 +378,14 @@
 					"ldo4",
 					"s2mpg15_ldo12",
 					"ldo2",
-					"ldo6";
+					"ldo6",
+					"pp1350",
+					"pp3200_bb";
 				power-down-seq-types =
 					"pinctrl",
 					"gpio",
+					"regulator",
+					"regulator",
 					"regulator",
 					"regulator",
 					"regulator",
@@ -353,7 +396,9 @@
 					 1000
 					 0
 					 0
-					 0>;
+					 0
+					 2000
+					 2000>;
 			};
 
 			/* REAR CAMERA */
@@ -381,6 +426,8 @@
 					 &s2mpg14_gpio 1 GPIO_ACTIVE_HIGH>;
 
 				/* Power supplies */
+				pp3200_bb-supply = <&cam_pp3200_bb>;
+				pp1350-supply = <&cam_pp1350>;
 				s2mpg15_ldo12-supply = <&s_ldo12_reg>;
 				ldo1-supply = <&slg51002_ldo1>;
 				ldo4-supply = <&slg51002_ldo4>;
@@ -429,6 +476,8 @@
 				reset-gpios = <&gpp6 2 GPIO_ACTIVE_HIGH>;
 
 				/* Power supplies */
+				pp3200_bb-supply = <&cam_pp3200_bb>;
+				pp1350-supply = <&cam_pp1350>;
 				s2mpg15_ldo12-supply = <&s_ldo12_reg>;
 				ldo7-supply = <&slg51002_ldo7>;
 				ldo3-supply = <&slg51002_ldo3>;
@@ -477,6 +526,8 @@
 				reset-gpios = <&gpp4 2 GPIO_ACTIVE_HIGH>;
 
 				/* Power supplies */
+				pp3200_bb-supply = <&cam_pp3200_bb>;
+				pp1350-supply = <&cam_pp1350>;
 				s2mpg15_ldo12-supply = <&s_ldo12_reg>;
 				ldo6-supply = <&slg51002_ldo6>;
 				ldo4-supply = <&slg51002_ldo4>;
@@ -528,6 +579,8 @@
 					 &s2mpg14_gpio 1 GPIO_ACTIVE_HIGH>;
 
 				/* Power supplies */
+				pp3200_bb-supply = <&cam_pp3200_bb>;
+				pp1350-supply = <&cam_pp1350>;
 				s2mpg15_ldo12-supply = <&s_ldo12_reg>;
 				ldo1-supply = <&slg51002_ldo1>;
 				ldo4-supply = <&slg51002_ldo4>;
@@ -563,6 +616,8 @@
 				reset-gpios = <&gpp4 2 GPIO_ACTIVE_HIGH>;
 
 				/* Power supplies */
+				pp3200_bb-supply = <&cam_pp3200_bb>;
+				pp1350-supply = <&cam_pp1350>;
 				s2mpg15_ldo12-supply = <&s_ldo12_reg>;
 				ldo6-supply = <&slg51002_ldo6>;
 				ldo4-supply = <&slg51002_ldo4>;
@@ -599,6 +654,8 @@
 				reset-gpios = <&gpp6 2 GPIO_ACTIVE_HIGH>;
 
 				/* Power supplies */
+				pp3200_bb-supply = <&cam_pp3200_bb>;
+				pp1350-supply = <&cam_pp1350>;
 				s2mpg15_ldo12-supply = <&s_ldo12_reg>;
 				ldo7-supply = <&slg51002_ldo7>;
 				ldo3-supply = <&slg51002_ldo3>;
@@ -638,6 +695,8 @@
 					 &s2mpg14_gpio 1 GPIO_ACTIVE_HIGH>;
 
 				/* Power supplies */
+				pp3200_bb-supply = <&cam_pp3200_bb>;
+				pp1350-supply = <&cam_pp1350>;
 				s2mpg15_ldo12-supply = <&s_ldo12_reg>;
 				ldo1-supply = <&slg51002_ldo1>;
 				ldo4-supply = <&slg51002_ldo4>;
@@ -676,6 +735,8 @@
 				reset-gpios = <&gpp6 2 GPIO_ACTIVE_HIGH>;
 
 				/* Power supplies */
+				pp3200_bb-supply = <&cam_pp3200_bb>;
+				pp1350-supply = <&cam_pp1350>;
 				s2mpg15_ldo12-supply = <&s_ldo12_reg>;
 				ldo7-supply = <&slg51002_ldo7>;
 				ldo3-supply = <&slg51002_ldo3>;
@@ -713,6 +774,8 @@
 				reset-gpios = <&gpp4 2 GPIO_ACTIVE_HIGH>;
 
 				/* Power supplies */
+				pp3200_bb-supply = <&cam_pp3200_bb>;
+				pp1350-supply = <&cam_pp1350>;
 				s2mpg15_ldo12-supply = <&s_ldo12_reg>;
 				ldo6-supply = <&slg51002_ldo6>;
 				ldo4-supply = <&slg51002_ldo4>;
@@ -757,6 +820,8 @@
 					 &s2mpg14_gpio 1 GPIO_ACTIVE_HIGH>;
 
 				/* Power supplies */
+				pp3200_bb-supply = <&cam_pp3200_bb>;
+				pp1350-supply = <&cam_pp1350>;
 				s2mpg15_ldo12-supply = <&s_ldo12_reg>;
 				ldo1-supply = <&slg51002_ldo1>;
 				ldo4-supply = <&slg51002_ldo4>;
