@@ -145,5 +145,7 @@
 		regulator-max-microvolt = <3200000>;
 		/* 2ms */
 		regulator-enable-ramp-delay = <2000>;
+		/* FPWM mode (REGULATOR_MODE_FAST) */
+		regulator-initial-mode = <0x1>;
 	};
 };
