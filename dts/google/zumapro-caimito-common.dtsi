@@ -30,4 +30,5 @@
 #include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-bluetooth.dtsi"
 #include "zuma-caimito-usb.dtsi"
 #include "zuma-caimito-typec.dtsi"
+#include "zumapro-caimito-usecases.dtsi"
 
