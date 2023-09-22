@@ -510,18 +510,14 @@ static void km4_set_panel_feat(struct exynos_panel *ctx,
 	 * and "Flat Z mode" is used to replace IRC off for sunlight
 	 * environment.
 	 */
-	// TODO: clean this up with arrays for off/on?
 	if (test_bit(FEAT_IRC_Z_MODE, changed_feat)) {
+		EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x01, 0x9B, 0x92);
+		EXYNOS_DCS_BUF_ADD(ctx, 0x92, 0x27);
 		EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x02, 0x00, 0x92);
-		if (test_bit(FEAT_IRC_Z_MODE, feat)) {
-			EXYNOS_DCS_BUF_ADD(ctx, 0x92, 0xF1, 0xC1);
-			EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x02, 0xF3, 0x68);
-			EXYNOS_DCS_BUF_ADD(ctx, 0x68, 0x82, 0x70, 0x23, 0x91, 0x88, 0x3C);
-		} else {
-			EXYNOS_DCS_BUF_ADD(ctx, 0x92, 0x00, 0x00);
-			EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x02, 0xF3, 0x68);
-			EXYNOS_DCS_BUF_ADD(ctx, 0x68, 0x77, 0x81, 0x23, 0x8C, 0x99, 0x3C);
-		}
+		if (test_bit(FEAT_IRC_Z_MODE, feat))
+			EXYNOS_DCS_BUF_ADD(ctx, 0x92, 0x48, 0x06, 0xFF, 0xDC);
+		else
+			EXYNOS_DCS_BUF_ADD(ctx, 0x92, 0x00, 0x00, 0xFF, 0xD0);
 	}
 
 	/*
