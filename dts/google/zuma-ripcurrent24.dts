@@ -12,7 +12,7 @@
 #include "google-dts-base/zumapro-board-gps.dtsi"
 #include "zuma-ripcurrent24-ultrasonic-udfps.dtsi"
 #include "zuma-ripcurrent24-battery.dtsi"
-#include "google-dts-base/zuma-ripcurrent24-bcl.dtsi"
+#include "google-dts-base/zuma-board-bcl.dtsi"
 #include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-charging.dtsi"
 #include "zuma-ripcurrent24-display.dtsi"
 #include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-wcharger.dtsi"
