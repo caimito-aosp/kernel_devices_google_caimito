@@ -9,6 +9,7 @@
 #include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-touch.dtsi"
 #include "zumapro-ripcurrentpro-audio.dtsi"
 #include "zumapro-ripcurrentpro-display.dtsi"
+#include "zumapro-ripcurrentpro-haptics.dtsi"
 #include "google-dts-base/zumapro-board-pcie.dtsi"
 #include "google-dts-base/zuma-board-wlan.dtsi"
 
@@ -26,7 +27,6 @@
 #include "google-dts-base/zuma-board-nfc.dtsi"
 #include "google-dts-base/zuma-board-udfps.dtsi"
 #include "zuma-ripcurrent-audio.dtsi"
-#include "zuma-ripcurrent-haptics.dtsi"
 #include "zuma-ripcurrent-uwb.dtsi"
 #include "zuma-ripcurrent-thermal.dtsi"
 #include "zuma-ripcurrent-sbbm.dtsi"

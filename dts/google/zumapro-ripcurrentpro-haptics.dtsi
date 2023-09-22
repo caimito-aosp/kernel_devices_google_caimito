@@ -10,12 +10,6 @@
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/pinctrl/samsung.h>
 
-/delete-node/ &cs40l26_codec;
-/delete-node/ &dai_be_haptic_rx_codec;
-/delete-node/ &hapt_amp_trig;
-/delete-node/ &hapt_amp1_irq;
-/delete-node/ &hapt_amp1_rst;
-
 &dai_be_haptic_rx {
 	dai_be_haptic_rx_codec: codec {
 		sound-dai = <&cs40l26_codec 0>, <&cs40l26_codec_2 0>;
@@ -103,7 +97,7 @@
 	};
 };
 
-&hsi2c_9 {
+&hsi2c_0 {
 	#address-cells = <1>;
 	#size-cells = <0>;
 	status = "okay";
