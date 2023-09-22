@@ -63,6 +63,7 @@ caimito_dtbs := \
 
 zumapro_caimito_overlays := \
 	zumapro-ripcurrentpro.dtbo \
+	zumapro-ripcurrentpro-sapwood-komodo-caiman.dtbo \
 
 zumapro_caimito_dtbs := \
 	google-dts-base/zumapro-a0-foplp.dtb \

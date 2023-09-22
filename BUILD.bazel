@@ -199,6 +199,7 @@ _CAIMITO_DTBOS = [
 _ZUMAPRO_CAIMITO_DTBOS = [
     # Sync with build.config.caimito
     "google/zumapro-ripcurrentpro.dtbo",
+    "google/zumapro-ripcurrentpro-sapwood-komodo-caiman.dtbo",
 ]
 
 kernel_module_group(
