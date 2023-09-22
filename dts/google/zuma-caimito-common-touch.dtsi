@@ -66,6 +66,9 @@
 	#size-cells = <0>;
 	status = "okay";
 	pinctrl-0 = <>; /* TODO: pinctrl */
+	dma-mode;
+	dmas = <&pdma1 18 &pdma1 19>;
+	swap-mode = <1>;
 
 	spitouch: touchscreen@0 {
 		#address-cells = <1>;
