@@ -29,8 +29,10 @@ caimito_overlays := \
 	zuma-komodo-proto1_1-samsung-gnss.dtbo \
 	zuma-komodo-proto1_1-broadcom-gnss.dtbo \
 	zuma-komodo-proto1_1-samsung-gnss-mag3.dtbo \
-	zumapro-komodo-evt1.dtbo \
-	zumapro-komodo-evt1_1.dtbo \
+	zumapro-komodo-evt1-broadcom-gnss.dtbo \
+	zumapro-komodo-evt1-samsung-gnss.dtbo \
+	zumapro-komodo-evt1_1-broadcom-gnss.dtbo \
+	zumapro-komodo-evt1_1-samsung-gnss.dtbo \
 	zumapro-komodo-dvt1.dtbo \
 	zumapro-komodo-pvt1.dtbo \
 	zumapro-komodo-mp.dtbo \
@@ -40,8 +42,10 @@ caimito_overlays := \
 	zuma-caiman-proto1_1-samsung-gnss.dtbo \
 	zuma-caiman-proto1_1-broadcom-gnss.dtbo \
 	zuma-caiman-proto1_1-samsung-gnss-mag3.dtbo \
-	zumapro-caiman-evt1.dtbo \
-	zumapro-caiman-evt1_1.dtbo \
+	zumapro-caiman-evt1-broadcom-gnss.dtbo \
+	zumapro-caiman-evt1-samsung-gnss.dtbo \
+	zumapro-caiman-evt1_1-broadcom-gnss.dtbo \
+	zumapro-caiman-evt1_1-samsung-gnss.dtbo \
 	zumapro-caiman-dvt1.dtbo \
 	zumapro-caiman-pvt1.dtbo \
 	zumapro-caiman-mp.dtbo \
@@ -49,8 +53,10 @@ caimito_overlays := \
 	zuma-tokay-proto1-broadcom-gnss.dtbo \
 	zuma-tokay-proto1_1-samsung-gnss.dtbo \
 	zuma-tokay-proto1_1-broadcom-gnss.dtbo \
-	zumapro-tokay-evt1.dtbo \
-	zumapro-tokay-evt1_1.dtbo \
+	zumapro-tokay-evt1-broadcom-gnss.dtbo \
+	zumapro-tokay-evt1-samsung-gnss.dtbo \
+	zumapro-tokay-evt1_1-broadcom-gnss.dtbo \
+	zumapro-tokay-evt1_1-samsung-gnss.dtbo \
 	zumapro-tokay-dvt1.dtbo \
 	zumapro-tokay-pvt1.dtbo \
 	zumapro-tokay-mp.dtbo
