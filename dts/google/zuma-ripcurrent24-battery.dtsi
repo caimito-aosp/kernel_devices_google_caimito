@@ -7,20 +7,6 @@
  */
 
 / {
-	fragment@charging {
-		target-path = "/";
-		__overlay__ {
-
-			google_bms {
-				nvmem-names = "9-00500";
-				google,bee-name = "9-00500";
-			};
-
-		};
-	};
-};
-
-/ {
 	fragment@battery {
 		target-path = "/";
 		__overlay__ {
