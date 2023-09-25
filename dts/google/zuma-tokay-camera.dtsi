@@ -327,10 +327,9 @@
 					 1000
 					 0
 					 0
-					 /* >40k cycles (50k) on 24.57MHz clock (24MHz) */
-					 /* 50k / 24MHz = around 2ms */
-					 /* +1ms for additional delay */
-					 3000>;
+					 /* wait OTP settings for 14.4ms */
+					 /* from MCLK clock on to stream on */
+					 144000>;
 
 				power-down-seqs =
 					"mclk_off",
