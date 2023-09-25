@@ -54,6 +54,8 @@ zumapro_caimito_overlays := \
 	zumapro-ripcurrentpro-sapwood-komodo-caiman.dtbo \
 	zumapro-komodo-evt1-broadcom-gnss.dtbo \
 	zumapro-komodo-evt1-samsung-gnss.dtbo \
+	zumapro-komodo-evt1-broadcom-gnss-mag3.dtbo \
+	zumapro-komodo-evt1-samsung-gnss-mag3.dtbo \
 	zumapro-komodo-evt1_1-broadcom-gnss.dtbo \
 	zumapro-komodo-evt1_1-samsung-gnss.dtbo \
 	zumapro-komodo-dvt1.dtbo \
@@ -61,6 +63,8 @@ zumapro_caimito_overlays := \
 	zumapro-komodo-mp.dtbo \
 	zumapro-caiman-evt1-broadcom-gnss.dtbo \
 	zumapro-caiman-evt1-samsung-gnss.dtbo \
+	zumapro-caiman-evt1-broadcom-gnss-mag3.dtbo \
+	zumapro-caiman-evt1-samsung-gnss-mag3.dtbo \
 	zumapro-caiman-evt1_1-broadcom-gnss.dtbo \
 	zumapro-caiman-evt1_1-samsung-gnss.dtbo \
 	zumapro-caiman-dvt1.dtbo \
