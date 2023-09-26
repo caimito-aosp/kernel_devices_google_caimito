@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0
 
-caimito_overlays := \
+# zuma dtbo
+zuma_caimito_overlays := \
 	zuma-ripcurrent24.dtbo \
 	zuma-ripcurrent24-sapwood-komodo-caiman.dtbo \
 	zuma-ripcurrent24-sapwood-tokay.dtbo \
@@ -29,6 +30,28 @@ caimito_overlays := \
 	zuma-komodo-proto1_1-samsung-gnss.dtbo \
 	zuma-komodo-proto1_1-broadcom-gnss.dtbo \
 	zuma-komodo-proto1_1-samsung-gnss-mag3.dtbo \
+	zuma-caiman-proto1-samsung-gnss.dtbo \
+	zuma-caiman-proto1-broadcom-gnss.dtbo \
+	zuma-caiman-proto1-broadcom-gnss-mag3.dtbo \
+	zuma-caiman-proto1_1-samsung-gnss.dtbo \
+	zuma-caiman-proto1_1-broadcom-gnss.dtbo \
+	zuma-caiman-proto1_1-samsung-gnss-mag3.dtbo \
+	zuma-tokay-proto1-samsung-gnss.dtbo \
+	zuma-tokay-proto1-broadcom-gnss.dtbo \
+	zuma-tokay-proto1_1-samsung-gnss.dtbo \
+	zuma-tokay-proto1_1-broadcom-gnss.dtbo
+
+# zuma dtb
+zuma_caimito_dtbs := \
+	google-dts-base/zuma-a0-foplp.dtb \
+	google-dts-base/zuma-a0-ipop.dtb \
+	google-dts-base/zuma-b0-foplp.dtb \
+	google-dts-base/zuma-b0-ipop.dtb
+
+# zumapro dtbo
+zumapro_caimito_overlays := \
+	zumapro-ripcurrentpro.dtbo \
+	zumapro-ripcurrentpro-sapwood-komodo-caiman.dtbo \
 	zumapro-komodo-evt1-broadcom-gnss.dtbo \
 	zumapro-komodo-evt1-samsung-gnss.dtbo \
 	zumapro-komodo-evt1_1-broadcom-gnss.dtbo \
@@ -36,12 +59,6 @@ caimito_overlays := \
 	zumapro-komodo-dvt1.dtbo \
 	zumapro-komodo-pvt1.dtbo \
 	zumapro-komodo-mp.dtbo \
-	zuma-caiman-proto1-samsung-gnss.dtbo \
-	zuma-caiman-proto1-broadcom-gnss.dtbo \
-	zuma-caiman-proto1-broadcom-gnss-mag3.dtbo \
-	zuma-caiman-proto1_1-samsung-gnss.dtbo \
-	zuma-caiman-proto1_1-broadcom-gnss.dtbo \
-	zuma-caiman-proto1_1-samsung-gnss-mag3.dtbo \
 	zumapro-caiman-evt1-broadcom-gnss.dtbo \
 	zumapro-caiman-evt1-samsung-gnss.dtbo \
 	zumapro-caiman-evt1_1-broadcom-gnss.dtbo \
@@ -49,10 +66,6 @@ caimito_overlays := \
 	zumapro-caiman-dvt1.dtbo \
 	zumapro-caiman-pvt1.dtbo \
 	zumapro-caiman-mp.dtbo \
-	zuma-tokay-proto1-samsung-gnss.dtbo \
-	zuma-tokay-proto1-broadcom-gnss.dtbo \
-	zuma-tokay-proto1_1-samsung-gnss.dtbo \
-	zuma-tokay-proto1_1-broadcom-gnss.dtbo \
 	zumapro-tokay-evt1-broadcom-gnss.dtbo \
 	zumapro-tokay-evt1-samsung-gnss.dtbo \
 	zumapro-tokay-evt1_1-broadcom-gnss.dtbo \
@@ -61,16 +74,7 @@ caimito_overlays := \
 	zumapro-tokay-pvt1.dtbo \
 	zumapro-tokay-mp.dtbo
 
-caimito_dtbs := \
-	google-dts-base/zuma-a0-foplp.dtb \
-	google-dts-base/zuma-a0-ipop.dtb \
-	google-dts-base/zuma-b0-foplp.dtb \
-	google-dts-base/zuma-b0-ipop.dtb
-
-zumapro_caimito_overlays := \
-	zumapro-ripcurrentpro.dtbo \
-	zumapro-ripcurrentpro-sapwood-komodo-caiman.dtbo \
-
+# zumapro dtb
 zumapro_caimito_dtbs := \
 	google-dts-base/zumapro-a0-foplp.dtb \
 	google-dts-base/zumapro-a0-ipop.dtb
@@ -117,6 +121,5 @@ endef
 # overlays. For the base dtbs, kbuild will expose the symbols as needed for the
 # overlays. Additionally, kbuild will statically apply the overlay to the base
 # dtb which could be used to verify the overlay applies cleanly.
-#$(call multi_dtbs_overlay, $(caimito_dtbs), $(caimito_overlays), $(CONFIG_SOC_ZUMA))
-$(call multi_dtbs_overlay, $(caimito_dtbs), $(caimito_overlays), y)
+$(call multi_dtbs_overlay, $(zuma_caimito_dtbs), $(zuma_caimito_overlays), y)
 $(call multi_dtbs_overlay, $(zumapro_caimito_dtbs), $(zumapro_caimito_overlays), y)
