@@ -27,6 +27,7 @@
 #include "google-dts-base/zuma-typec.dtsi"
 #include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-typec.dtsi"
 #include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-gsa-gsc.dtsi"
+#include "google-dts-base/zumapro-board-bluetooth.dtsi"
 
 
 / {
