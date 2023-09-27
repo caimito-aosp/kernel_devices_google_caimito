@@ -5,6 +5,7 @@
  * Copyright 2023 Google LLC
  */
 
+#include "zumapro-caimito-uwb.dtsi"
 #include "zuma-komodo-battery.dtsi"
 #include "zuma-komodo-caiman-charging.dtsi"
 #include "zuma-komodo-caiman-usecases.dtsi"
