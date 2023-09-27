@@ -2166,10 +2166,10 @@ static struct exynos_panel_desc google_km4 = {
 		{PANEL_REG_ID_VCI, 10},
 	},
 	.reg_ctrl_post_enable = {
-		{PANEL_REG_ID_VDDD, 1},
+		{PANEL_REG_ID_VDDD, 2},
 	},
 	.reg_ctrl_pre_disable = {
-		{PANEL_REG_ID_VDDD, 1},
+		{PANEL_REG_ID_VDDD, 5},
 	},
 	.reg_ctrl_disable = {
 		{PANEL_REG_ID_VCI, 1},
