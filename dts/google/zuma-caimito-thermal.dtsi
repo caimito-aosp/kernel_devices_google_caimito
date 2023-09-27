@@ -44,6 +44,16 @@
 				hysteresis = <1000>;
 				type = "passive";
 			};
+			backup_shutdown_sw: backup-shutdown-sw {
+				temperature = <60000>;
+				hysteresis = <1000>;
+				type = "critical";
+			};
+			backup_shutdown_hw: backup-shutdown-hw {
+				temperature = <65000>;
+				hysteresis = <1000>;
+				type = "hot";
+			};
 		};
 	};
 	charging_therm {
