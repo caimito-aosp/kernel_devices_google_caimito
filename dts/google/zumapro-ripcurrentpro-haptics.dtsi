@@ -103,7 +103,7 @@
 	status = "okay";
 
 	pinctrl-names = "default";
-	pinctrl-0 = <&hsi2c9_bus>;
+	pinctrl-0 = <&hsi2c0_bus>;
 
 	clock-frequency = <1000000>;
 
