@@ -12,6 +12,7 @@
 #include "zumapro-ripcurrentpro-haptics.dtsi"
 #include "google-dts-base/zumapro-board-pcie.dtsi"
 #include "google-dts-base/zuma-board-wlan.dtsi"
+#include "zumapro-ripcurrentpro-cp-s5400-sit.dtsi"
 
 /*
 #include "zuma-ripcurrent-battery.dtsi"
@@ -21,7 +22,6 @@
 #include "zuma-ripcurrent-pmic.dtsi"
 #include "zuma-ripcurrent-usb.dtsi"
 #include "zuma-ripcurrent-usecases.dtsi"
-#include "zuma-ripcurrent-cp-s5400-sit.dtsi"
 #include "google-dts-base/zuma-board-bluetooth.dtsi"
 #include "google-dts-base/zuma-board-ese.dtsi"
 #include "google-dts-base/zuma-board-nfc.dtsi"
