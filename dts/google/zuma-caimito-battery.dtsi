@@ -7,6 +7,7 @@
  */
 
 #include "google-dts-base/zuma-battery.dtsi"
+#include "google-dts-base/zuma-max777xx_fwupdate.dtsi"
 
 / {
 	fragment@battery {
@@ -103,3 +104,8 @@
 &max77779_vimon {
 	status = "okay";
 };
+
+&max77779_fwupdate {
+	status = "okay";
+};
+
