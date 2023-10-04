@@ -463,14 +463,7 @@ static int tk4a_enable(struct drm_panel *panel)
 	EXYNOS_DCS_BUF_ADD(ctx, 0xC2, 0x14);
 	EXYNOS_DCS_BUF_ADD(ctx, 0x9D, 0x01);
 
-	EXYNOS_DCS_BUF_ADD_SET(ctx, test_key_enable);
-	EXYNOS_DCS_BUF_ADD(ctx, 0xFC, 0x5A, 0x5A);
-	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x2A, 0xC5);
-	EXYNOS_DCS_BUF_ADD(ctx, 0xC5, 0x0D, 0x10, 0x80, 0x05);
-	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x2E, 0xC5);
-	EXYNOS_DCS_BUF_ADD(ctx, 0xC5, 0x6A, 0x8B);
-	EXYNOS_DCS_BUF_ADD_SET(ctx, test_key_disable);
-	EXYNOS_DCS_BUF_ADD_AND_FLUSH(ctx, 0xFC, 0xA5, 0xA5);
+	/* TODO: b/303372538 : enable ffc with correct mipi speed */
 
 	/* dimming and HBM */
 	tk4a_update_wrctrld(ctx);
