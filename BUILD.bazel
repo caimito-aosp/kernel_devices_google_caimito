@@ -210,6 +210,9 @@ _ZUMAPRO_CAIMITO_DTBOS = [
     "google/zumapro-tokay-dvt1.dtbo",
     "google/zumapro-tokay-pvt1.dtbo",
     "google/zumapro-tokay-mp.dtbo",
+    "google/google-dts-base/zumapro-dpm-eng.dtbo",
+    "google/google-dts-base/zumapro-dpm-userdebug.dtbo",
+    "google/google-dts-base/zumapro-dpm-user.dtbo",
 ]
 
 kernel_module_group(
