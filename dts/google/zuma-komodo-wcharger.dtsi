@@ -13,6 +13,7 @@
 	google,wait_prop_irq_ms = <6000>;
 	/* RTx */
 	idt,gpio_ben = <&ln8411_gpio 0 GPIO_ACTIVE_HIGH>;
+	google,wcin_inlim_en = <&max77779_gpio 0 GPIO_ACTIVE_HIGH>;
 
 };
 
