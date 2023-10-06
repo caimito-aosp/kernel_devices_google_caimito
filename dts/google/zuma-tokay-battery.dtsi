@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Battery device tree entries specific to panther
+ * Battery device tree entries specific to tokay
  *
  * Copyright 2023 Google,LLC
  *
@@ -19,6 +19,8 @@
 		 50   50    0    0
 		 30    0    0    0
 	>;
+
+	google,chg-topoff-limits = <250 250 250 500 500 500>;
 };
 
 &max77779_fg {
