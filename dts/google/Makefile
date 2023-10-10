@@ -48,6 +48,16 @@ zuma_caimito_dtbs := \
 	google-dts-base/zuma-b0-foplp.dtb \
 	google-dts-base/zuma-b0-ipop.dtb
 
+# DPM overlays
+zuma_caimito_overlays += \
+	google-dts-base/zuma-dpm-eng.dtbo \
+	google-dts-base/zuma-dpm-userdebug.dtbo \
+	google-dts-base/zuma-dpm-user.dtbo
+
+DTC_FLAGS_zuma-dpm-eng += -a 4096
+DTC_FLAGS_zuma-dpm-user += -a 4096
+DTC_FLAGS_zuma-dpm-userdebug += -a 4096
+
 # zumapro dtbo
 zumapro_caimito_overlays := \
 	zumapro-ripcurrentpro.dtbo \
