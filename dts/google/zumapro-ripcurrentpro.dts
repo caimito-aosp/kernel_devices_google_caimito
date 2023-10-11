@@ -15,7 +15,6 @@
 #include "zumapro-ripcurrentpro-usb.dtsi"
 /*
 #include "zuma-24-common.dtsi"
-#include "google-dts-base/zumapro-board-gps.dtsi"
 #include "zuma-ripcurrent24-ultrasonic-udfps.dtsi"
 */
 
@@ -28,6 +27,7 @@
 #include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-typec.dtsi"
 #include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-gsa-gsc.dtsi"
 #include "google-dts-base/zumapro-board-bluetooth.dtsi"
+#include "google-dts-base/zumapro-board-gps.dtsi"
 
 
 / {
