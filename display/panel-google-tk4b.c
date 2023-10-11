@@ -264,7 +264,7 @@ static void tk4b_update_irc(struct exynos_panel *ctx,
 	}
 
 	if (IS_HBM_ON_IRC_OFF(hbm_mode)) {
-		/* sync from bigSurf panel_rev >= PANEL_REV_EVT */
+		/* sync from bigSurf : to achieve the max brightness with IRC off which need to set dbv to 0xFFF */
 		if (level == ctx->desc->brt_capability->hbm.level.max)
 			EXYNOS_DCS_BUF_ADD(ctx, MIPI_DCS_SET_DISPLAY_BRIGHTNESS, 0x0F, 0xFF);
 
@@ -273,12 +273,27 @@ static void tk4b_update_irc(struct exynos_panel *ctx,
 		if (vrefresh == 120) {
 			EXYNOS_DCS_BUF_ADD(ctx, 0x2F, 0x00);
 			EXYNOS_DCS_BUF_ADD(ctx, MIPI_DCS_SET_GAMMA_CURVE, 0x02);
+			EXYNOS_DCS_BUF_ADD(ctx, 0xF0, 0x55, 0xAA, 0x52, 0x08, 0x00);
+			EXYNOS_DCS_BUF_ADD(ctx, 0x6F, 0x03);
+			if (ctx->panel_rev < PANEL_REV_EVT1)
+				EXYNOS_DCS_BUF_ADD(ctx, 0xC0, 0x32);
+			else
+				EXYNOS_DCS_BUF_ADD(ctx, 0xC0, 0x40);
 		} else {
-			EXYNOS_DCS_BUF_ADD(ctx, 0x2F, 0x02);
+			if (ctx->panel_rev < PANEL_REV_EVT1) {
+				EXYNOS_DCS_BUF_ADD(ctx, 0x2F, 0x30);
+				EXYNOS_DCS_BUF_ADD(ctx, 0xF0, 0x55, 0xAA, 0x52, 0x08, 0x00);
+				EXYNOS_DCS_BUF_ADD(ctx, 0x6F, 0xB0);
+				EXYNOS_DCS_BUF_ADD(ctx, 0xBA, 0x44);
+				EXYNOS_DCS_BUF_ADD(ctx, 0x6F, 0x03);
+				EXYNOS_DCS_BUF_ADD(ctx, 0xC0, 0x32);
+			} else {
+				EXYNOS_DCS_BUF_ADD(ctx, 0x2F, 0x02);
+				EXYNOS_DCS_BUF_ADD(ctx, 0xF0, 0x55, 0xAA, 0x52, 0x08, 0x00);
+				EXYNOS_DCS_BUF_ADD(ctx, 0x6F, 0x03);
+				EXYNOS_DCS_BUF_ADD(ctx, 0xC0, 0x40);
+			}
 		}
-		EXYNOS_DCS_BUF_ADD(ctx, 0xF0, 0x55, 0xAA, 0x52, 0x08, 0x00);
-		EXYNOS_DCS_BUF_ADD(ctx, 0x6F, 0x03);
-		EXYNOS_DCS_BUF_ADD(ctx, 0xC0, 0x40);
 	} else {
 		const u8 val1 = level >> 8;
 		const u8 val2 = level & 0xff;
@@ -288,13 +303,28 @@ static void tk4b_update_irc(struct exynos_panel *ctx,
 		if (vrefresh == 120) {
 			EXYNOS_DCS_BUF_ADD(ctx, 0x2F, 0x00);
 			EXYNOS_DCS_BUF_ADD(ctx, MIPI_DCS_SET_GAMMA_CURVE, 0x00);
+			EXYNOS_DCS_BUF_ADD(ctx, 0xF0, 0x55, 0xAA, 0x52, 0x08, 0x00);
+			EXYNOS_DCS_BUF_ADD(ctx, 0x6F, 0x03);
+			if (ctx->panel_rev < PANEL_REV_EVT1)
+				EXYNOS_DCS_BUF_ADD(ctx, 0xC0, 0x30);
+			else
+				EXYNOS_DCS_BUF_ADD(ctx, 0xC0, 0x10);
 		} else {
-			EXYNOS_DCS_BUF_ADD(ctx, 0x2F, 0x02);
+			if (ctx->panel_rev < PANEL_REV_EVT1) {
+				EXYNOS_DCS_BUF_ADD(ctx, 0x2F, 0x30);
+				EXYNOS_DCS_BUF_ADD(ctx, 0xF0, 0x55, 0xAA, 0x52, 0x08, 0x00);
+				EXYNOS_DCS_BUF_ADD(ctx, 0x6F, 0xB0);
+				EXYNOS_DCS_BUF_ADD(ctx, 0xBA, 0x41);
+				EXYNOS_DCS_BUF_ADD(ctx, 0x6F, 0x03);
+				EXYNOS_DCS_BUF_ADD(ctx, 0xC0, 0x30);
+			} else {
+				EXYNOS_DCS_BUF_ADD(ctx, 0x2F, 0x02);
+				EXYNOS_DCS_BUF_ADD(ctx, 0xF0, 0x55, 0xAA, 0x52, 0x08, 0x00);
+				EXYNOS_DCS_BUF_ADD(ctx, 0x6F, 0x03);
+				EXYNOS_DCS_BUF_ADD(ctx, 0xC0, 0x10);
+			}
 		}
-		EXYNOS_DCS_BUF_ADD(ctx, 0xF0, 0x55, 0xAA, 0x52, 0x08, 0x00);
-		EXYNOS_DCS_BUF_ADD(ctx, 0x6F, 0x03);
-		EXYNOS_DCS_BUF_ADD(ctx, 0xC0, 0x10);
-		/* sync from bigSurf panel_rev >= PANEL_REV_EVT */
+		/* sync from bigSurf : restore the dbv value while IRC ON */
 		EXYNOS_DCS_BUF_ADD(ctx, MIPI_DCS_SET_DISPLAY_BRIGHTNESS, val1, val2);
 	}
 	/* Empty command is for flush */
@@ -314,10 +344,17 @@ static void tk4b_change_frequency(struct exynos_panel *ctx,
 			EXYNOS_DCS_BUF_ADD(ctx, 0x2F, 0x00);
 			EXYNOS_DCS_BUF_ADD_AND_FLUSH(ctx, MIPI_DCS_SET_GAMMA_CURVE, 0x00);
 		} else {
-			EXYNOS_DCS_BUF_ADD(ctx, 0x2F, 0x02);
-			EXYNOS_DCS_BUF_ADD(ctx, 0xF0, 0x55, 0xAA, 0x52, 0x08, 0x00);
-			EXYNOS_DCS_BUF_ADD(ctx, 0x6F, 0x03);
-			EXYNOS_DCS_BUF_ADD_AND_FLUSH(ctx, 0xC0, 0x10);
+			if (ctx->panel_rev < PANEL_REV_EVT1) {
+				EXYNOS_DCS_BUF_ADD(ctx, 0x2F, 0x30);
+				EXYNOS_DCS_BUF_ADD(ctx, 0xF0, 0x55, 0xAA, 0x52, 0x08, 0x00);
+				EXYNOS_DCS_BUF_ADD(ctx, 0x6F, 0xB0);
+				EXYNOS_DCS_BUF_ADD_AND_FLUSH(ctx, 0xBA, 0x41);
+			} else {
+				EXYNOS_DCS_BUF_ADD(ctx, 0x2F, 0x02);
+				EXYNOS_DCS_BUF_ADD(ctx, 0xF0, 0x55, 0xAA, 0x52, 0x08, 0x00);
+				EXYNOS_DCS_BUF_ADD(ctx, 0x6F, 0x03);
+				EXYNOS_DCS_BUF_ADD_AND_FLUSH(ctx, 0xC0, 0x10);
+			}
 		}
 	} else {
 		tk4b_update_irc(ctx, ctx->hbm_mode, vrefresh);
@@ -486,11 +523,10 @@ static void tk4b_set_hbm_mode(struct exynos_panel *ctx,
 
 	EXYNOS_DCS_BUF_ADD(ctx, 0xF0, 0x55, 0xAA, 0x52, 0x08, 0x00);
 	EXYNOS_DCS_BUF_ADD(ctx, 0x6F, 0x11);
-	if (hbm_mode == HBM_OFF) {
+	if (hbm_mode == HBM_OFF)
 		EXYNOS_DCS_BUF_ADD_AND_FLUSH(ctx, 0xB2, 0x01, 0x01, 0x43);
-	} else {
+	else
 		EXYNOS_DCS_BUF_ADD_AND_FLUSH(ctx, 0xB2, 0x00, 0x00, 0x41);
-	}
 
 	tk4b_update_irc(ctx, hbm_mode, vrefresh);
 
