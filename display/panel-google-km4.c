@@ -969,6 +969,28 @@ static bool km4_set_self_refresh(struct exynos_panel *ctx, bool enable)
 	return true;
 }
 
+static void km4_refresh_ctrl(struct exynos_panel *ctx, u32 ctrl)
+{
+	const struct exynos_panel_mode *pmode = ctx->current_mode;
+
+	DPU_ATRACE_BEGIN(__func__);
+
+	if (!is_vrr_mode(pmode)) {
+		dev_warn(ctx->dev, "%s: refresh control should be called for vrr mode only\n",
+				__func__);
+		return;
+	}
+
+	if (ctrl & PANEL_REFRESH_CTRL_FI) {
+		dev_dbg(ctx->dev, "%s: performing a frame insertion\n", __func__);
+		EXYNOS_DCS_BUF_ADD_SET(ctx, unlock_cmd_f0);
+		EXYNOS_DCS_BUF_ADD(ctx, 0xF7, 0x02);
+		EXYNOS_DCS_BUF_ADD_SET_AND_FLUSH(ctx, lock_cmd_f0);
+	}
+
+	DPU_ATRACE_END(__func__);
+}
+
 static int km4_atomic_check(struct exynos_panel *ctx, struct drm_atomic_state *state)
 {
 	struct drm_connector *conn = &ctx->exynos_connector.base;
@@ -2100,6 +2122,7 @@ static const struct exynos_panel_funcs km4_exynos_funcs = {
 	.commit_done = km4_commit_done,
 	.atomic_check = km4_atomic_check,
 	.set_self_refresh = km4_set_self_refresh,
+	.refresh_ctrl = km4_refresh_ctrl,
 	.set_op_hz = km4_set_op_hz,
 	.read_id = km4_read_id,
 	.get_te_usec = km4_get_te_usec,
