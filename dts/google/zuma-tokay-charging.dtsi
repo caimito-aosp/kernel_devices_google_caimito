@@ -29,4 +29,6 @@
 
 	interrupt-parent = <&gpa7>;
 	pca9468,irq-gpio = <&gpa7 4 GPIO_ACTIVE_LOW>; /* PLC_INT_L */
+
+	pca9468,input-current-limit = <2700000>; /* 5.4A max */
 };
