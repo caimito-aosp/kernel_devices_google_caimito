@@ -13,6 +13,7 @@
 #include "google-dts-base/zumapro-board-gps.dtsi"
 #include "zuma-ripcurrent24-ultrasonic-udfps.dtsi"
 #include "zuma-tokay-wcharger.dtsi"
+#include "zuma-tokay-usecases.dtsi"
 
 / {
 	board_id = <0x40701>;
