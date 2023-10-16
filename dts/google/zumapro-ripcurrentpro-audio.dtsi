@@ -274,6 +274,7 @@
 		cirrus,tuning-has-prefix;
 		cirrus,hw-noise-gate-select = <63>;
 		//cirrus,hibernate-enable;
+		cirrus,right-channel-amp;
 
 		cirrus,gpio-config2 {
 			cirrus,gpio-src-select = <0x4>;
