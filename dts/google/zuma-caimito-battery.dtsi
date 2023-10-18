@@ -99,3 +99,7 @@
 &max77779_pmic {
 	status = "okay";
 };
+
+&max77779_vimon {
+	status = "okay";
+};
