@@ -370,7 +370,7 @@
 					 0
 					 /* wait OTP settings for 14.4ms */
 					 /* from MCLK clock on to stream on */
-					 144000>;
+					 14400>;
 
 				power-down-seqs =
 					"mclk_off",
