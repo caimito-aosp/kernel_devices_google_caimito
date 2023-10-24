@@ -111,6 +111,7 @@
 		synaptics,dynamic-report-rate;
 */
 		goog,tbn-enabled;
+		goog,manual-heatmap-from-irq;
 
 		controller-data {
 			samsung,spi-feedback-delay = <0>;
