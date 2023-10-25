@@ -1504,6 +1504,10 @@ static void cm4_get_panel_rev(struct exynos_panel *ctx, u32 id)
 	u8 build_code = (id & 0xFF00) >> 8;
 	u8 rev = ((build_code & 0xE0) >> 3) | ((build_code & 0x0C) >> 2);
 
+	/* b/306527241 - Ensure EVT 1.0 panels use the correct revision */
+	if (id == 0x22A4040A)
+		rev = 8;
+
 	exynos_panel_get_panel_rev(ctx, rev);
 }
 
