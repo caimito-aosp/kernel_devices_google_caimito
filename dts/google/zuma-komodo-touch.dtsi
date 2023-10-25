@@ -19,6 +19,7 @@
 	goog,default-grip-disabled;
 	goog,default-palm-disabled;
 
+	synaptics,pixels-per-mm = <19>;
 	synaptics,panel_map = <&google_km4>;
 
 	synaptics,pt05_high = /bits/ 16 <

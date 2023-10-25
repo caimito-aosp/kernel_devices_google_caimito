@@ -19,6 +19,7 @@
 	goog,default-grip-disabled;
 	goog,default-palm-disabled;
 
+	synaptics,pixels-per-mm = <17>;
 	goog,panel_map = <&google_tk4a 0>,
 			 <&google_tk4b 1>;
 
