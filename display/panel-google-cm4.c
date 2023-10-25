@@ -258,9 +258,9 @@ static const struct exynos_dsi_cmd cm4_lp_high_cmds[] = {
 
 static const struct exynos_binned_lp cm4_binned_lp[] = {
 	/* low threshold 40 nits */
-	BINNED_LP_MODE_TIMING("low", 718, cm4_lp_low_cmds,
+	BINNED_LP_MODE_TIMING("low", 686, cm4_lp_low_cmds,
 				CM4_TE2_RISING_EDGE_OFFSET, CM4_TE2_FALLING_EDGE_OFFSET),
-	BINNED_LP_MODE_TIMING("high", 3427, cm4_lp_high_cmds,
+	BINNED_LP_MODE_TIMING("high", 3271, cm4_lp_high_cmds,
 				CM4_TE2_RISING_EDGE_OFFSET, CM4_TE2_FALLING_EDGE_OFFSET),
 };
 
@@ -1528,7 +1528,7 @@ static const struct exynos_display_underrun_param underrun_param = {
 };
 
 static const u32 cm4_bl_range[] = {
-	94, 180, 270, 360, 3427
+	94, 180, 270, 360, 3271
 };
 
 #define CM4_WQHD_DSC {\
@@ -1985,7 +1985,41 @@ static const struct exynos_panel_funcs cm4_exynos_funcs = {
 
 static const struct exynos_brightness_configuration cm4_btr_configs[] = {
 	{
-		.panel_rev = PANEL_REV_PROTO1_1 | PANEL_REV_LATEST,
+		.panel_rev = PANEL_REV_EVT1 | PANEL_REV_LATEST,
+		.dft_brightness = 1240,
+		.brt_capability = {
+			.normal = {
+				.nits = {
+					.min = 2,
+					.max = 1250,
+				},
+				.level = {
+					.min = 176,
+					.max = 3271,
+				},
+				.percentage = {
+					.min = 0,
+					.max = 61,
+				},
+			},
+			.hbm = {
+				.nits = {
+					.min = 1250,
+					.max = 2050,
+				},
+				.level = {
+					.min = 3272,
+					.max = 4095,
+				},
+				.percentage = {
+					.min = 61,
+					.max = 100,
+				},
+			},
+		},
+	},
+	{
+		.panel_rev = PANEL_REV_PROTO1_1,
 		.dft_brightness = 1319,
 		.brt_capability = {
 			.normal = {
