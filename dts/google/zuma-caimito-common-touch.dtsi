@@ -112,6 +112,8 @@
 */
 		goog,tbn-enabled;
 		goog,manual-heatmap-from-irq;
+		goog,v4l2-enabled;
+		goog,offload-enabled;
 
 		controller-data {
 			samsung,spi-feedback-delay = <0>;
