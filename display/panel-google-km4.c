@@ -259,6 +259,9 @@ static const struct drm_dsc_config fhd_pps_config = {
 #define WIDTH_MM 70
 #define HEIGHT_MM 156
 
+#define MIPI_DSI_FREQ_DEFAULT 1368
+#define MIPI_DSI_FREQ_ALTERNATIVE 1288
+
 #define PROJECT "KM4"
 
 static const u8 unlock_cmd_f0[] = { 0xF0, 0x5A, 0x5A };
@@ -1256,9 +1259,9 @@ static const struct exynos_dsi_cmd km4_init_cmds[] = {
 	EXYNOS_DSI_CMD_SEQ(0xB0, 0x00, 0x3C, 0xB9), /* Global para */
 	EXYNOS_DSI_CMD_SEQ(0xB9, 0x19, 0x09), /* Sync On */
 
-	/* FFC: 165MHz, MIPI Speed 1368 Mbps */
+	/* FFC: off, 165MHz, MIPI Speed 1368 Mbps */
 	EXYNOS_DSI_CMD_SEQ(0xB0, 0x00, 0x36, 0xC5),
-	EXYNOS_DSI_CMD_SEQ(0xC5, 0x11, 0x10, 0x50, 0x05, 0x4D, 0x31, 0x40, 0x00,
+	EXYNOS_DSI_CMD_SEQ(0xC5, 0x10, 0x10, 0x50, 0x05, 0x4D, 0x31, 0x40, 0x00,
 				 0x40, 0x00, 0x40, 0x00, 0x4D, 0x31, 0x40, 0x00,
 				 0x40, 0x00, 0x40, 0x00, 0x4D, 0x31, 0x40, 0x00,
 				 0x40, 0x00, 0x40, 0x00, 0x4D, 0x31, 0x40, 0x00,
@@ -1319,6 +1322,7 @@ static int km4_enable(struct drm_panel *panel)
 #ifndef PANEL_FACTORY_BUILD
 		km4_panel_disable_fi(ctx);
 #endif
+		ctx->dsi_hs_clk = MIPI_DSI_FREQ_DEFAULT;
 	}
 
 	EXYNOS_DCS_BUF_ADD_SET(ctx, unlock_cmd_f0);
@@ -1572,6 +1576,60 @@ static void km4_normal_mode_work(struct exynos_panel *ctx)
 
 		spanel->pending_temp_update = true;
 	}
+}
+
+static void km4_pre_update_ffc(struct exynos_panel *ctx)
+{
+	dev_dbg(ctx->dev, "%s\n", __func__);
+
+	DPU_ATRACE_BEGIN(__func__);
+
+	EXYNOS_DCS_BUF_ADD_SET(ctx, unlock_cmd_f0);
+	/* FFC off */
+	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x36, 0xC5);
+	EXYNOS_DCS_BUF_ADD(ctx, 0xC5, 0x10);
+	EXYNOS_DCS_BUF_ADD_SET_AND_FLUSH(ctx, lock_cmd_f0);
+
+	DPU_ATRACE_END(__func__);
+}
+
+static void km4_update_ffc(struct exynos_panel *ctx, unsigned int hs_clk)
+{
+	dev_dbg(ctx->dev, "%s: hs_clk: current=%d, target=%d\n",
+		__func__, ctx->dsi_hs_clk, hs_clk);
+
+	DPU_ATRACE_BEGIN(__func__);
+
+	EXYNOS_DCS_BUF_ADD_SET(ctx, unlock_cmd_f0);
+
+	if (hs_clk != MIPI_DSI_FREQ_DEFAULT && hs_clk != MIPI_DSI_FREQ_ALTERNATIVE) {
+		dev_warn(ctx->dev, "%s: invalid hs_clk=%d for FFC\n", __func__, hs_clk);
+	} else if (ctx->dsi_hs_clk != hs_clk) {
+		dev_info(ctx->dev, "%s: updating for hs_clk=%d\n", __func__, hs_clk);
+		ctx->dsi_hs_clk = hs_clk;
+
+		/* Update FFC */
+		EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x37, 0xC5);
+		if (hs_clk == MIPI_DSI_FREQ_DEFAULT)
+			EXYNOS_DCS_BUF_ADD(ctx, 0xC5, 0x10, 0x50, 0x05, 0x4D, 0x31, 0x40, 0x00,
+						0x40, 0x00, 0x40, 0x00, 0x4D, 0x31, 0x40, 0x00,
+						0x40, 0x00, 0x40, 0x00, 0x4D, 0x31, 0x40, 0x00,
+						0x40, 0x00, 0x40, 0x00, 0x4D, 0x31, 0x40, 0x00,
+						0x40, 0x00, 0x40, 0x00);
+		else /* MIPI_DSI_FREQ_ALTERNATIVE */
+			EXYNOS_DCS_BUF_ADD(ctx, 0xC5, 0x10, 0x50, 0x05, 0x51, 0xFD, 0x40, 0x00,
+						0x40, 0x00, 0x40, 0x00, 0x51, 0xFD, 0x40, 0x00,
+						0x40, 0x00, 0x40, 0x00, 0x51, 0xFD, 0x40, 0x00,
+						0x40, 0x00, 0x40, 0x00, 0x51, 0xFD, 0x40, 0x00,
+						0x40, 0x00, 0x40, 0x00);
+	}
+
+	/* FFC on */
+	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x36, 0xC5);
+	EXYNOS_DCS_BUF_ADD(ctx, 0xC5, 0x11);
+	EXYNOS_DCS_BUF_ADD_SET_AND_FLUSH(ctx, lock_cmd_f0);
+
+	DPU_ATRACE_END(__func__);
 }
 
 static const struct exynos_display_underrun_param underrun_param = {
@@ -2029,6 +2087,8 @@ static const struct exynos_panel_funcs km4_exynos_funcs = {
 	.get_te_usec = km4_get_te_usec,
 	.set_acl_mode = km4_set_acl_mode,
 	.run_normal_mode_work = km4_normal_mode_work,
+	.pre_update_ffc = km4_pre_update_ffc,
+	.update_ffc = km4_update_ffc,
 };
 
 static const struct exynos_brightness_configuration km4_btr_configs[] = {
@@ -2156,6 +2216,7 @@ static struct exynos_panel_desc google_km4 = {
 	.panel_func = &km4_drm_funcs,
 	.exynos_panel_func = &km4_exynos_funcs,
 	.normal_mode_work_delay_ms = 30000,
+	.default_dsi_hs_clk = MIPI_DSI_FREQ_DEFAULT,
 	.reset_timing_ms = {1, 1, 5},
 	.reg_ctrl_enable = {
 		{PANEL_REG_ID_VDDI, 1},
