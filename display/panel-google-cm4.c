@@ -225,8 +225,7 @@ static const struct drm_dsc_config fhd_pps_config = {
 #define CM4_TE2_FIXED      0x51
 
 #define CM4_TE2_RISING_EDGE_OFFSET 0x20
-#define CM4_TE2_FALLING_EDGE_OFFSET 0x32
-#define CM4_TE2_FALLING_EDGE_OFFSET_NS 0x25 //todo: figure this out
+#define CM4_TE2_FALLING_EDGE_OFFSET 0x57
 
 #define CM4_TE_USEC_60HZ_HS 8500
 #define CM4_TE_USEC_60HZ_NS 546
@@ -328,7 +327,7 @@ static void cm4_update_te2_internal(struct exynos_panel *ctx, bool lock)
 		.rising_edge = CM4_TE2_RISING_EDGE_OFFSET,
 		.falling_edge = CM4_TE2_FALLING_EDGE_OFFSET,
 	};
-	u32 rising, falling; // could these me arrays and make the dsi command cleaner?
+	u32 rising, falling;
 	struct cm4_panel *spanel = to_spanel(ctx);
 	u8 option = cm4_get_te2_option(ctx);
 	u8 idx;
@@ -343,18 +342,12 @@ static void cm4_update_te2_internal(struct exynos_panel *ctx, bool lock)
 		return;
 	}
 
-	// TODO: could just skip exynos_panel_get_current_mode_te2, but still use timing.*_edge
-	if (test_bit(FEAT_OP_NS, spanel->feat)) {
-		rising = CM4_TE2_RISING_EDGE_OFFSET;
-		falling = CM4_TE2_FALLING_EDGE_OFFSET;
-	} else {
-		if (exynos_panel_get_current_mode_te2(ctx, &timing)) {
-			dev_dbg(ctx->dev, "failed to get TE2 timng\n");
-			return;
-		}
-		rising = timing.rising_edge;
-		falling = timing.falling_edge;
+	if (exynos_panel_get_current_mode_te2(ctx, &timing)) {
+		dev_dbg(ctx->dev, "failed to get TE2 timng\n");
+		return;
 	}
+	rising = timing.rising_edge;
+	falling = timing.falling_edge;
 
 	ctx->te2.option = (option == CM4_TE2_FIXED) ? TE2_OPT_FIXED : TE2_OPT_CHANGEABLE;
 
