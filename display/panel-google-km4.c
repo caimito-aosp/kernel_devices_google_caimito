@@ -1632,6 +1632,27 @@ static void km4_update_ffc(struct exynos_panel *ctx, unsigned int hs_clk)
 	DPU_ATRACE_END(__func__);
 }
 
+static void km4_set_ssc_mode(struct exynos_panel *ctx, bool ssc_mode)
+{
+	const bool ssc_mode_update = ctx->ssc_mode != ssc_mode;
+
+	if (!ssc_mode_update)
+		return;
+
+	EXYNOS_DCS_BUF_ADD_SET(ctx, unlock_cmd_f0);
+	EXYNOS_DCS_BUF_ADD(ctx, 0xFC, 0x5A, 0x5A);
+	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x6E, 0xC5);
+	if (ssc_mode)
+		EXYNOS_DCS_BUF_ADD(ctx, 0xC5, 0x07, 0x7F, 0x00, 0x00);
+	else
+		EXYNOS_DCS_BUF_ADD(ctx, 0xC5, 0x04, 0x00);
+	EXYNOS_DCS_BUF_ADD(ctx, 0xFC, 0xA5, 0xA5);
+	EXYNOS_DCS_BUF_ADD_SET_AND_FLUSH(ctx, lock_cmd_f0);
+
+	ctx->ssc_mode = ssc_mode;
+	dev_info(ctx->dev, "ssc_mode=%d\n", ssc_mode);
+}
+
 static const struct exynos_display_underrun_param underrun_param = {
 	.te_idle_us = 350,
 	.te_var = 1,
@@ -2089,6 +2110,7 @@ static const struct exynos_panel_funcs km4_exynos_funcs = {
 	.run_normal_mode_work = km4_normal_mode_work,
 	.pre_update_ffc = km4_pre_update_ffc,
 	.update_ffc = km4_update_ffc,
+	.set_ssc_mode = km4_set_ssc_mode,
 };
 
 static const struct exynos_brightness_configuration km4_btr_configs[] = {
