@@ -380,24 +380,25 @@
 				/* PP1350_CAM    pp1350 */
 				/* Sensor */
 				/* VDDIO         s2mpg15_ldo12 */
-				/* VDIG          enable[0] */
+				/* VDIG          vdig_enable */
 				/* VDDA          ldo1 */
 				/* RESET         reset */
 				/* MCLK_ON       mclk_on */
 				/* OIS */
 				/* AVDD          ldo5 */
-				/* OIS_VM        enable[1] */
+				/* OIS_VM        ois_vm_enable */
 				/* Actuator */
 				/* AF_VM         ldo4 */
 				power-up-seqs =
 					"pp3200_bb",
 					"pp1350",
-					"s2mpg15_ldo12",
-					"enable",
-					"ldo5",
 					"ldo1",
+					"vdig_enable",
+					"s2mpg15_ldo12",
+					"ldo5",
 					"ldo4",
 					"reset",
+					"ois_vm_enable",
 					"mclk_on";
 				power-up-seq-types =
 					"regulator",
@@ -408,31 +409,35 @@
 					"regulator",
 					"regulator",
 					"gpio",
+					"gpio",
 					"pinctrl";
 				power-up-seq-delays-us =
 					<0
 					 0
 					 1000
 					 1000
+					 1000
 					 0
 					 0
 					 1000
-					 1000
+					 0
 					 9000>;
 
 				power-down-seqs =
 					"mclk_off",
+					"ois_vm_enable",
 					"reset",
 					"ldo4",
-					"ldo1",
 					"ldo5",
-					"enable",
 					"s2mpg15_ldo12",
+					"vdig_enable",
+					"ldo1",
 					"pp1350",
 					"pp3200_bb";
 
 				power-down-seq-types =
 					"pinctrl",
+					"gpio",
 					"gpio",
 					"regulator",
 					"regulator",
@@ -446,9 +451,10 @@
 					 0
 					 1000
 					 0
-					 0
 					 1000
-					 0
+					 1000
+					 1000
+					 1000
 					 2000
 					 2000>;
 			};
@@ -627,9 +633,8 @@
 				/* RCAM_RST_L GPP10[2] */
 				reset-gpios = <&gpp10 2 GPIO_ACTIVE_HIGH>;
 				/* CAM_LVBUCK_EN, RCAM_OIS_VM_EN */
-				enable-gpios =
-					<&s2mpg14_gpio 0 GPIO_ACTIVE_HIGH
-					 &s2mpg14_gpio 1 GPIO_ACTIVE_HIGH>;
+				vdig_enable-gpios = <&s2mpg14_gpio 0 GPIO_ACTIVE_HIGH>;
+				ois_vm_enable-gpios = <&s2mpg14_gpio 1 GPIO_ACTIVE_HIGH>;
 
 				/* Power supplies */
 				pp3200_bb-supply = <&cam_pp3200_bb>;
@@ -834,9 +839,8 @@
 				/* RCAM_RST_L GPP10[2] */
 				reset-gpios = <&gpp10 2 GPIO_ACTIVE_HIGH>;
 				/* CAM_LVBUCK_EN, RCAM_OIS_VM_EN */
-				enable-gpios =
-					<&s2mpg14_gpio 0 GPIO_ACTIVE_HIGH
-					 &s2mpg14_gpio 1 GPIO_ACTIVE_HIGH>;
+				vdig_enable-gpios = <&s2mpg14_gpio 0 GPIO_ACTIVE_HIGH>;
+				ois_vm_enable-gpios = <&s2mpg14_gpio 1 GPIO_ACTIVE_HIGH>;
 
 				/* Power supplies */
 				pp3200_bb-supply = <&cam_pp3200_bb>;
@@ -994,9 +998,8 @@
 				/* RCAM_RST_L GPP10[2] */
 				reset-gpios = <&gpp10 2 GPIO_ACTIVE_HIGH>;
 				/* CAM_LVBUCK_EN, RCAM_OIS_VM_EN */
-				enable-gpios =
-					<&s2mpg14_gpio 0 GPIO_ACTIVE_HIGH
-					 &s2mpg14_gpio 1 GPIO_ACTIVE_HIGH>;
+				vdig_enable-gpios = <&s2mpg14_gpio 0 GPIO_ACTIVE_HIGH>;
+				ois_vm_enable-gpios = <&s2mpg14_gpio 1 GPIO_ACTIVE_HIGH>;
 
 				/* Power supplies */
 				pp3200_bb-supply = <&cam_pp3200_bb>;
@@ -1117,9 +1120,8 @@
 				/* RCAM_RST_L GPP10[2] */
 				reset-gpios = <&gpp10 2 GPIO_ACTIVE_HIGH>;
 				/* CAM_LVBUCK_EN, RCAM_OIS_VM_EN */
-				enable-gpios =
-					<&s2mpg14_gpio 0 GPIO_ACTIVE_HIGH
-					 &s2mpg14_gpio 1 GPIO_ACTIVE_HIGH>;
+				vdig_enable-gpios = <&s2mpg14_gpio 0 GPIO_ACTIVE_HIGH>;
+				ois_vm_enable-gpios = <&s2mpg14_gpio 1 GPIO_ACTIVE_HIGH>;
 
 				/* Power supplies */
 				pp3200_bb-supply = <&cam_pp3200_bb>;
