@@ -840,8 +840,7 @@ static void km4_update_refresh_mode(struct exynos_panel *ctx,
 	 */
 	ctx->panel_idle_vrefresh = idle_vrefresh;
 	km4_set_panel_feat(ctx, pmode, idle_vrefresh, false);
-	te2_state_changed(ctx->bl);
-	backlight_state_changed(ctx->bl);
+	schedule_work(&ctx->state_notify);
 
 	dev_dbg(ctx->dev, "%s: display state is notified\n", __func__);
 }
@@ -923,7 +922,7 @@ static bool km4_set_self_refresh(struct exynos_panel *ctx, bool enable)
 	if (pmode->exynos_mode.is_lp_mode) {
 		/* set 1Hz while self refresh is active, otherwise clear it */
 		ctx->panel_idle_vrefresh = enable ? 1 : 0;
-		backlight_state_changed(ctx->bl);
+		schedule_work(&ctx->state_notify);
 		return false;
 	}
 
