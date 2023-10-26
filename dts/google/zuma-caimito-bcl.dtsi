@@ -36,20 +36,3 @@
 	interrupt-parent = <&max77779_pmic_irq>;
 	interrupts = <6 IRQ_TYPE_LEVEL_LOW>;
 };
-
-&thermal_zones {
-	batoilo2 {
-		zone_name  = "BATOILO2";
-		polling-delay-passive = <THERMAL_DELAY_INIT_MS>;
-		polling-delay = <0>;
-		thermal-sensors = <&google_mitigation BATOILO2>;
-		trips {
-			batoilo2: batoilo2{
-				temperature = <BO_LIMIT>;
-				hysteresis = <THERMAL_HYST_LEVEL>;
-				type = "passive";
-			};
-		};
-	};
-
-};
