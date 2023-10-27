@@ -45,3 +45,7 @@
 	gpio = <&gpp21 4 GPIO_ACTIVE_HIGH>;
 };
 
+&drmdp {
+	aux-orientation = "auto";
+};
+
