@@ -1,6 +1,6 @@
-// SPDX-License-Identifier: GPL-2.0
+// SPDX-License-Identifier: GPL-2.0-only
 /*
- * Google Zuma24 bcl device tree source
+ * Google ZumaPro/Caimito bcl device tree source
  *
  * Copyright (c) 2023 Google, LLC
  *		https://www.google.com
@@ -51,7 +51,6 @@
 	pinctrl-names = "bcl-rffe-modem", "bcl-batoilo-modem";
 	pinctrl-0 = <&bcl_rffe_modem>;
 	pinctrl-1 = <&bcl_batoilo_modem>;
-
 	interrupt-parent = <&max77779_pmic_irq>;
 	interrupts = <6 IRQ_TYPE_LEVEL_LOW>;
 };

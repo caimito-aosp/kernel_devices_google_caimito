@@ -25,4 +25,4 @@
 #include "zuma-ripcurrent24-sapwood-caimito-typec.dtsi"
 #include "zuma-ripcurrent24-sapwood-wcharger.dtsi"
 #include "zuma-caimito-usecases-evt.dtsi"
-#include "google-dts-base/zumapro-board-bcl.dtsi"
+#include "zumapro-ripcurrentpro-bcl.dtsi"

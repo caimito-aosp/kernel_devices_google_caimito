@@ -25,7 +25,7 @@
 #include "google-dts-base/zumapro-board-pcie-cp-s5400-a0.dtsi"
 #include "zumapro-caimito-haptics.dtsi"
 #include "zuma-caimito-thermal.dtsi"
-#include "google-dts-base/zumapro-board-bcl.dtsi"
+#include "zumapro-caimito-bcl.dtsi"
 #include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-bluetooth.dtsi"
 #include "zuma-caimito-usb.dtsi"
 #include "zuma-caimito-typec.dtsi"
