@@ -85,6 +85,11 @@ struct cm4_panel {
 	 *			  handled in the commit_done function.
 	 */
 	bool pending_temp_update;
+	/**
+	 * @is_pixel_off: pixel-off command is sent to panel. Only sending normal-on or resetting
+	 *		  panel can recover to normal mode after entering pixel-off state.
+	 */
+	bool is_pixel_off;
 };
 
 #define to_spanel(ctx) container_of(ctx, struct cm4_panel, base)
@@ -240,6 +245,7 @@ static const u8 lock_cmd_f0[]   = { 0xF0, 0xA5, 0xA5 };
 static const u8 freq_update[] = { 0xF7, 0x0F };
 static const u8 aod_on[] = { MIPI_DCS_WRITE_CONTROL_DISPLAY, 0x24 };
 static const u8 aod_off[] = { MIPI_DCS_WRITE_CONTROL_DISPLAY, 0x20 };
+static const u8 pixel_off[] = { 0x22 };
 
 static const struct exynos_dsi_cmd cm4_lp_low_cmds[] = {
 	EXYNOS_DSI_CMD0(unlock_cmd_f0),
@@ -1035,10 +1041,29 @@ static int cm4_set_brightness(struct exynos_panel *ctx, u16 br)
 	if (ctx->current_mode->exynos_mode.is_lp_mode) {
 		const struct exynos_panel_funcs *funcs;
 
+		/* don't stay at pixel-off state in AOD, or black screen is possibly seen */
+		if (spanel->is_pixel_off) {
+			EXYNOS_DCS_WRITE_SEQ(ctx, MIPI_DCS_ENTER_NORMAL_MODE);
+			spanel->is_pixel_off = false;
+		}
+
 		funcs = ctx->desc->exynos_panel_func;
 		if (funcs && funcs->set_binned_lp)
 			funcs->set_binned_lp(ctx, br);
 		return 0;
+	}
+
+	/* Use pixel off command instead of setting DBV 0 */
+	if (!br) {
+		if (!spanel->is_pixel_off) {
+			EXYNOS_DCS_WRITE_TABLE(ctx, pixel_off);
+			spanel->is_pixel_off = true;
+			dev_dbg(ctx->dev, "%s: pixel off instead of dbv 0\n", __func__);
+		}
+		return 0;
+	} else if (br && spanel->is_pixel_off) {
+		EXYNOS_DCS_WRITE_SEQ(ctx, MIPI_DCS_ENTER_NORMAL_MODE);
+		spanel->is_pixel_off = false;
 	}
 
 	brightness = (br & 0xff) << 8 | br >> 8;
@@ -1255,8 +1280,11 @@ static int cm4_enable(struct drm_panel *panel)
 	EXYNOS_DCS_WRITE_SEQ(ctx, 0x9D, 0x01);
 
 	if (needs_reset) {
+		struct cm4_panel *spanel = to_spanel(ctx);
+
 		EXYNOS_DCS_WRITE_SEQ_DELAY(ctx, 120, MIPI_DCS_EXIT_SLEEP_MODE);
 		exynos_panel_send_cmd_set(ctx, &cm4_init_cmd_set);
+		spanel->is_pixel_off = false;
 	}
 
 	EXYNOS_DCS_BUF_ADD_SET(ctx, unlock_cmd_f0);
@@ -1282,6 +1310,8 @@ static int cm4_disable(struct drm_panel *panel)
 	struct exynos_panel *ctx = container_of(panel, struct exynos_panel, panel);
 	struct cm4_panel *spanel = to_spanel(ctx);
 	int ret;
+
+	dev_info(ctx->dev, "%s\n", __func__);
 
 	/* skip disable sequence if going through RRS */
 	if (ctx->mode_in_progress == MODE_RES_IN_PROGRESS ||
@@ -1936,6 +1966,7 @@ static int cm4_panel_probe(struct mipi_dsi_device *dsi)
 	/* ddic default temp */
 	spanel->hw_temp = 25;
 	spanel->pending_temp_update = false;
+	spanel->is_pixel_off = false;
 
 	return exynos_panel_common_init(dsi, &spanel->base);
 }
