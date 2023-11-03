@@ -22,7 +22,7 @@
 #include "zuma-caimito-audio.dtsi"
 #include "zuma-caimito-common-touch.dtsi"
 #include "google-dts-base/zumapro-board-pcie.dtsi"
-#include "google-dts-base/zumapro-board-pcie-cp-s5400-a0.dtsi"
+#include "google-dts-base/zumapro-board-pcie-cp-s5400-a1.dtsi"
 #include "zumapro-caimito-haptics.dtsi"
 #include "zuma-caimito-thermal.dtsi"
 #include "zumapro-caimito-bcl.dtsi"

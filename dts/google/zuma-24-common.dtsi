@@ -23,7 +23,7 @@
 #include "google-dts-base/zuma-board-udfps.dtsi"
 #include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-audio.dtsi"
 #include "google-dts-base/zuma-board-pcie.dtsi"
-#include "google-dts-base/zumapro-board-pcie-cp-s5400-a0.dtsi"
+#include "google-dts-base/zuma-board-pcie-cp-s5400-a0.dtsi"
 #include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-haptics.dtsi"
 #include "google-dts-base/zuma-board-uwb.dtsi"
 #include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-thermal.dtsi"
