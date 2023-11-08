@@ -15,3 +15,4 @@
 #include "zuma-tokay-ldaf.dtsi"
 #include "zuma-tokay-pmic.dtsi"
 #include "zuma-tokay-touch.dtsi"
+#include "zumapro-tokay-bcl.dtsi"
