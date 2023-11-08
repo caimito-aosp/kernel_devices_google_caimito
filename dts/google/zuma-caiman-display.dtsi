@@ -7,6 +7,7 @@
  */
 
 #include <dt-bindings/gpio/gpio.h>
+#include "zuma-caiman-connector.dtsi"
 
 &dsim_modes {
 	dsim-modes {
@@ -33,19 +34,18 @@
 	#address-cells = <1>;
 	#size-cells = <0>;
 
-	google_cm4: panel@0 {
-		compatible = "google,cm4";
-		label = "google-cm4";
-		channel = <0>;
-		touch = <&spitouch>;
-
-		/* reset, power */
-		reset-gpios = <&gpp0 0 GPIO_ACTIVE_HIGH>;
-		vci-supply = <&m_ldo14_reg>;
-		vddi-supply = <&s_bucka_reg>;
-		vddd-supply = <&disp_vddd>;
-		vddd-gpios = <&gpp21 5 GPIO_ACTIVE_HIGH>;
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		port@0 {
+			reg = <0>;
+			/* output */
+			dsim0_connector_out: endpoint {
+				remote-endpoint = <&dsim0_connector_in>;
+			};
+		};
 	};
+
 	panel@1 {
 		compatible = "samsung,emul";
 		label = "samsung-emul";
