@@ -17,6 +17,7 @@ EXTRA_CFLAGS += -I$(KERNEL_SRC)/../private/google-modules/display/samsung
 EXTRA_CFLAGS += -I$(KERNEL_SRC)/../private/google-modules/display/samsung/include/uapi
 EXTRA_CFLAGS += -Werror
 
+EXTRA_SYMBOLS += $(OUT_DIR)/../private/google-modules/display/common/gs_panel/Module.symvers
 EXTRA_SYMBOLS += $(OUT_DIR)/../private/google-modules/display/samsung/Module.symvers
 
 include $(KERNEL_SRC)/../private/google-modules/soc/gs/Makefile.include

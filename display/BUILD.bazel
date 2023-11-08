@@ -18,13 +18,13 @@ kernel_module(
     outs = [
         # keep sorted
         "panel-google-bigsurf.ko",
-        "panel-google-cm4.ko",
         "panel-google-hk3.ko",
         "panel-google-km4.ko",
         "panel-google-shoreline.ko",
         "panel-google-tk4a.ko",
         "panel-google-tk4b.ko",
         "panel-google-tk4c.ko",
+        "panel-gs-cm4.ko",
     ],
     kernel_build = "//private/google-modules/soc/gs:gs_kernel_build",
     visibility = [
@@ -32,6 +32,7 @@ kernel_module(
         "//private/google-modules/soc/gs:__pkg__",
     ],
     deps = [
+        "//private/google-modules/display/common/gs_panel",
         "//private/google-modules/display/samsung:display.samsung",
         "//private/google-modules/soc/gs:gs_soc_module",
     ],
