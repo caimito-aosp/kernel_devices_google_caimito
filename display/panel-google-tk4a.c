@@ -226,7 +226,7 @@ static void tk4a_freq_change_command(struct exynos_panel *ctx, const u32 vrefres
 	if (vrefresh == 90) {
 		EXYNOS_DCS_BUF_ADD(ctx, 0x6A, 0x07);
 		EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x2B, 0x6A);
-		EXYNOS_DCS_BUF_ADD(ctx, 0x6A, 0x00, 0x0C);
+		EXYNOS_DCS_BUF_ADD(ctx, 0x6A, 0x00, 0xC0);
 	} else {
 		EXYNOS_DCS_BUF_ADD(ctx, 0x6A, 0x00, 0x00, 0x00);
 	}
