@@ -6,6 +6,7 @@
  *
  */
 
+#ifndef ZUMA_BMS_I2CM
 &hsi2c_10 {
 	#address-cells = <1>;
 	#size-cells = <0>;
@@ -14,6 +15,11 @@
 
 	#include "google-dts-base/zuma-charge-pump-ln8411.dtsi"
 };
+#else
+&max77779_i2cm {
+	#include "google-dts-base/zuma-charge-pump-ln8411.dtsi"
+};
+#endif
 
 &ln8411_dc {
 	status = "okay";

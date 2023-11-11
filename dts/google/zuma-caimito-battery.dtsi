@@ -9,20 +9,6 @@
 #include "google-dts-base/zuma-battery.dtsi"
 #include "google-dts-base/zuma-max777xx_fwupdate.dtsi"
 
-/ {
-	fragment@battery {
-		target-path = "/";
-		__overlay__ {
-
-			google_bms {
-				nvmem-names = "10-00500";
-				google,bee-name = "10-00500";
-			};
-
-		};
-	};
-};
-
 &pinctrl_0 {
 /* [MAX77729FEWN : INTB] > IF_PMIC_IRQ_L > [XEINT_22 : SC59845XWE] */
 	if_pmic_irq: if-pmic-irq {
@@ -45,23 +31,6 @@
 	samsung,pin-pud-pdn = <EXYNOS_PIN_PULL_NONE>;
 };
 
-&hsi2c_10 {
-	#address-cells = <1>;
-	#size-cells = <0>;
-	status = "okay";
-	clock-frequency = <400000>;
-
-	pinctrl-names = "default";
-	pinctrl-0 = <&hsi2c10_bus>;
-
-	pack_bee: m24c08@50 {
-		status = "okay";
-		compatible = "at,24c08";
-
-		reg = <0x50>;
-	};
-};
-
 &hsi2c_6 {
 
 	#address-cells = <1>;
@@ -72,6 +41,55 @@
 
 	#include "google-dts-base/zuma-max777xx.dtsi"
 };
+
+#ifndef ZUMA_BMS_I2CM
+/ {
+	fragment@battery {
+		target-path = "/";
+		__overlay__ {
+
+			google_bms {
+				nvmem-names = "10-00500";
+				google,bee-name = "10-00500";
+			};
+
+		};
+	};
+};
+
+&hsi2c_10 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+	clock-frequency = <400000>;
+
+	pinctrl-names = "default";
+	pinctrl-0 = <&hsi2c10_bus>;
+
+	#include "google-dts-base/zuma-max777xx-eeprom.dtsi"
+};
+#else
+/ {
+	fragment@battery {
+		target-path = "/";
+		__overlay__ {
+
+			google_bms {
+				nvmem-names = "20-00500";
+				google,bee-name = "20-00500";
+			};
+
+		};
+	};
+};
+
+/* zuma-max777xx.dtsi must be included before this */
+&max77779_i2cm {
+	status = "okay";
+
+	#include "google-dts-base/zuma-max777xx-eeprom.dtsi"
+};
+#endif
 
 &max77729_pmic {
 	status = "disabled";
