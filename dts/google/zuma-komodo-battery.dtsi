@@ -19,6 +19,8 @@
 		 50   50   50    0   0
 		 30    0    0    0   0
 	>;
+
+	google,pullback-current;
 };
 
 &max77779_fg {
