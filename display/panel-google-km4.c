@@ -2271,12 +2271,6 @@ static struct exynos_panel_desc google_km4 = {
 	.binned_lp = km4_binned_lp,
 	.num_binned_lp = ARRAY_SIZE(km4_binned_lp),
 	.is_panel_idle_supported = true,
-	/*
-	 * After waiting for TE, wait for extra time to make sure the frame start
-	 * happens after both DPU and panel PPS are set and before the next VSYNC.
-	 * This should cover the timing of HS 60/120Hz and NS 60Hz.
-	 */
-	.delay_dsc_reg_init_us = 10000,
 	.panel_func = &km4_drm_funcs,
 	.exynos_panel_func = &km4_exynos_funcs,
 	.normal_mode_work_delay_ms = 30000,
