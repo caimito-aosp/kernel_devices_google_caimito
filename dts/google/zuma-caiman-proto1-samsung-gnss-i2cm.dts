@@ -9,7 +9,7 @@
 /plugin/;
 
 #define ZUMA_BMS_I2CM 1
-
+#define ESIM_NO_CHIP_ENABLE_PIN
 #include "zuma-caimito-common.dtsi"
 #include "zuma-caiman-common.dtsi"
 #include "google-dts-base/zuma-cp-s5400-phone-gnss.dtsi"
