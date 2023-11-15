@@ -44,7 +44,10 @@ enum km4_panel_feature {
 };
 
 /**
- * struct km4_effective_hw_config - The panel effective hardware configurations.
+ * struct km4_effective_hw_config - panel effective hardware configurations
+ *
+ * This struct maintains km4 panel configurations that have been committed to
+ * hardware and are currently active.
  */
 struct km4_effective_hw_config {
 	/** @feat: correlated feature effective in panel */
@@ -86,6 +89,8 @@ struct km4_panel {
 	bool force_changeable_te2;
 	/** @force_za_off: force to turn off zonal attenuation */
 	bool force_za_off;
+	/** @force_fi: force to keep frame insertion enabled */
+	bool force_fi;
 	/** @tz: thermal zone device for reading temperature */
 	struct thermal_zone_device *tz;
 	/** @hw_temp: the temperature applied into panel */
@@ -247,7 +252,9 @@ static const struct drm_dsc_config fhd_pps_config = {
 #define KM4_TE_USEC_120HZ_HS 273
 #define KM4_TE_USEC_60HZ_HS 8500
 #define KM4_TE_USEC_60HZ_NS 546
-#define KM4_TE_USEC_VRR 273
+
+#define KM4_TE_USEC_VRR_HS 273
+#define KM4_TE_USEC_VRR_NS 546
 
 #define WIDTH_MM 70
 #define HEIGHT_MM 156
@@ -449,6 +456,23 @@ static u32 km4_get_min_idle_vrefresh(struct exynos_panel *ctx,
 	return min_idle_vrefresh;
 }
 
+static void km4_panel_disable_fi(struct exynos_panel *ctx)
+{
+	const struct km4_panel *spanel = to_spanel(ctx);
+
+	if (spanel->force_fi)
+		return;
+
+	EXYNOS_DCS_BUF_ADD_SET(ctx, unlock_cmd_f0);
+	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x10, 0xBD);
+	EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x00);
+	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x82, 0xBD);
+	EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x00, 0x00);
+	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x80, 0xBD);
+	EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x16);
+	EXYNOS_DCS_BUF_ADD_SET_AND_FLUSH(ctx, lock_cmd_f0);
+}
+
 /**
  * km4_set_panel_feat - configure panel features
  * @ctx: exynos_panel struct
@@ -469,16 +493,18 @@ static void km4_set_panel_feat(struct exynos_panel *ctx,
 	u8 val;
 	DECLARE_BITMAP(changed_feat, FEAT_MAX);
 
+#ifndef PANEL_FACTORY_BUILD
+	vrefresh = 1;
+	idle_vrefresh = 0;
+	set_bit(FEAT_EARLY_EXIT, feat);
+	clear_bit(FEAT_FRAME_AUTO, feat);
 	if (is_vrr) {
-		vrefresh = 1;
-		idle_vrefresh = 0;
-		set_bit(FEAT_EARLY_EXIT, feat);
-		clear_bit(FEAT_FRAME_AUTO, feat);
 		if (pmode->mode.flags & DRM_MODE_FLAG_NS)
 			set_bit(FEAT_OP_NS, feat);
 		else
 			clear_bit(FEAT_OP_NS, feat);
 	}
+#endif
 
 	if (enforce) {
 		bitmap_fill(changed_feat, FEAT_MAX);
@@ -507,8 +533,7 @@ static void km4_set_panel_feat(struct exynos_panel *ctx,
 
 	/* TE setting */
 	if (test_bit(FEAT_EARLY_EXIT, changed_feat) ||
-		test_bit(FEAT_OP_NS, changed_feat) || spanel->hw.vrefresh != vrefresh ||
-		spanel->hw.te_freq != te_freq) {
+		test_bit(FEAT_OP_NS, changed_feat) || spanel->hw.te_freq != te_freq) {
 		if (test_bit(FEAT_EARLY_EXIT, feat) && !spanel->force_changeable_te) {
 			if (is_vrr && te_freq == 240) {
 				/* 240Hz multi TE */
@@ -524,12 +549,18 @@ static void km4_set_panel_feat(struct exynos_panel *ctx,
 					EXYNOS_DCS_BUF_ADD(ctx, 0xB9, 0x0B, 0x9B, 0x00, 0x1F,
 						0x05, 0xAB, 0x00, 0x1F);
 			} else {
-				/* TODO: b/301773022 - add NS based VRR mode */
-				/* 120Hz Fixed TE */
+				/* Fixed TE */
 				EXYNOS_DCS_BUF_ADD(ctx, 0xB9, 0x51);
 				/* TE width */
 				EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x08, 0xB9);
 				EXYNOS_DCS_BUF_ADD(ctx, 0xB9, 0x0B, 0x9A, 0x00, 0x1F, 0x0B, 0x9A, 0x00, 0x1F);
+#ifndef PANEL_FACTORY_BUILD
+				/* TE Freq */
+				val = (drm_mode_vrefresh(&pmode->mode) == 120) ||
+					test_bit(FEAT_OP_NS, feat) ? 0x00 : 0x01;
+				EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x02, 0xB9);
+				EXYNOS_DCS_BUF_ADD(ctx, 0xB9, val);
+#endif
 			}
 		} else {
 			/* Changeable TE */
@@ -575,53 +606,25 @@ static void km4_set_panel_feat(struct exynos_panel *ctx,
 	}
 
 	/*
-	 * Note: the following command sequence should be sent as a whole if one of panel
-	 * state defined by enum panel_state changes or at turning on panel, or unexpected
-	 * behaviors will be seen, e.g. black screen, flicker.
-	 */
-
-	/*
 	 * Early-exit: enable or disable
-	 *
-	 * Description: early-exit sequence overrides some configs HBM set.
 	 */
-	if (test_bit(FEAT_EARLY_EXIT, feat)) {
-		if (test_bit(FEAT_HBM, feat))
-			EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x21, 0x00, 0x83, 0x03, 0x01);
-		else
-			EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x21, 0x01, 0x83, 0x03, 0x03);
-	} else {
-		if (test_bit(FEAT_HBM, feat))
-			EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x21, 0x80, 0x83, 0x03, 0x01);
-		else
-			EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x21, 0x81, 0x83, 0x03, 0x03);
-	}
+#ifdef PANEL_FACTORY_BUILD
+	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x01, 0xBD);
+	val = (test_bit(FEAT_EARLY_EXIT, feat) && vrefresh != 80) ? 0x01 : 0x81;
+	EXYNOS_DCS_BUF_ADD(ctx, 0xBD, val);
+	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x10, 0xBD);
+	val = test_bit(FEAT_EARLY_EXIT, feat) ? 0x22 : 0x00;
+	EXYNOS_DCS_BUF_ADD(ctx, 0xBD, val);
+	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x82, 0xBD);
+	EXYNOS_DCS_BUF_ADD(ctx, 0xBD, val, val, val, val);
+#endif
 
-	if (is_vrr) {
-		/* disable FI */
-		EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x10, 0xBD);
-		EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x00);
-		EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x82, 0xBD);
-		EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x00, 0x00);
-		EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x80, 0xBD);
-		EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x16);
-	} else {
-		EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x01, 0xBD);
-		val = (test_bit(FEAT_EARLY_EXIT, feat) && vrefresh != 80) ? 0x01 : 0x81;
-		EXYNOS_DCS_BUF_ADD(ctx, 0xBD, val);
-		EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x10, 0xBD);
-		val = test_bit(FEAT_EARLY_EXIT, feat) ? 0x22 : 0x00;
-		EXYNOS_DCS_BUF_ADD(ctx, 0xBD, val);
-		EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x82, 0xBD);
-		EXYNOS_DCS_BUF_ADD(ctx, 0xBD, val, val, val, val);
-	}
 	/*
 	 * Frequency setting: FI, frequency, idle frequency
 	 *
 	 * Description: this sequence possibly overrides some configs early-exit
 	 * and operation set, depending on FI mode.
 	 */
-	// TODO: Review this
 	if (test_bit(FEAT_FRAME_AUTO, feat)) {
 		if (test_bit(FEAT_OP_NS, feat)) {
 			/* threshold setting */
@@ -742,8 +745,6 @@ static void km4_set_panel_feat(struct exynos_panel *ctx,
 		if (test_bit(FEAT_OP_NS, feat)) {
 			if (vrefresh == 1) {
 				val = 0x1F;
-			} else if (vrefresh == 5) {
-				val = 0x1E;
 			} else if (vrefresh == 10) {
 				val = 0x1B;
 			} else if (vrefresh == 30) {
@@ -759,8 +760,6 @@ static void km4_set_panel_feat(struct exynos_panel *ctx,
 		} else {
 			if (vrefresh == 1) {
 				val = 0x07;
-			} else if (vrefresh == 5) {
-				val = 0x06;
 			} else if (vrefresh == 10) {
 				val = 0x03;
 			} else if (vrefresh == 30) {
@@ -812,7 +811,8 @@ static void km4_update_refresh_mode(struct exynos_panel *ctx,
 					const u32 idle_vrefresh)
 {
 	struct km4_panel *spanel = to_spanel(ctx);
-	u32 vrefresh = drm_mode_vrefresh(&pmode->mode);
+
+	/* TODO: b/308978878 - move refresh control logic to HWC */
 
 	/*
 	 * Skip idle update if going through RRS without refresh rate change. If
@@ -827,17 +827,6 @@ static void km4_update_refresh_mode(struct exynos_panel *ctx,
 
 	dev_dbg(ctx->dev, "%s: mode: %s set idle_vrefresh: %u\n", __func__,
 		pmode->mode.name, idle_vrefresh);
-
-	if (idle_vrefresh)
-		set_bit(FEAT_FRAME_AUTO, spanel->feat);
-	else
-		clear_bit(FEAT_FRAME_AUTO, spanel->feat);
-
-	if (vrefresh == 120 || idle_vrefresh)
-		set_bit(FEAT_EARLY_EXIT, spanel->feat);
-	else
-		clear_bit(FEAT_EARLY_EXIT, spanel->feat);
-
 	spanel->auto_mode_vrefresh = idle_vrefresh;
 	/*
 	 * Note: when mode is explicitly set, panel performs early exit to get out
@@ -853,7 +842,6 @@ static void km4_update_refresh_mode(struct exynos_panel *ctx,
 	dev_dbg(ctx->dev, "%s: display state is notified\n", __func__);
 }
 
-// todo: this thing, need to understand how this works
 static void km4_change_frequency(struct exynos_panel *ctx,
 				 const struct exynos_panel_mode *pmode)
 {
@@ -984,15 +972,7 @@ static bool km4_set_self_refresh(struct exynos_panel *ctx, bool enable)
 
 static void km4_refresh_ctrl(struct exynos_panel *ctx, u32 ctrl)
 {
-	const struct exynos_panel_mode *pmode = ctx->current_mode;
-
 	DPU_ATRACE_BEGIN(__func__);
-
-	if (!is_vrr_mode(pmode)) {
-		dev_warn(ctx->dev, "%s: refresh control should be called for vrr mode only\n",
-				__func__);
-		return;
-	}
 
 	if (ctrl & PANEL_REFRESH_CTRL_FI) {
 		dev_dbg(ctx->dev, "%s: performing a frame insertion\n", __func__);
@@ -1166,9 +1146,13 @@ static unsigned int km4_get_te_usec(struct exynos_panel *ctx, const struct exyno
 		return pmode->exynos_mode.te_usec;
 	} else {
 		struct km4_panel *spanel = to_spanel(ctx);
-
+#ifdef PANEL_FACTORY_BUILD
 		return (test_bit(FEAT_OP_NS, spanel->feat) ? KM4_TE_USEC_60HZ_NS :
 							     KM4_TE_USEC_60HZ_HS);
+#else
+		return (test_bit(FEAT_OP_NS, spanel->feat) ? KM4_TE_USEC_VRR_NS :
+							     KM4_TE_USEC_VRR_HS);
+#endif
 	}
 }
 
@@ -1183,35 +1167,6 @@ static void km4_wait_for_vsync_done(struct exynos_panel *ctx,
 	DPU_ATRACE_END(__func__);
 }
 
-static void km4_disable_idle(struct exynos_panel *ctx, bool is_aod)
-{
-	struct km4_panel *spanel = to_spanel(ctx);
-
-	dev_dbg(ctx->dev, "%s\n", __func__);
-
-	EXYNOS_DCS_BUF_ADD_SET(ctx, unlock_cmd_f0);
-	/* manual mode */
-	EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x21);
-	/* Changeable TE is a must to ensure command sync */
-	EXYNOS_DCS_BUF_ADD(ctx, 0xB9, 0x04);
-	if (is_aod) {
-		/* 30 Hz */
-		EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x01, 0x60);
-		EXYNOS_DCS_BUF_ADD(ctx, 0x60, 0x00);
-	} else {
-		/* only set 60 or 120 Hz */
-		if (test_bit(FEAT_OP_NS, spanel->feat))
-			EXYNOS_DCS_BUF_ADD(ctx, 0x60, 0x18);
-		else
-			EXYNOS_DCS_BUF_ADD(ctx, 0x60, spanel->hw.vrefresh == 60 ? 0x01 : 0x00);
-	}
-	EXYNOS_DCS_BUF_ADD_SET(ctx, freq_update);
-	EXYNOS_DCS_BUF_ADD_SET_AND_FLUSH(ctx, lock_cmd_f0);
-
-	spanel->hw.idle_vrefresh = 0;
-}
-
-// todo: this
 static void km4_set_lp_mode(struct exynos_panel *ctx, const struct exynos_panel_mode *pmode)
 {
 	struct km4_panel *spanel = to_spanel(ctx);
@@ -1256,7 +1211,6 @@ static void km4_set_lp_mode(struct exynos_panel *ctx, const struct exynos_panel_
 	dev_info(ctx->dev, "enter %dhz LP mode\n", drm_mode_vrefresh(&pmode->mode));
 }
 
-// TODO: update this to remove green flash changes
 static void km4_set_nolp_mode(struct exynos_panel *ctx, const struct exynos_panel_mode *pmode)
 {
 	struct km4_panel *spanel = to_spanel(ctx);
@@ -1266,8 +1220,6 @@ static void km4_set_nolp_mode(struct exynos_panel *ctx, const struct exynos_pane
 
 	DPU_ATRACE_BEGIN(__func__);
 
-	/* disabling idle is a must before exiting AOD */
-	km4_disable_idle(ctx, true);
 	km4_wait_for_vsync_done(ctx, pmode);
 	EXYNOS_DCS_WRITE_SEQ(ctx, MIPI_DCS_SET_DISPLAY_OFF);
 
@@ -1328,7 +1280,7 @@ static int km4_enable(struct drm_panel *panel)
 	struct exynos_panel *ctx = container_of(panel, struct exynos_panel, panel);
 	const struct exynos_panel_mode *pmode = ctx->current_mode;
 	const struct drm_display_mode *mode;
-	const bool needs_reset = !is_panel_enabled(ctx); //TODO: why?
+	const bool needs_reset = !is_panel_enabled(ctx);
 	struct drm_dsc_picture_parameter_set pps_payload;
 	bool is_fhd;
 
@@ -1363,10 +1315,13 @@ static int km4_enable(struct drm_panel *panel)
 		EXYNOS_DCS_WRITE_SEQ_DELAY(ctx, 120, MIPI_DCS_EXIT_SLEEP_MODE);
 		exynos_panel_send_cmd_set(ctx, &km4_init_cmd_set);
 		spanel->is_pixel_off = false;
+#ifndef PANEL_FACTORY_BUILD
+		km4_panel_disable_fi(ctx);
+#endif
 	}
 
 	EXYNOS_DCS_BUF_ADD_SET(ctx, unlock_cmd_f0);
-	EXYNOS_DCS_BUF_ADD(ctx, 0xC3, is_fhd ? 0x0D : 0x0C); // res setting
+	EXYNOS_DCS_BUF_ADD(ctx, 0xC3, is_fhd ? 0x0D : 0x0C);
 	/* 8/10bit config for QHD/FHD */
 	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x01, 0xF2);
 	EXYNOS_DCS_BUF_ADD(ctx, 0xF2, is_fhd ? 0x81 : 0x01);
@@ -1473,7 +1428,6 @@ static void km4_update_idle_state(struct exynos_panel *ctx)
 	DPU_ATRACE_END(__func__);
 }
 
-// check if this is needed
 static void km4_commit_done(struct exynos_panel *ctx)
 {
 	struct km4_panel *spanel = to_spanel(ctx);
@@ -1668,26 +1622,6 @@ static const struct exynos_panel_mode km4_modes[] = {
 	},
 	{
 		.mode = {
-			.name = "1344x2992@5:5",
-			DRM_MODE_TIMING(5, 1344, 80, 24, 52, 2992, 12, 4, 22),
-			.width_mm = WIDTH_MM,
-			.height_mm = HEIGHT_MM,
-		},
-		.exynos_mode = {
-			.mode_flags = MIPI_DSI_CLOCK_NON_CONTINUOUS,
-			.vblank_usec = 120,
-			.bpc = 8,
-			.dsc = KM4_WQHD_DSC,
-			.underrun_param = &underrun_param,
-		},
-		.te2_timing = {
-			.rising_edge = KM4_TE2_RISING_EDGE_OFFSET,
-			.falling_edge = KM4_TE2_FALLING_EDGE_OFFSET,
-		},
-		.idle_mode = IDLE_MODE_UNSUPPORTED,
-	},
-	{
-		.mode = {
 			.name = "1344x2992@10:10",
 			DRM_MODE_TIMING(10, 1344, 80, 24, 42, 2992, 12, 4, 22),
 			.width_mm = WIDTH_MM,
@@ -1749,9 +1683,11 @@ static const struct exynos_panel_mode km4_modes[] = {
 #endif
 	{
 		.mode = {
+			/* 60Hz supports HS/NS, see km4_get_te_usec for widths used */
 			.name = "1344x2992@60:60",
 			DRM_MODE_TIMING(60, 1344, 80, 24, 42, 2992, 12, 4, 22),
 			/* aligned to bootloader resolution */
+			.flags = DRM_MODE_FLAG_BTS_OP_RATE,
 			.type = DRM_MODE_TYPE_PREFERRED,
 			.width_mm = WIDTH_MM,
 			.height_mm = HEIGHT_MM,
@@ -1767,12 +1703,13 @@ static const struct exynos_panel_mode km4_modes[] = {
 			.rising_edge = KM4_TE2_RISING_EDGE_OFFSET,
 			.falling_edge = KM4_TE2_FALLING_EDGE_OFFSET,
 		},
-		.idle_mode = IDLE_MODE_ON_SELF_REFRESH,
+		.idle_mode = IDLE_MODE_UNSUPPORTED,
 	},
 	{
 		.mode = {
 			.name = "1344x2992@120:120",
 			DRM_MODE_TIMING(120, 1344, 80, 24, 42, 2992, 12, 4, 22),
+			.flags = DRM_MODE_FLAG_BTS_OP_RATE,
 			.width_mm = WIDTH_MM,
 			.height_mm = HEIGHT_MM,
 		},
@@ -1788,13 +1725,15 @@ static const struct exynos_panel_mode km4_modes[] = {
 			.rising_edge = KM4_TE2_RISING_EDGE_OFFSET,
 			.falling_edge = KM4_TE2_FALLING_EDGE_OFFSET,
 		},
-		.idle_mode = IDLE_MODE_ON_INACTIVITY,
+		.idle_mode = IDLE_MODE_UNSUPPORTED,
 	},
 #ifndef PANEL_FACTORY_BUILD
 	{
 		.mode = {
+			/* 60Hz supports HS/NS, see km4_get_te_usec for widths used */
 			.name = "1008x2244@60:60",
 			DRM_MODE_TIMING(60, 1008, 80, 24, 38, 2244, 12, 4, 20),
+			.flags = DRM_MODE_FLAG_BTS_OP_RATE,
 			.width_mm = WIDTH_MM,
 			.height_mm = HEIGHT_MM,
 		},
@@ -1809,12 +1748,13 @@ static const struct exynos_panel_mode km4_modes[] = {
 			.rising_edge = KM4_TE2_RISING_EDGE_OFFSET,
 			.falling_edge = KM4_TE2_FALLING_EDGE_OFFSET,
 		},
-		.idle_mode = IDLE_MODE_ON_SELF_REFRESH,
+		.idle_mode = IDLE_MODE_UNSUPPORTED,
 	},
 	{
 		.mode = {
 			.name = "1008x2244@120:120",
 			DRM_MODE_TIMING(120, 1008, 80, 24, 38, 2244, 12, 4, 20),
+			.flags = DRM_MODE_FLAG_BTS_OP_RATE,
 			.width_mm = WIDTH_MM,
 			.height_mm = HEIGHT_MM,
 		},
@@ -1830,7 +1770,7 @@ static const struct exynos_panel_mode km4_modes[] = {
 			.rising_edge = KM4_TE2_RISING_EDGE_OFFSET,
 			.falling_edge = KM4_TE2_FALLING_EDGE_OFFSET,
 		},
-		.idle_mode = IDLE_MODE_ON_INACTIVITY,
+		.idle_mode = IDLE_MODE_UNSUPPORTED,
 	},
 	/* VRR modes */
 	{
@@ -1846,7 +1786,7 @@ static const struct exynos_panel_mode km4_modes[] = {
 		.exynos_mode = {
 			.mode_flags = MIPI_DSI_CLOCK_NON_CONTINUOUS,
 			.vblank_usec = 120,
-			.te_usec = KM4_TE_USEC_VRR,
+			.te_usec = KM4_TE_USEC_VRR_HS,
 			.bpc = 8,
 			.dsc = KM4_WQHD_DSC,
 			.underrun_param = &underrun_param,
@@ -1869,7 +1809,7 @@ static const struct exynos_panel_mode km4_modes[] = {
 		.exynos_mode = {
 			.mode_flags = MIPI_DSI_CLOCK_NON_CONTINUOUS,
 			.vblank_usec = 120,
-			.te_usec = KM4_TE_USEC_VRR,
+			.te_usec = KM4_TE_USEC_VRR_HS,
 			.bpc = 8,
 			.dsc = KM4_FHD_DSC,
 			.underrun_param = &underrun_param,
@@ -1893,7 +1833,7 @@ static const struct exynos_panel_mode km4_modes[] = {
 		.exynos_mode = {
 			.mode_flags = MIPI_DSI_CLOCK_NON_CONTINUOUS,
 			.vblank_usec = 120,
-			.te_usec = KM4_TE_USEC_VRR,
+			.te_usec = KM4_TE_USEC_VRR_NS,
 			.bpc = 8,
 			.dsc = KM4_WQHD_DSC,
 			.underrun_param = &underrun_param,
@@ -1916,7 +1856,7 @@ static const struct exynos_panel_mode km4_modes[] = {
 		.exynos_mode = {
 			.mode_flags = MIPI_DSI_CLOCK_NON_CONTINUOUS,
 			.vblank_usec = 120,
-			.te_usec = KM4_TE_USEC_VRR,
+			.te_usec = KM4_TE_USEC_VRR_NS,
 			.bpc = 8,
 			.dsc = KM4_FHD_DSC,
 			.underrun_param = &underrun_param,
@@ -1998,6 +1938,8 @@ static void km4_debugfs_init(struct drm_panel *panel, struct dentry *root)
 				&spanel->force_changeable_te2);
 	debugfs_create_bool("force_za_off", 0644, panel_root,
 				&spanel->force_za_off);
+	debugfs_create_bool("force_fi", 0644, panel_root,
+				&spanel->force_fi);
 	debugfs_create_u8("hw_acl_setting", 0644, panel_root,
 				&spanel->hw.acl_setting);
 	dput(csroot);
@@ -2023,6 +1965,9 @@ static void km4_panel_init(struct exynos_panel *ctx)
 	if (pmode) {
 		dev_info(ctx->dev, "%s: set mode: %s\n", __func__, pmode->mode.name);
 		km4_set_panel_feat(ctx, pmode, 0, true);
+#ifndef PANEL_FACTORY_BUILD
+		km4_panel_disable_fi(ctx);
+#endif
 	}
 }
 
