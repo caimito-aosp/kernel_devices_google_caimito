@@ -52,12 +52,18 @@
 	};
 };
 
+#ifndef ZUMA_BMS_I2CM
 &hsi2c_10 {
 	#address-cells = <1>;
 	#size-cells = <0>;
 
 	#include "google-dts-base/zuma-wcharger-ra9530.dtsi"
 };
+#else
+&max77779_i2cm {
+	#include "google-dts-base/zuma-wcharger-ra9530.dtsi"
+};
+#endif
 
 &ra9530 {
 	status = "okay";
