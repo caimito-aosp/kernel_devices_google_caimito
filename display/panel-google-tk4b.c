@@ -16,6 +16,7 @@
 
 #include "trace/dpu_trace.h"
 #include "panel/panel-samsung-drv.h"
+#include "gs_drm/gs_display_mode.h"
 
 #define TK4B_DDIC_ID_LEN 8
 #define TK4B_DIMMING_FRAME 32
@@ -697,17 +698,10 @@ static const struct drm_dsc_config tk4b_dsc_cfg = {
 static const struct exynos_panel_mode tk4b_modes[] = {
 	{
 		.mode = {
-			.name = "1080x2424x60",
-			.clock = 167922,
-			.hdisplay = 1080,
-			.hsync_start = 1080 + 32, // add hfp
-			.hsync_end = 1080 + 32 + 12, // add hsa
-			.htotal = 1080 + 32 + 12 + 16, // add hbp
-			.vdisplay = 2424,
-			.vsync_start = 2424 + 12, // add vfp
-			.vsync_end = 2424 + 12 + 4, // add vsa
-			.vtotal = 2424 + 12 + 4 + 15, // add vbp
-			.flags = 0,
+			.name = "1080x2424@60:60",
+			DRM_MODE_TIMING(60, 1080, 32, 12, 16, 2424, 12, 4, 15),
+			/* aligned to bootloader setting */
+			.type = DRM_MODE_TYPE_PREFERRED,
 			.width_mm = WIDTH_MM,
 			.height_mm = HEIGHT_MM,
 		},
@@ -726,17 +720,8 @@ static const struct exynos_panel_mode tk4b_modes[] = {
 	},
 	{
 		.mode = {
-			.name = "1080x2424x120",
-			.clock = 335844,
-			.hdisplay = 1080,
-			.hsync_start = 1080 + 32, // add hfp
-			.hsync_end = 1080 + 32 + 12, // add hsa
-			.htotal = 1080 + 32 + 12 + 16, // add hbp
-			.vdisplay = 2424,
-			.vsync_start = 2424 + 12, // add vfp
-			.vsync_end = 2424 + 12 + 4, // add vsa
-			.vtotal = 2424 + 12 + 4 + 15, // add vbp
-			.flags = 0,
+			.name = "1080x2424@120:120",
+			DRM_MODE_TIMING(120, 1080, 32, 12, 16, 2424, 12, 4, 15),
 			.width_mm = WIDTH_MM,
 			.height_mm = HEIGHT_MM,
 		},
@@ -757,17 +742,8 @@ static const struct exynos_panel_mode tk4b_modes[] = {
 
 static const struct exynos_panel_mode tk4b_lp_mode = {
 	.mode = {
-		.name = "1080x2424x30",
-		.clock = 83961,
-		.hdisplay = 1080,
-		.hsync_start = 1080 + 32, // add hfp
-		.hsync_end = 1080 + 32 + 12, // add hsa
-		.htotal = 1080 + 32 + 12 + 16, // add hbp
-		.vdisplay = 2424,
-		.vsync_start = 2424 + 12, // add vfp
-		.vsync_end = 2424 + 12 + 4, // add vsa
-		.vtotal = 2424 + 12 + 4 + 15, // add vbp
-		.flags = 0,
+		.name = "1080x2424@30:30",
+		DRM_MODE_TIMING(30, 1080, 32, 12, 16, 2424, 12, 4, 15),
 		.type = DRM_MODE_TYPE_DRIVER,
 		.width_mm = WIDTH_MM,
 		.height_mm = HEIGHT_MM,

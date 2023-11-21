@@ -16,6 +16,7 @@
 
 #include "trace/dpu_trace.h"
 #include "panel/panel-samsung-drv.h"
+#include "gs_drm/gs_display_mode.h"
 
 static const struct drm_dsc_config pps_config = {
 	.line_buf_depth = 9,
@@ -561,17 +562,10 @@ static const u16 VFP = 12, VSA = 4, VBP = 15;
 static const struct exynos_panel_mode tk4a_modes[] = {
 	{
 		.mode = {
-			.name = "1080x2424x60",
-			.clock = 167922,
-			.hdisplay = HDISPLAY,
-			.hsync_start = HDISPLAY + HFP,
-			.hsync_end = HDISPLAY + HFP + HSA,
-			.htotal = HDISPLAY + HFP + HSA + HBP,
-			.vdisplay = VDISPLAY,
-			.vsync_start = VDISPLAY + VFP,
-			.vsync_end = VDISPLAY + VFP + VSA,
-			.vtotal = VDISPLAY + VFP + VSA + VBP,
-			.flags = 0,
+			.name = "1080x2424@60:60",
+			DRM_MODE_TIMING(60, HDISPLAY, HFP, HSA, HBP, VDISPLAY, VFP, VSA, VBP),
+			/* aligned to bootloader setting */
+			.type = DRM_MODE_TYPE_PREFERRED,
 			.width_mm = WIDTH_MM,
 			.height_mm = HEIGHT_MM,
 		},
@@ -586,17 +580,8 @@ static const struct exynos_panel_mode tk4a_modes[] = {
 	},
 	{
 		.mode = {
-			.name = "1080x2424x120",
-			.clock = 335844,
-			.hdisplay = HDISPLAY,
-			.hsync_start = HDISPLAY + HFP,
-			.hsync_end = HDISPLAY + HFP + HSA,
-			.htotal = HDISPLAY + HFP + HSA + HBP,
-			.vdisplay = VDISPLAY,
-			.vsync_start = VDISPLAY + VFP,
-			.vsync_end = VDISPLAY + VFP + VSA,
-			.vtotal = VDISPLAY + VFP + VSA + VBP,
-			.flags = 0,
+			.name = "1080x2424@120:120",
+			DRM_MODE_TIMING(120, HDISPLAY, HFP, HSA, HBP, VDISPLAY, VFP, VSA, VBP),
 			.width_mm = WIDTH_MM,
 			.height_mm = HEIGHT_MM,
 		},
@@ -611,17 +596,8 @@ static const struct exynos_panel_mode tk4a_modes[] = {
 	},
 	{
 		.mode = {
-			.name = "1080x2424x90",
-			.clock = 251883,
-			.hdisplay = HDISPLAY,
-			.hsync_start = HDISPLAY + HFP,
-			.hsync_end = HDISPLAY + HFP + HSA,
-			.htotal = HDISPLAY + HFP + HSA + HBP,
-			.vdisplay = VDISPLAY,
-			.vsync_start = VDISPLAY + VFP,
-			.vsync_end = VDISPLAY + VFP + VSA,
-			.vtotal = VDISPLAY + VFP + VSA + VBP,
-			.flags = 0,
+			.name = "1080x2424@90:90",
+			DRM_MODE_TIMING(90, HDISPLAY, HFP, HSA, HBP, VDISPLAY, VFP, VSA, VBP),
 			.width_mm = WIDTH_MM,
 			.height_mm = HEIGHT_MM,
 		},
@@ -669,17 +645,8 @@ const struct brightness_capability tk4a_brightness_capability = {
 
 static const struct exynos_panel_mode tk4a_lp_mode = {
 	.mode = {
-		.name = "1080x2424x30",
-		.clock = 85260,
-		.hdisplay = HDISPLAY,
-		.hsync_start = HDISPLAY + HFP,
-		.hsync_end = HDISPLAY + HFP + HSA,
-		.htotal = HDISPLAY + HFP + HSA + HBP,
-		.vdisplay = VDISPLAY,
-		.vsync_start = VDISPLAY + VFP,
-		.vsync_end = VDISPLAY + VFP + VSA,
-		.vtotal = VDISPLAY + VFP + VSA + VBP,
-		.flags = 0,
+		.name = "1080x2424@30:30",
+		DRM_MODE_TIMING(30, HDISPLAY, HFP, HSA, HBP, VDISPLAY, VFP, VSA, VBP),
 		.width_mm = WIDTH_MM,
 		.height_mm = HEIGHT_MM,
 	},

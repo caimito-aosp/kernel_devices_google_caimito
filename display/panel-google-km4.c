@@ -20,6 +20,7 @@
 #include "trace/dpu_trace.h"
 #include "trace/panel_trace.h"
 #include "panel/panel-samsung-drv.h"
+#include "gs_drm/gs_display_mode.h"
 
 /**
  * enum km4_panel_feature - features supported by this panel
@@ -470,7 +471,7 @@ static void km4_set_panel_feat(struct exynos_panel *ctx,
 		idle_vrefresh = 0;
 		set_bit(FEAT_EARLY_EXIT, feat);
 		clear_bit(FEAT_FRAME_AUTO, feat);
-		if (pmode->mode.type & DRM_MODE_FLAG_NS)
+		if (pmode->mode.flags & DRM_MODE_FLAG_NS)
 			set_bit(FEAT_OP_NS, feat);
 		else
 			clear_bit(FEAT_OP_NS, feat);
@@ -1544,13 +1545,8 @@ static bool km4_is_mode_seamless(const struct exynos_panel *ctx,
 	const struct drm_display_mode *c = &ctx->current_mode->mode;
 	const struct drm_display_mode *n = &pmode->mode;
 
-	/* Ignore TE frequency flags when comparing modes*/
-	const u32 cflags = c->flags & ~DRM_MODE_FLAG_TE_FREQ_MASK;
-	const u32 nflags = n->flags & ~DRM_MODE_FLAG_TE_FREQ_MASK;
-
 	/* seamless mode set can happen if active region resolution is same */
-	return (c->vdisplay == n->vdisplay) && (c->hdisplay == n->hdisplay) &&
-		   (cflags == nflags);
+	return (c->vdisplay == n->vdisplay) && (c->hdisplay == n->hdisplay);
 }
 
 static int km4_set_op_hz(struct exynos_panel *ctx, unsigned int hz)
@@ -1645,17 +1641,8 @@ static const struct exynos_panel_mode km4_modes[] = {
 #ifdef PANEL_FACTORY_BUILD
 	{
 		.mode = {
-			.name = "1344x2992x1",
-			.clock = 4545,
-			.hdisplay = 1344,
-			.hsync_start = 1344 + 80, // add hfp
-			.hsync_end = 1344 + 80 + 24, // add hsa
-			.htotal = 1344 + 80 + 24 + 52, // add hbp
-			.vdisplay = 2992,
-			.vsync_start = 2992 + 12, // add vfp
-			.vsync_end = 2992 + 12 + 4, // add vsa
-			.vtotal = 2992 + 12 + 4 + 22, // add vbp
-			.flags = 0,
+			.name = "1344x2992@1:1",
+			DRM_MODE_TIMING(1, 1344, 80, 24, 52, 2992, 12, 4, 22),
 			.width_mm = WIDTH_MM,
 			.height_mm = HEIGHT_MM,
 		},
@@ -1674,17 +1661,8 @@ static const struct exynos_panel_mode km4_modes[] = {
 	},
 	{
 		.mode = {
-			.name = "1344x2992x5",
-			.clock = 22725,
-			.hdisplay = 1344,
-			.hsync_start = 1344 + 80, // add hfp
-			.hsync_end = 1344 + 80 + 24, // add hsa
-			.htotal = 1344 + 80 + 24 + 52, // add hbp
-			.vdisplay = 2992,
-			.vsync_start = 2992 + 12, // add vfp
-			.vsync_end = 2992 + 12 + 4, // add vsa
-			.vtotal = 2992 + 12 + 4 + 22, // add vbp
-			.flags = 0,
+			.name = "1344x2992@5:5",
+			DRM_MODE_TIMING(5, 1344, 80, 24, 52, 2992, 12, 4, 22),
 			.width_mm = WIDTH_MM,
 			.height_mm = HEIGHT_MM,
 		},
@@ -1703,17 +1681,8 @@ static const struct exynos_panel_mode km4_modes[] = {
 	},
 	{
 		.mode = {
-			.name = "1344x2992x10",
-			.clock = 45147,
-			.hdisplay = 1344,
-			.hsync_start = 1344 + 80, // add hfp
-			.hsync_end = 1344 + 80 + 24, // add hsa
-			.htotal = 1344 + 80 + 24 + 42, // add hbp
-			.vdisplay = 2992,
-			.vsync_start = 2992 + 12, // add vfp
-			.vsync_end = 2992 + 12 + 4, // add vsa
-			.vtotal = 2992 + 12 + 4 + 22, // add vbp
-			.flags = 0,
+			.name = "1344x2992@10:10",
+			DRM_MODE_TIMING(10, 1344, 80, 24, 42, 2992, 12, 4, 22),
 			.width_mm = WIDTH_MM,
 			.height_mm = HEIGHT_MM,
 		},
@@ -1732,18 +1701,8 @@ static const struct exynos_panel_mode km4_modes[] = {
 	},
 	{
 		.mode = {
-			.name = "1344x2992x30",
-			.clock = 135441,
-			.hdisplay = 1344,
-			.hsync_start = 1344 + 80, // add hfp
-			/* change hsa and hbp to avoid conflicting to LP mode 30Hz */
-			.hsync_end = 1344 + 80 + 22, // add hsa
-			.htotal = 1344 + 80 + 22 + 44, // add hbp
-			.vdisplay = 2992,
-			.vsync_start = 2992 + 12, // add vfp
-			.vsync_end = 2992 + 12 + 4, // add vsa
-			.vtotal = 2992 + 12 + 4 + 22, // add vbp
-			.flags = 0,
+			.name = "1344x2992@30:30",
+			DRM_MODE_TIMING(30, 1344, 80, 22, 44, 2992, 12, 4, 22),
 			.width_mm = WIDTH_MM,
 			.height_mm = HEIGHT_MM,
 		},
@@ -1762,17 +1721,8 @@ static const struct exynos_panel_mode km4_modes[] = {
 	},
 	{
 		.mode = {
-			.name = "1344x2992x80",
-			.clock = 361176,
-			.hdisplay = 1344,
-			.hsync_start = 1344 + 80, // add hfp
-			.hsync_end = 1344 + 80 + 24, // add hsa
-			.htotal = 1344 + 80 + 24 + 42, // add hbp
-			.vdisplay = 2992,
-			.vsync_start = 2992 + 12, // add vfp
-			.vsync_end = 2992 + 12 + 4, // add vsa
-			.vtotal = 2992 + 12 + 4 + 22, // add vbp
-			.flags = 0,
+			.name = "1344x2992@80:80",
+			DRM_MODE_TIMING(80, 1344, 80, 24, 42, 2992, 12, 4, 22),
 			.width_mm = WIDTH_MM,
 			.height_mm = HEIGHT_MM,
 		},
@@ -1792,17 +1742,9 @@ static const struct exynos_panel_mode km4_modes[] = {
 #endif
 	{
 		.mode = {
-			.name = "1344x2992x60",
-			.clock = 270882,
-			.hdisplay = 1344,
-			.hsync_start = 1344 + 80, // add hfp
-			.hsync_end = 1344 + 80 + 24, // add hsa
-			.htotal = 1344 + 80 + 24 + 42, // add hbp
-			.vdisplay = 2992,
-			.vsync_start = 2992 + 12, // add vfp
-			.vsync_end = 2992 + 12 + 4, // add vsa
-			.vtotal = 2992 + 12 + 4 + 22, // add vbp
-			.flags = 0,
+			.name = "1344x2992@60:60",
+			DRM_MODE_TIMING(60, 1344, 80, 24, 42, 2992, 12, 4, 22),
+			/* aligned to bootloader resolution */
 			.type = DRM_MODE_TYPE_PREFERRED,
 			.width_mm = WIDTH_MM,
 			.height_mm = HEIGHT_MM,
@@ -1822,17 +1764,8 @@ static const struct exynos_panel_mode km4_modes[] = {
 	},
 	{
 		.mode = {
-			.name = "1344x2992x120",
-			.clock = 541764,
-			.hdisplay = 1344,
-			.hsync_start = 1344 + 80, // add hfp
-			.hsync_end = 1344 + 80 + 24, // add hsa
-			.htotal = 1344 + 80 + 24 + 42, // add hbp
-			.vdisplay = 2992,
-			.vsync_start = 2992 + 12, // add vfp
-			.vsync_end = 2992 + 12 + 4, // add vsa
-			.vtotal = 2992 + 12 + 4 + 22, // add vbp
-			.flags = 0,
+			.name = "1344x2992@120:120",
+			DRM_MODE_TIMING(120, 1344, 80, 24, 42, 2992, 12, 4, 22),
 			.width_mm = WIDTH_MM,
 			.height_mm = HEIGHT_MM,
 		},
@@ -1853,17 +1786,8 @@ static const struct exynos_panel_mode km4_modes[] = {
 #ifndef PANEL_FACTORY_BUILD
 	{
 		.mode = {
-			.name = "1008x2244x60",
-			.clock = 157320,
-			.hdisplay = 1008,
-			.hsync_start = 1008 + 80, // add hfp
-			.hsync_end = 1008 + 80 + 24, // add hsa
-			.htotal = 1008 + 80 + 24 + 38, // add hbp
-			.vdisplay = 2244,
-			.vsync_start = 2244 + 12, // add vfp
-			.vsync_end = 2244 + 12 + 4, // add vsa
-			.vtotal = 2244 + 12 + 4 + 20, // add vbp
-			.flags = 0,
+			.name = "1008x2244@60:60",
+			DRM_MODE_TIMING(60, 1008, 80, 24, 38, 2244, 12, 4, 20),
 			.width_mm = WIDTH_MM,
 			.height_mm = HEIGHT_MM,
 		},
@@ -1882,17 +1806,8 @@ static const struct exynos_panel_mode km4_modes[] = {
 	},
 	{
 		.mode = {
-			.name = "1008x2244x120",
-			.clock = 314640,
-			.hdisplay = 1008,
-			.hsync_start = 1008 + 80, // add hfp
-			.hsync_end = 1008 + 80 + 24, // add hsa
-			.htotal = 1008 + 80 + 24 + 38, // add hbp
-			.vdisplay = 2244,
-			.vsync_start = 2244 + 12, // add vfp
-			.vsync_end = 2244 + 12 + 4, // add vsa
-			.vtotal = 2244 + 12 + 4 + 20, // add vbp
-			.flags = 0,
+			.name = "1008x2244@120:120",
+			DRM_MODE_TIMING(120, 1008, 80, 24, 38, 2244, 12, 4, 20),
 			.width_mm = WIDTH_MM,
 			.height_mm = HEIGHT_MM,
 		},
@@ -1913,17 +1828,10 @@ static const struct exynos_panel_mode km4_modes[] = {
 	/* VRR modes */
 	{
 		.mode = {
-			.name = "1344x2992x120@240HS",
-			.clock = 541764,
-			.hdisplay = 1344,
-			.hsync_start = 1344 + 80, // add hfp
-			.hsync_end = 1344 + 80 + 24, // add hsa
-			.htotal = 1344 + 80 + 24 + 42, // add hbp
-			.vdisplay = 2992,
-			.vsync_start = 2992 + 12, // add vfp
-			.vsync_end = 2992 + 12 + 4, // add vsa
-			.vtotal = 2992 + 12 + 4 + 22, // add vbp
+			.name = "1344x2992@120:240",
+			DRM_MODE_TIMING(120, 1344, 80, 24, 42, 2992, 12, 4, 22),
 			.flags = DRM_MODE_FLAG_TE_FREQ_X2,
+			/* aligned to bootloader resolution */
 			.type = DRM_MODE_TYPE_VRR | DRM_MODE_TYPE_PREFERRED,
 			.width_mm = WIDTH_MM,
 			.height_mm = HEIGHT_MM,
@@ -1944,16 +1852,8 @@ static const struct exynos_panel_mode km4_modes[] = {
 	},
 	{
 		.mode = {
-			.name = "1008x2244x120@240HS",
-			.clock = 314640,
-			.hdisplay = 1008,
-			.hsync_start = 1008 + 80, // add hfp
-			.hsync_end = 1008 + 80 + 24, // add hsa
-			.htotal = 1008 + 80 + 24 + 38, // add hbp
-			.vdisplay = 2244,
-			.vsync_start = 2244 + 12, // add vfp
-			.vsync_end = 2244 + 12 + 4, // add vsa
-			.vtotal = 2244 + 12 + 4 + 20, // add vbp
+			.name = "1008x2244@120:240",
+			DRM_MODE_TIMING(120, 1008, 80, 24, 38, 2244, 12, 4, 20),
 			.flags = DRM_MODE_FLAG_TE_FREQ_X2,
 			.type = DRM_MODE_TYPE_VRR,
 			.width_mm = WIDTH_MM,
@@ -1981,17 +1881,9 @@ static const struct exynos_panel_mode km4_modes[] = {
 static const struct exynos_panel_mode km4_lp_modes[] = {
 	{
 		.mode = {
-			.name = "1344x2992x30",
-			.clock = 135441,
-			.hdisplay = 1344,
-			.hsync_start = 1344 + 80, // add hfp
-			.hsync_end = 1344 + 80 + 24, // add hsa
-			.htotal = 1344 + 80 + 24 + 42, // add hbp
-			.vdisplay = 2992,
-			.vsync_start = 2992 + 12, // add vfp
-			.vsync_end = 2992 + 12 + 4, // add vsa
-			.vtotal = 2992 + 12 + 4 + 22, // add vbp
-			.flags = 0,
+			.name = "1344x2992@30:30",
+			/* hsa and hbp are different from normal 30 Hz */
+			DRM_MODE_TIMING(30, 1344, 80, 24, 42, 2992, 12, 4, 22),
 			.width_mm = WIDTH_MM,
 			.height_mm = HEIGHT_MM,
 		},
@@ -2008,17 +1900,8 @@ static const struct exynos_panel_mode km4_lp_modes[] = {
 #ifndef PANEL_FACTORY_BUILD
 	{
 		.mode = {
-			.name = "1008x2244x30",
-			.clock = 78660,
-			.hdisplay = 1008,
-			.hsync_start = 1008 + 80, // add hfp
-			.hsync_end = 1008 + 80 + 24, // add hsa
-			.htotal = 1008 + 80 + 24 + 38, // add hbp
-			.vdisplay = 2244,
-			.vsync_start = 2244 + 12, // add vfp
-			.vsync_end = 2244 + 12 + 4, // add vsa
-			.vtotal = 2244 + 12 + 4 + 20, // add vbp
-			.flags = 0,
+			.name = "1008x2244@30:30",
+			DRM_MODE_TIMING(30, 1008, 80, 24, 38, 2244, 12, 4, 20),
 			.width_mm = WIDTH_MM,
 			.height_mm = HEIGHT_MM,
 		},
@@ -2085,8 +1968,10 @@ static void km4_panel_init(struct exynos_panel *ctx)
 		dev_err(ctx->dev, "%s: failed to get thermal zone disp_therm\n",
 			__func__);
 	/* re-init panel to decouple bootloader settings */
-	if (pmode)
+	if (pmode) {
+		dev_info(ctx->dev, "%s: set mode: %s\n", __func__, pmode->mode.name);
 		km4_set_panel_feat(ctx, pmode, 0, true);
+	}
 }
 
 static int km4_panel_probe(struct mipi_dsi_device *dsi)
