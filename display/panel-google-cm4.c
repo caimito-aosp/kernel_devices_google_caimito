@@ -2039,7 +2039,7 @@ static const struct exynos_panel_funcs cm4_exynos_funcs = {
 static const struct exynos_brightness_configuration cm4_btr_configs[] = {
 	{
 		.panel_rev = PANEL_REV_EVT1 | PANEL_REV_LATEST,
-		.dft_brightness = 1240,
+		.dft_brightness = 1209, /* dbv_for_140_nits */
 		.brt_capability = {
 			.normal = {
 				.nits = {
@@ -2073,7 +2073,7 @@ static const struct exynos_brightness_configuration cm4_btr_configs[] = {
 	},
 	{
 		.panel_rev = PANEL_REV_PROTO1_1,
-		.dft_brightness = 1319,
+		.dft_brightness = 1209, /* dbv_for_140_nits */
 		.brt_capability = {
 			.normal = {
 				.nits = {
@@ -2107,7 +2107,7 @@ static const struct exynos_brightness_configuration cm4_btr_configs[] = {
 	},
 	{
 		.panel_rev = PANEL_REV_PROTO1,
-		.dft_brightness = 1313,
+		.dft_brightness = 1209, /* dbv_for_140_nits */
 		.brt_capability = {
 			.normal = {
 				.nits = {
