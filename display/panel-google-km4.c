@@ -247,6 +247,7 @@ static const struct drm_dsc_config fhd_pps_config = {
 #define KM4_TE_USEC_120HZ_HS 273
 #define KM4_TE_USEC_60HZ_HS 8500
 #define KM4_TE_USEC_60HZ_NS 546
+#define KM4_TE_USEC_VRR 273
 
 #define WIDTH_MM 70
 #define HEIGHT_MM 156
@@ -509,7 +510,6 @@ static void km4_set_panel_feat(struct exynos_panel *ctx,
 		test_bit(FEAT_OP_NS, changed_feat) || spanel->hw.vrefresh != vrefresh ||
 		spanel->hw.te_freq != te_freq) {
 		if (test_bit(FEAT_EARLY_EXIT, feat) && !spanel->force_changeable_te) {
-			/* TODO: b/296929080 - verify correct TE setting for NS */
 			if (is_vrr && te_freq == 240) {
 				/* 240Hz multi TE */
 				EXYNOS_DCS_BUF_ADD(ctx, 0xB9, 0x61);
@@ -517,7 +517,12 @@ static void km4_set_panel_feat(struct exynos_panel *ctx,
 				EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x14, 0xB9);
 				EXYNOS_DCS_BUF_ADD(ctx, 0xB9, 0x05, 0xE0, 0x00, 0x30, 0x05, 0xC0);
 				EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x08, 0xB9);
-				EXYNOS_DCS_BUF_ADD(ctx, 0xB9, 0x0B, 0x9B, 0x00, 0x1F, 0x05, 0xAB, 0x00, 0x1F);
+				if (test_bit(FEAT_OP_NS, feat))
+					EXYNOS_DCS_BUF_ADD(ctx, 0xB9, 0x0B, 0xC8, 0x00, 0x1F,
+						0x02, 0xE0, 0x00, 0x1F);
+				else
+					EXYNOS_DCS_BUF_ADD(ctx, 0xB9, 0x0B, 0x9B, 0x00, 0x1F,
+						0x05, 0xAB, 0x00, 0x1F);
 			} else {
 				/* TODO: b/301773022 - add NS based VRR mode */
 				/* 120Hz Fixed TE */
@@ -1157,7 +1162,7 @@ static unsigned int km4_get_te_usec(struct exynos_panel *ctx, const struct exyno
 {
 	const int vrefresh = drm_mode_vrefresh(&pmode->mode);
 
-	if (vrefresh != 60) {
+	if (vrefresh != 60 || is_vrr_mode(pmode)) {
 		return pmode->exynos_mode.te_usec;
 	} else {
 		struct km4_panel *spanel = to_spanel(ctx);
@@ -1841,7 +1846,7 @@ static const struct exynos_panel_mode km4_modes[] = {
 		.exynos_mode = {
 			.mode_flags = MIPI_DSI_CLOCK_NON_CONTINUOUS,
 			.vblank_usec = 120,
-			.te_usec = KM4_TE_USEC_120HZ_HS,
+			.te_usec = KM4_TE_USEC_VRR,
 			.bpc = 8,
 			.dsc = KM4_WQHD_DSC,
 			.underrun_param = &underrun_param,
@@ -1864,7 +1869,7 @@ static const struct exynos_panel_mode km4_modes[] = {
 		.exynos_mode = {
 			.mode_flags = MIPI_DSI_CLOCK_NON_CONTINUOUS,
 			.vblank_usec = 120,
-			.te_usec = KM4_TE_USEC_120HZ_HS,
+			.te_usec = KM4_TE_USEC_VRR,
 			.bpc = 8,
 			.dsc = KM4_FHD_DSC,
 			.underrun_param = &underrun_param,
@@ -1876,7 +1881,52 @@ static const struct exynos_panel_mode km4_modes[] = {
 		.idle_mode = IDLE_MODE_UNSUPPORTED,
 	},
 	/* TODO: b/305783248 - enable 120Hz TE dVRR modes on CM4/KM4 */
-	/* TODO: b/301773022 - add NS based VRR mode */
+	{
+		.mode = {
+			.name = "1344x2992@60:240",
+			DRM_MODE_TIMING(60, 1344, 80, 24, 42, 2992, 12, 4, 22),
+			.flags = DRM_MODE_FLAG_TE_FREQ_X4 | DRM_MODE_FLAG_NS,
+			.type = DRM_MODE_TYPE_VRR,
+			.width_mm = WIDTH_MM,
+			.height_mm = HEIGHT_MM,
+		},
+		.exynos_mode = {
+			.mode_flags = MIPI_DSI_CLOCK_NON_CONTINUOUS,
+			.vblank_usec = 120,
+			.te_usec = KM4_TE_USEC_VRR,
+			.bpc = 8,
+			.dsc = KM4_WQHD_DSC,
+			.underrun_param = &underrun_param,
+		},
+		.te2_timing = {
+			.rising_edge = KM4_TE2_RISING_EDGE_OFFSET,
+			.falling_edge = KM4_TE2_FALLING_EDGE_OFFSET,
+		},
+		.idle_mode = IDLE_MODE_UNSUPPORTED,
+	},
+	{
+		.mode = {
+			.name = "1008x2244@60:240",
+			DRM_MODE_TIMING(60, 1008, 80, 24, 38, 2244, 12, 4, 20),
+			.flags = DRM_MODE_FLAG_TE_FREQ_X4 | DRM_MODE_FLAG_NS,
+			.type = DRM_MODE_TYPE_VRR,
+			.width_mm = WIDTH_MM,
+			.height_mm = HEIGHT_MM,
+		},
+		.exynos_mode = {
+			.mode_flags = MIPI_DSI_CLOCK_NON_CONTINUOUS,
+			.vblank_usec = 120,
+			.te_usec = KM4_TE_USEC_VRR,
+			.bpc = 8,
+			.dsc = KM4_FHD_DSC,
+			.underrun_param = &underrun_param,
+		},
+		.te2_timing = {
+			.rising_edge = KM4_TE2_RISING_EDGE_OFFSET,
+			.falling_edge = KM4_TE2_FALLING_EDGE_OFFSET,
+		},
+		.idle_mode = IDLE_MODE_UNSUPPORTED,
+	},
 #endif
 };
 
