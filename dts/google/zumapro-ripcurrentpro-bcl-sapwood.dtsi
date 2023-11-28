@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Google ZumaPro/Ripcurrentpro bcl device tree source
+ * Google ZumaPro/Ripcurrentpro bcl Sapwood device tree source
  *
  * Copyright (c) 2023 Google, LLC
  *		https://www.google.com
  */
+
 
 #include "google-dts-base/zumapro-board-bcl.dtsi"
 
@@ -34,6 +35,6 @@
 	evt_cnt_rate = <0x0>;   /* 16k */
 	gpios = <&gpa9 5 GPIO_ACTIVE_HIGH>,		/* VDROOP1 */
 		<&gpa9 6 GPIO_ACTIVE_HIGH>;		/* VDROOP2 */
-	interrupt-parent = <&max77779_pmic_irq>;
-	interrupts = <6 IRQ_TYPE_LEVEL_LOW>;
+        interrupt-parent = <&max77779_pmic_irq>;
+        interrupts = <6 IRQ_TYPE_LEVEL_LOW>;
 };
