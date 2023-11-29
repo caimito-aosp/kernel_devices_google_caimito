@@ -44,7 +44,7 @@ enum cm4_panel_feature {
 };
 
 /**
- * The panel effective hardware configurations.
+ * struct cm4_effective_hw_config - The panel effective hardware configurations.
  */
 struct cm4_effective_hw_config {
 	/** @feat: correlated feature effective in panel */
@@ -90,10 +90,12 @@ struct cm4_panel {
 	struct thermal_zone_device *tz;
 	/** @hw_temp: the temperature applied into panel */
 	u32 hw_temp;
-	/** @pending_temp_update: whether there is pending temperature update. It will be
+	/**
+	 * @pending_temp_update: whether there is pending temperature update. It will be
 	 *			  handled in the commit_done function.
 	 */
 	bool pending_temp_update;
+	/** @hw: panel effective hardware configurations */
 	struct cm4_effective_hw_config hw;
 	/**
 	 * @is_pixel_off: pixel-off command is sent to panel. Only sending normal-on or resetting

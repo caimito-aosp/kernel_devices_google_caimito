@@ -38,6 +38,7 @@
 struct tk4b_panel {
 	/** @base: base panel struct */
 	struct exynos_panel base;
+	/** @idle_exit_dimming_delay_ts: dimming delay on idle exit */
 	ktime_t idle_exit_dimming_delay_ts;
 };
 
