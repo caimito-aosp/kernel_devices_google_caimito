@@ -1347,14 +1347,11 @@ static int cm4_enable(struct drm_panel *panel)
 	    ctx->mode_in_progress == MODE_RES_AND_RR_IN_PROGRESS)
 		cm4_wait_for_vsync_done(ctx, pmode);
 
-	/* 8bit config for QHD/FHD */
-	EXYNOS_DCS_WRITE_SEQ(ctx, 0xF2, 0x01, 0x01);
 	/* DSC related configuration */
 	drm_dsc_pps_payload_pack(&pps_payload,
 				 is_fhd ? &fhd_pps_config : &wqhd_pps_config);
-	EXYNOS_PPS_WRITE_BUF(ctx, &pps_payload);
-	/* compression enable */
 	EXYNOS_DCS_WRITE_SEQ(ctx, 0x9D, 0x01);
+	EXYNOS_PPS_WRITE_BUF(ctx, &pps_payload);
 
 	if (needs_reset) {
 		struct cm4_panel *spanel = to_spanel(ctx);
@@ -1366,6 +1363,9 @@ static int cm4_enable(struct drm_panel *panel)
 
 	EXYNOS_DCS_BUF_ADD_SET(ctx, unlock_cmd_f0);
 	EXYNOS_DCS_BUF_ADD(ctx, 0xC3, is_fhd ? 0x0D : 0x0C);
+	/* 8/10bit config for QHD/FHD */
+	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x01, 0xF2);
+	EXYNOS_DCS_BUF_ADD(ctx, 0xF2, is_fhd ? 0x81 : 0x01);
 	EXYNOS_DCS_BUF_ADD_SET_AND_FLUSH(ctx, lock_cmd_f0);
 
 	cm4_update_panel_feat(ctx, true);
