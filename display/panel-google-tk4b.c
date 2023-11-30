@@ -65,7 +65,10 @@ static const struct exynos_dsi_cmd tk4b_lp_off_cmds[] = {
 static const struct exynos_dsi_cmd tk4b_lp_low_cmds[] = {
 	/* 10 nit */
 	EXYNOS_DSI_CMD_SEQ(0x6F, 0x04),
-	EXYNOS_DSI_CMD_SEQ(MIPI_DCS_SET_DISPLAY_BRIGHTNESS, 0x03, 0x33),
+	EXYNOS_DSI_CMD_SEQ_REV(PANEL_REV_GE(PANEL_REV_EVT1_1),
+				MIPI_DCS_SET_DISPLAY_BRIGHTNESS, 0x07, 0xB2),
+	EXYNOS_DSI_CMD_SEQ_REV(PANEL_REV_LT(PANEL_REV_EVT1_1),
+				MIPI_DCS_SET_DISPLAY_BRIGHTNESS, 0x03, 0x33),
 };
 
 static const struct exynos_dsi_cmd tk4b_lp_high_cmds[] = {
@@ -709,7 +712,7 @@ static const struct exynos_panel_mode tk4b_modes[] = {
 		.exynos_mode = {
 			.mode_flags = MIPI_DSI_CLOCK_NON_CONTINUOUS,
 			.vblank_usec = 120,
-			.te_usec = 8604,
+			.te_usec = 8370,
 			.bpc = 8,
 			TK4B_DSC_CONFIG,
 			.underrun_param = &underrun_param,
@@ -729,7 +732,7 @@ static const struct exynos_panel_mode tk4b_modes[] = {
 		.exynos_mode = {
 			.mode_flags = MIPI_DSI_CLOCK_NON_CONTINUOUS,
 			.vblank_usec = 120,
-			.te_usec = 274,
+			.te_usec = 276,
 			.bpc = 8,
 			TK4B_DSC_CONFIG,
 			.underrun_param = &underrun_param,
