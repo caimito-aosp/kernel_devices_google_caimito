@@ -14,6 +14,7 @@
 #include "google-dts-base/zuma-board-wlan.dtsi"
 #include "zumapro-ripcurrentpro-cp-s5400-sit.dtsi"
 #include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-sbbm.dtsi"
+#include "zumapro-dma-heap.dtsi"
 
 /*
 #include "zuma-ripcurrent-battery.dtsi"
