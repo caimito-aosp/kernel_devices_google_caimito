@@ -7,7 +7,3 @@
  */
 
 #include "zuma-ripcurrent24-display.dtsi"
-
-&drmdp {
-	status = "disabled";
-};
