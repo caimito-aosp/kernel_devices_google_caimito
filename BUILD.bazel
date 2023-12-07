@@ -210,6 +210,8 @@ _ZUMAPRO_CAIMITO_DTBOS = [
     "google/zumapro-caiman-evt1-broadcom-gnss-mag3.dtbo",
     "google/zumapro-caiman-evt1-samsung-gnss-mag3.dtbo",
     "google/zumapro-caiman-evt1-wingboard.dtbo",
+    "google/zumapro-caiman-evt1-broadcom-gnss-i2cm.dtbo",
+    "google/zumapro-caiman-evt1-samsung-gnss-i2cm.dtbo",
     "google/zumapro-caiman-evt1_1-broadcom-gnss.dtbo",
     "google/zumapro-caiman-evt1_1-samsung-gnss.dtbo",
     "google/zumapro-caiman-dvt1.dtbo",

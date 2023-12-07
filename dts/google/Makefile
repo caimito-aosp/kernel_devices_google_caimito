@@ -79,6 +79,8 @@ zumapro_caimito_overlays := \
 	zumapro-caiman-evt1-broadcom-gnss-mag3.dtbo \
 	zumapro-caiman-evt1-samsung-gnss-mag3.dtbo \
 	zumapro-caiman-evt1-wingboard.dtbo \
+	zumapro-caiman-evt1-broadcom-gnss-i2cm.dtbo \
+	zumapro-caiman-evt1-samsung-gnss-i2cm.dtbo \
 	zumapro-caiman-evt1_1-broadcom-gnss.dtbo \
 	zumapro-caiman-evt1_1-samsung-gnss.dtbo \
 	zumapro-caiman-dvt1.dtbo \
