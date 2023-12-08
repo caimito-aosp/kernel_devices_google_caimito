@@ -262,15 +262,19 @@ static const u8 pixel_off[] = { 0x22 };
 
 static const struct exynos_dsi_cmd cm4_lp_low_cmds[] = {
 	EXYNOS_DSI_CMD0(unlock_cmd_f0),
-	EXYNOS_DSI_CMD_SEQ(0xB0, 0x00, 0x52, 0x94), /*Global Para*/
-	EXYNOS_DSI_CMD_SEQ(0x94, 0x01, 0x06, 0xDC, 0x02), /* AOD Low Mode, 10nit */
+	EXYNOS_DSI_CMD_SEQ_REV(PANEL_REV_LT(PANEL_REV_EVT1), 0xB0, 0x00, 0x52, 0x94),       /* Global Para */
+	EXYNOS_DSI_CMD_SEQ_REV(PANEL_REV_LT(PANEL_REV_EVT1), 0x94, 0x01, 0x06, 0xDC, 0x02), /* AOD Low Mode, 10nit */
+	EXYNOS_DSI_CMD_SEQ_REV(PANEL_REV_GE(PANEL_REV_EVT1), 0x53, 0x24),                   /* WRCTRLD */
+	EXYNOS_DSI_CMD_SEQ_REV(PANEL_REV_GE(PANEL_REV_EVT1), 0x51, 0x01, 0x6D),             /* AOD Low Mode, 10nit */
 	EXYNOS_DSI_CMD0(lock_cmd_f0),
 };
 
 static const struct exynos_dsi_cmd cm4_lp_high_cmds[] = {
 	EXYNOS_DSI_CMD0(unlock_cmd_f0),
-	EXYNOS_DSI_CMD_SEQ(0xB0, 0x00, 0x52, 0x94), /*Global Para*/
-	EXYNOS_DSI_CMD_SEQ(0x94, 0x00, 0x06, 0xDC, 0x02), /* AOD High Mode, 50nit */
+	EXYNOS_DSI_CMD_SEQ_REV(PANEL_REV_LT(PANEL_REV_EVT1), 0xB0, 0x00, 0x52, 0x94),       /* Global Para */
+	EXYNOS_DSI_CMD_SEQ_REV(PANEL_REV_LT(PANEL_REV_EVT1), 0x94, 0x00, 0x06, 0xDC, 0x02), /* AOD High Mode, 50nit */
+	EXYNOS_DSI_CMD_SEQ_REV(PANEL_REV_GE(PANEL_REV_EVT1), 0x53, 0x24),                   /* WRCTRLD */
+	EXYNOS_DSI_CMD_SEQ_REV(PANEL_REV_GE(PANEL_REV_EVT1), 0x51, 0x02, 0xF6),             /* AOD High Mode, 50nit */
 	EXYNOS_DSI_CMD0(lock_cmd_f0),
 };
 
