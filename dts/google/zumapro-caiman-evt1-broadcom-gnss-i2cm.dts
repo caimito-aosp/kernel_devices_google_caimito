@@ -9,6 +9,7 @@
 /plugin/;
 
 #define ZUMA_BMS_I2CM 1
+#define ZUMA_BMS_PROTO_EVT10_MODEL
 #include "zumapro-caimito-common.dtsi"
 #include "zumapro-caiman-common.dtsi"
 #include "google-dts-base/zumapro-phone-gps.dtsi"

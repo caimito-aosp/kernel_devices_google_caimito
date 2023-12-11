@@ -8,6 +8,7 @@
 /dts-v1/;
 /plugin/;
 
+#define ZUMA_BMS_PROTO_EVT10_MODEL
 #include "zumapro-caimito-common.dtsi"
 #include "zumapro-caiman-common.dtsi"
 #include "google-dts-base/zuma-cp-s5400-phone-gnss.dtsi"
