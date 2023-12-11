@@ -384,9 +384,8 @@
 					 1000
 					 0
 					 0
-					 /* wait OTP settings for 14.4ms */
-					 /* from MCLK clock on to stream on */
-					 14400>;
+					 /* from MCLK to first i2c */
+					 2000>;
 
 				power-down-seqs =
 					"mclk_off",
