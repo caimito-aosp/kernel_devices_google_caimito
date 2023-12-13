@@ -9,6 +9,7 @@
 #include "google-dts-base/zumapro-board-bcl.dtsi"
 
 &google_mitigation {
+	google,ifpmic = <M77759>;
 	google,charger = <&max77759_chg>;
 	google,pmic = <&max77759_chg>;
 	google,power-supply = <&max77759_fg>;
