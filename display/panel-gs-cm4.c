@@ -402,6 +402,7 @@ static void cm4_set_panel_feat(struct gs_panel *ctx, const struct gs_panel_mode 
 	u32 vrefresh = drm_mode_vrefresh(&pmode->mode);
 	u32 te_freq = gs_drm_mode_te_freq(&pmode->mode);
 	bool is_vrr = gs_is_vrr_mode(pmode);
+	bool irc_mode_changed;
 	u8 val;
 	DECLARE_BITMAP(changed_feat, FEAT_MAX);
 
@@ -418,6 +419,7 @@ static void cm4_set_panel_feat(struct gs_panel *ctx, const struct gs_panel_mode 
 
 	if (enforce) {
 		bitmap_fill(changed_feat, FEAT_MAX);
+		irc_mode_changed = true;
 	} else {
 		bitmap_xor(changed_feat, feat, ctx->hw_status.feat, FEAT_MAX);
 		if (bitmap_empty(changed_feat, FEAT_MAX) && vrefresh == ctx->hw_status.vrefresh &&
@@ -426,13 +428,13 @@ static void cm4_set_panel_feat(struct gs_panel *ctx, const struct gs_panel_mode 
 			dev_dbg(dev, "%s: no changes, skip update\n", __func__);
 			return;
 		}
+		irc_mode_changed = (ctx->sw_status.irc_mode == ctx->hw_status.irc_mode);
 	}
 
-	dev_dbg(dev, "ns=%d ee=%d hbm=%d irc=%s auto=%d fps=%u idle_fps=%u, te=%u vrr=%d\n",
+	dev_dbg(dev, "ns=%d ee=%d hbm=%d irc=%d auto=%d fps=%u idle_fps=%u te=%u vrr=%d\n",
 		test_bit(FEAT_OP_NS, feat), test_bit(FEAT_EARLY_EXIT, feat),
-		test_bit(FEAT_HBM, feat), (test_bit(FEAT_IRC_Z_MODE, feat) ? "flat_z" : "flat"),
-		test_bit(FEAT_FRAME_AUTO, feat), vrefresh, idle_vrefresh,
-		te_freq, is_vrr);
+		test_bit(FEAT_HBM, feat), ctx->sw_status.irc_mode, test_bit(FEAT_FRAME_AUTO, feat),
+		vrefresh, idle_vrefresh, te_freq, is_vrr);
 
 	GS_DCS_BUF_ADD_CMDLIST(dev, unlock_cmd_f0);
 
@@ -480,14 +482,17 @@ static void cm4_set_panel_feat(struct gs_panel *ctx, const struct gs_panel_mode 
 	 * and "Flat Z mode" is used to replace IRC off for sunlight
 	 * environment.
 	 */
-	if (test_bit(FEAT_IRC_Z_MODE, changed_feat)) {
+	if (irc_mode_changed) {
 		GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x01, 0x9B, 0x92);
-		GS_DCS_BUF_ADD_CMD(dev, 0x92, 0x27);
+		if (unlikely(ctx->sw_status.irc_mode == IRC_OFF))
+			GS_DCS_BUF_ADD_CMD(dev, 0x92, 0x07);
+		else /* IRC_FLAT_DEFAULT or IRC_FLAT_Z */
+			GS_DCS_BUF_ADD_CMD(dev, 0x92, 0x27);
 		GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x02, 0x00, 0x92);
-		if (test_bit(FEAT_IRC_Z_MODE, feat))
-			GS_DCS_BUF_ADD_CMD(dev, 0x92, 0x70, 0x26, 0xFF, 0xDC);
-		else
+		if (ctx->sw_status.irc_mode == IRC_FLAT_Z)
 			GS_DCS_BUF_ADD_CMD(dev, 0x92, 0x00, 0x00, 0xFF, 0xD0);
+		else /* IRC_OFF or IRC_FLAT_DEFAULT */
+			GS_DCS_BUF_ADD_CMD(dev, 0x92, 0x70, 0x26, 0xFF, 0xDC);
 	}
 
 	/*
@@ -1334,6 +1339,7 @@ static int cm4_disable(struct drm_panel *panel)
 	ctx->hw_status.idle_vrefresh = 0;
 	ctx->hw_status.acl_mode = 0;
 	ctx->hw_status.dbv = 0;
+	ctx->hw_status.irc_mode = IRC_FLAT_DEFAULT;
 
 	GS_DCS_WRITE_DELAY_CMD(dev, 20, MIPI_DCS_SET_DISPLAY_OFF);
 
@@ -1431,15 +1437,15 @@ static void cm4_set_hbm_mode(struct gs_panel *ctx, enum gs_hbm_mode mode)
 		/* enforce IRC on for factory builds */
 #ifndef PANEL_FACTORY_BUILD
 		if (mode == GS_HBM_ON_IRC_ON)
-			clear_bit(FEAT_IRC_Z_MODE, ctx->sw_status.feat);
+			ctx->sw_status.irc_mode = IRC_FLAT_DEFAULT;
 		else
-			set_bit(FEAT_IRC_Z_MODE, ctx->sw_status.feat);
+			ctx->sw_status.irc_mode = IRC_FLAT_Z;
 #endif
 		cm4_update_panel_feat(ctx, false);
 		cm4_write_display_mode(ctx, &pmode->mode);
 	} else {
 		clear_bit(FEAT_HBM, ctx->sw_status.feat);
-		clear_bit(FEAT_IRC_Z_MODE, ctx->sw_status.feat);
+		ctx->sw_status.irc_mode = IRC_FLAT_DEFAULT;
 		cm4_write_display_mode(ctx, &pmode->mode);
 		cm4_update_panel_feat(ctx, false);
 	}
