@@ -470,6 +470,7 @@ static void km4_panel_disable_fi(struct exynos_panel *ctx)
 	EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x00, 0x00);
 	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x80, 0xBD);
 	EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x16);
+	EXYNOS_DCS_BUF_ADD_SET(ctx, freq_update);
 	EXYNOS_DCS_BUF_ADD_SET_AND_FLUSH(ctx, lock_cmd_f0);
 }
 
@@ -608,10 +609,10 @@ static void km4_set_panel_feat(struct exynos_panel *ctx,
 	/*
 	 * Early-exit: enable or disable
 	 */
-#ifdef PANEL_FACTORY_BUILD
 	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x01, 0xBD);
 	val = (test_bit(FEAT_EARLY_EXIT, feat) && vrefresh != 80) ? 0x01 : 0x81;
 	EXYNOS_DCS_BUF_ADD(ctx, 0xBD, val);
+#ifdef PANEL_FACTORY_BUILD
 	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x10, 0xBD);
 	val = test_bit(FEAT_EARLY_EXIT, feat) ? 0x22 : 0x00;
 	EXYNOS_DCS_BUF_ADD(ctx, 0xBD, val);
