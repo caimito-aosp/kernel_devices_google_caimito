@@ -71,6 +71,7 @@ zumapro_caimito_overlays := \
 	zumapro-komodo-evt1-wingboard.dtbo \
 	zumapro-komodo-evt1_1-broadcom-gnss.dtbo \
 	zumapro-komodo-evt1_1-samsung-gnss.dtbo \
+	zumapro-komodo-evt1_1-wingboard.dtbo \
 	zumapro-komodo-dvt1.dtbo \
 	zumapro-komodo-pvt1.dtbo \
 	zumapro-komodo-mp.dtbo \
@@ -83,6 +84,7 @@ zumapro_caimito_overlays := \
 	zumapro-caiman-evt1-samsung-gnss-i2cm.dtbo \
 	zumapro-caiman-evt1_1-broadcom-gnss.dtbo \
 	zumapro-caiman-evt1_1-samsung-gnss.dtbo \
+	zumapro-caiman-evt1_1-wingboard.dtbo \
 	zumapro-caiman-dvt1.dtbo \
 	zumapro-caiman-dvt1-i2cm.dtbo \
 	zumapro-caiman-pvt1.dtbo \
@@ -92,6 +94,7 @@ zumapro_caimito_overlays := \
 	zumapro-tokay-evt1-wingboard.dtbo \
 	zumapro-tokay-evt1_1-broadcom-gnss.dtbo \
 	zumapro-tokay-evt1_1-samsung-gnss.dtbo \
+	zumapro-tokay-evt1_1-wingboard.dtbo \
 	zumapro-tokay-dvt1.dtbo \
 	zumapro-tokay-pvt1.dtbo \
 	zumapro-tokay-mp.dtbo
