@@ -20,5 +20,10 @@
 	google,bpp_dcicl_default_ua = <700000>;
 	google,bpp_dcicl_lower_vout_ua = <700000>;
 	google,bpp_dcicl_lower_vout_ramp_ua = <800000>;
+
+	fod = [97 27 60 6E BB C8 8E 2C A1 E6 A6 CB C5 10 80 28];
+	fod_epp = [8B 4A 8A 2B BB 80 8F 26 90 18 96 FF A8 39 80 19];
+	google,q_value = <76>;
+	google,rf_value = <106>;
 };
 
