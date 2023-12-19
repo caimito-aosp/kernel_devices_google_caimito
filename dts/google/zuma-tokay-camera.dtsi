@@ -126,6 +126,7 @@
 	gpios = <&gpp4 0 GPIO_ACTIVE_HIGH &gpp4 1 GPIO_ACTIVE_HIGH>;
 	status = "okay";
 	clock-frequency = <950000>;
+	samsung,no_lose_arbitration;
 	samsung,reset-before-trans;
 
 	pinctrl-names = "default","on_i2c","off_i2c";
@@ -140,6 +141,7 @@
 	gpios = <&gpp6 0 GPIO_ACTIVE_HIGH &gpp6 1 GPIO_ACTIVE_HIGH>;
 	status = "okay";
 	clock-frequency = <950000>;
+	samsung,no_lose_arbitration;
 	samsung,reset-before-trans;
 
 	pinctrl-names = "default","on_i2c","off_i2c";
@@ -155,6 +157,7 @@
 	status = "okay";
 	/* Limit to 390KHz due to bottleneck in flash LED driver. */
 	clock-frequency = <390000>;
+	samsung,no_lose_arbitration;
 
 	pinctrl-names = "default","on_i2c","off_i2c";
 	pinctrl-0 = <&hsi2c4_bus &flash_en>;
@@ -168,6 +171,7 @@
 	gpios = <&gpp10 0 GPIO_ACTIVE_HIGH &gpp10 1 GPIO_ACTIVE_HIGH>;
 	status = "okay";
 	clock-frequency = <950000>;
+	samsung,no_lose_arbitration;
 	samsung,reset-before-trans;
 	samsung,hybrid-polling-mode;
 	samsung,trailing-count = <0x20000>;
