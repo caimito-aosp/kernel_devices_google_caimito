@@ -8,6 +8,7 @@
 /dts-v1/;
 /plugin/;
 
+#define ZUMA_BMS_PROTO_EVT10_MODEL
 #define ESIM_NO_CHIP_ENABLE_PIN
 #include "zuma-caimito-common.dtsi"
 #include "zuma-komodo-common.dtsi"

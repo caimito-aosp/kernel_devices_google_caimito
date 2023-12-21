@@ -25,6 +25,10 @@
 
 &max77779_fg {
 	maxim,fg-data {
+#ifdef ZUMA_BMS_PROTO_EVT10_MODEL
+		#include "zuma-komodo-proto-evt10-battery-data.dtsi"
+#else
 		#include "zuma-komodo-battery-data.dtsi"
+#endif
 	};
 };
