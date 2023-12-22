@@ -7,3 +7,4 @@ obj-$(CONFIG_DRM_PANEL_GOOGLE_KM4)		+= panel-google-km4.o
 obj-$(CONFIG_DRM_PANEL_GOOGLE_SHORELINE)	+= panel-google-shoreline.o
 obj-$(CONFIG_DRM_PANEL_GOOGLE_TK4A)		+= panel-google-tk4a.o
 obj-$(CONFIG_DRM_PANEL_GOOGLE_TK4B)		+= panel-google-tk4b.o
+obj-$(CONFIG_DRM_PANEL_GOOGLE_TK4C)		+= panel-google-tk4c.o

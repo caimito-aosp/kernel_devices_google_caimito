@@ -7,8 +7,9 @@ kernel_module(
     srcs = glob([
         "**/*.c",
         "**/*.h",
-        "Kbuild",
     ]) + [
+        "Kbuild",
+    ] + [
         "//private/google-modules/display/common:headers",
         "//private/google-modules/display/samsung:headers",
         "//private/google-modules/display/samsung/include:headers",
@@ -23,6 +24,7 @@ kernel_module(
         "panel-google-shoreline.ko",
         "panel-google-tk4a.ko",
         "panel-google-tk4b.ko",
+        "panel-google-tk4c.ko",
     ],
     kernel_build = "//private/google-modules/soc/gs:gs_kernel_build",
     visibility = [
