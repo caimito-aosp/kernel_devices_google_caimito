@@ -34,7 +34,7 @@
 	synaptics,pt05_gap_x_name = "synaptics,pt05_gap_x", "synaptics,pt05_gap_x_b";
 	synaptics,pt05_gap_y_name = "synaptics,pt05_gap_y", "synaptics,pt05_gap_y_b";
 	synaptics,pt0a_high_name = "synaptics,pt0a_high", "synaptics,pt0a_high_b";
-	synaptics,pt0a_low_name = "synaptics,pt0a_high", "synaptics,pt0a_low_b";
+	synaptics,pt0a_low_name = "synaptics,pt0a_low", "synaptics,pt0a_low_b";
 	synaptics,pt10_high_name = "synaptics,pt10_high", "synaptics,pt10_high_b";
 	synaptics,pt10_low_name = "synaptics,pt10_low", "synaptics,pt10_low_b";
 	synaptics,pt10_gap_x_name = "synaptics,pt10_gap_x", "synaptics,pt10_gap_x_b";
