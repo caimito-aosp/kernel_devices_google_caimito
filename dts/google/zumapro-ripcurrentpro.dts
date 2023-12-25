@@ -27,7 +27,7 @@
 #include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-typec.dtsi"
 #include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-gsa-gsc.dtsi"
 #include "google-dts-base/zumapro-board-bluetooth.dtsi"
-#include "google-dts-base/zumapro-board-gps.dtsi"
+#include "google-dts-base/zumapro-board-cp-s5400-gps.dtsi"
 #include "google-dts-base/zuma-board-nfc.dtsi"
 #include "google-dts-base/zuma-board-ese.dtsi"
 #include "zumapro-ripcurrentpro-bcl-muirwood.dtsi"
