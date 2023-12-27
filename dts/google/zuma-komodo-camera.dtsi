@@ -474,7 +474,6 @@
 				/* VDIG          ldo6 */
 				/* VANA          ldo2 */
 				/* VIO           s2mpg15_ldo12 */
-				/* RESET         reset */
 				/* MCLK_ON       mclk_on */
 				/* Actuator */
 				/* AF_VM         ldo4 */
@@ -485,7 +484,6 @@
 					"ldo2",
 					"s2mpg15_ldo12",
 					"ldo4",
-					"reset",
 					"mclk_on";
 				power-up-seq-types =
 					"regulator",
@@ -494,7 +492,6 @@
 					"regulator",
 					"regulator",
 					"regulator",
-					"gpio",
 					"pinctrl";
 				power-up-seq-delays-us =
 					<0
@@ -503,13 +500,10 @@
 					 0
 					 1000
 					 0
-					 0
-					 /* from MCLK to first i2c */
-					 2000>;
+					 0>;
 
 				power-down-seqs =
 					"mclk_off",
-					"reset",
 					"ldo4",
 					"s2mpg15_ldo12",
 					"ldo2",
@@ -518,7 +512,6 @@
 					"pp3200_bb";
 				power-down-seq-types =
 					"pinctrl",
-					"gpio",
 					"regulator",
 					"regulator",
 					"regulator",
@@ -527,7 +520,6 @@
 					"regulator";
 				power-down-seq-delays-us =
 					<0
-					 0
 					 1000
 					 0
 					 0
@@ -546,7 +538,6 @@
 				/* VDIG              ldo7 */
 				/* VDDA              ldo3 */
 				/* VDDIO             s2mpg15_ldo12 */
-				/* RESET             reset[0] */
 				/* MCLK_ON           mclk_on */
 				/* AFOIS */
 				/* AF_VM             gpio3 */
@@ -560,7 +551,7 @@
 					"s2mpg15_ldo12",
 					"ldo5",
 					"gpio3",
-					"reset",
+					"reset_afois",
 					"mclk_on";
 				power-up-seq-types =
 					"regulator",
@@ -581,13 +572,12 @@
 					 1000
 					 1000
 					 1000
-					 /* from MCLK to first i2c */
-					 2000>;
+					 0>;
 
 				/* Power down sequence */
 				power-down-seqs =
 					"mclk_off",
-					"reset",
+					"reset_afois",
 					"gpio3",
 					"ldo5",
 					"s2mpg15_ldo12",
@@ -732,6 +722,10 @@
 				/* I2C */
 				i2c-bus = <&hsi2c_2>;
 				i2c-addr = <0x1A>;
+
+				/* Power up mode */
+				lwis,power-up-to-suspend;
+
 				/* Registers */
 				reg-addr-bitwidth = <16>;
 				reg-value-bitwidth = <8>;
@@ -766,6 +760,17 @@
 				/* Power sequence */
 				power-seq = <&rear_uw_camera_power_seq>;
 
+				/* resume sequence */
+				resume-seqs = "reset";
+				resume-seq-types = "gpio";
+				/* from XCLR to first i2c */
+				resume-seq-delays-us = <2000>;
+
+				/* suspend sequence */
+				suspend-seqs = "reset";
+				suspend-seq-types = "gpio";
+				suspend-seq-delays-us = <0>;
+
 				/* Thread priority */
 				transaction-thread-priority = <99>;
 
@@ -783,6 +788,9 @@
 				i2c-bus = <&hsi2c_1>;
 				i2c-addr = <0x33>;
 
+				/* Power up mode */
+				lwis,power-up-to-suspend;
+
 				/* Registers */
 				reg-addr-bitwidth = <16>;
 				reg-value-bitwidth = <8>;
@@ -790,9 +798,8 @@
 				/* GPIOs */
 				/* RTCAM_RST_L GPP2[2] */
 				/* RTCAM_AF_OIS_RST GPP24[2] */
-				reset-gpios =
-					<&gpp2 2 GPIO_ACTIVE_HIGH
-					 &gpp24 2 GPIO_ACTIVE_HIGH>;
+				reset-gpios = <&gpp2 2 GPIO_ACTIVE_HIGH>;
+				reset_afois-gpios = <&gpp24 2 GPIO_ACTIVE_HIGH>;
 
 				/* Power supplies */
 				pp3200_bb-supply = <&cam_pp3200_bb>;
@@ -820,6 +827,17 @@
 
 				/* Power sequence */
 				power-seq = <&rear_tele_camera_power_seq>;
+
+				/* resume sequence */
+				resume-seqs = "reset";
+				resume-seq-types = "gpio";
+				/* from XCLR to first i2c */
+				resume-seq-delays-us = <2000>;
+
+				/* suspend sequence */
+				suspend-seqs = "reset";
+				suspend-seq-types = "gpio";
+				suspend-seq-delays-us = <1000>;
 
 				/* Thread priority */
 				transaction-thread-priority = <99>;
@@ -956,9 +974,8 @@
 				/* GPIOs */
 				/* RTCAM_RST_L GPP2[2] */
 				/* RTCAM_AF_OIS_RST GPP24[2] */
-				reset-gpios =
-					<&gpp2 2 GPIO_ACTIVE_HIGH
-					 &gpp24 2 GPIO_ACTIVE_HIGH>;
+				reset-gpios = <&gpp2 2 GPIO_ACTIVE_HIGH>;
+				reset_afois-gpios = <&gpp24 2 GPIO_ACTIVE_HIGH>;
 
 				/* Power supplies */
 				pp3200_bb-supply = <&cam_pp3200_bb>;
@@ -1167,9 +1184,8 @@
 				/* GPIOs */
 				/* RTCAM_RST_L GPP2[2] */
 				/* RTCAM_AF_OIS_RST GPP24[2] */
-				reset-gpios =
-					<&gpp2 2 GPIO_ACTIVE_HIGH
-					 &gpp24 2 GPIO_ACTIVE_HIGH>;
+				reset-gpios = <&gpp2 2 GPIO_ACTIVE_HIGH>;
+				reset_afois-gpios = <&gpp24 2 GPIO_ACTIVE_HIGH>;
 
 				/* Power supplies */
 				pp3200_bb-supply = <&cam_pp3200_bb>;

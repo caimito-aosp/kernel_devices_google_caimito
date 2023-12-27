@@ -355,7 +355,6 @@
 				/* VDIG          ldo6 */
 				/* VANA          ldo2 */
 				/* VIO           s2mpg15_ldo12 */
-				/* RESET         reset */
 				/* MCLK_ON       mclk_on */
 				/* Actuator  */
 				/* AF_VM         ldo4 */
@@ -366,7 +365,6 @@
 					"ldo2",
 					"s2mpg15_ldo12",
 					"ldo4",
-					"reset",
 					"mclk_on";
 				power-up-seq-types =
 					"regulator",
@@ -384,13 +382,10 @@
 					 0
 					 1000
 					 0
-					 0
-					 /* from MCLK to first i2c */
-					 2000>;
+					 0>;
 
 				power-down-seqs =
 					"mclk_off",
-					"reset",
 					"ldo4",
 					"s2mpg15_ldo12",
 					"ldo2",
@@ -399,7 +394,6 @@
 					"pp3200_bb";
 				power-down-seq-types =
 					"pinctrl",
-					"gpio",
 					"regulator",
 					"regulator",
 					"regulator",
@@ -408,7 +402,6 @@
 					"regulator";
 				power-down-seq-delays-us =
 					<0
-					 0
 					 1000
 					 0
 					 0
@@ -533,6 +526,10 @@
 				/* I2C */
 				i2c-bus = <&hsi2c_2>;
 				i2c-addr = <0x1A>;
+
+				/* Power up mode */
+				lwis,power-up-to-suspend;
+
 				/* Registers */
 				reg-addr-bitwidth = <16>;
 				reg-value-bitwidth = <8>;
@@ -566,6 +563,17 @@
 
 				/* Power sequence */
 				power-seq = <&rear_uw_camera_power_seq>;
+
+				/* resume sequence */
+				resume-seqs = "reset";
+				resume-seq-types = "gpio";
+				/* from XCLR to first i2c */
+				resume-seq-delays-us = <2000>;
+
+				/* suspend sequence */
+				suspend-seqs = "reset";
+				suspend-seq-types = "gpio";
+				suspend-seq-delays-us = <0>;
 
 				/* Thread priority */
 				transaction-thread-priority = <99>;
