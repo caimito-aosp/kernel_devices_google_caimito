@@ -433,11 +433,11 @@ static int tk4a_enable(struct drm_panel *panel)
 	/* dimming and HBM */
 	tk4a_update_wrctrld(ctx);
 
-	/* display on */
 	if (pmode->exynos_mode.is_lp_mode)
 		exynos_panel_set_lp_mode(ctx, pmode);
-	else
-		EXYNOS_DCS_WRITE_SEQ(ctx, MIPI_DCS_SET_DISPLAY_ON);
+
+	/* display on */
+	EXYNOS_DCS_WRITE_SEQ(ctx, MIPI_DCS_SET_DISPLAY_ON);
 
 	return 0;
 }
