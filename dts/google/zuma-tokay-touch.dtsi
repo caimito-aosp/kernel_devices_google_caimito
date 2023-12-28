@@ -7,9 +7,9 @@
  */
 
 &spitouch {
-	// goog,offload-enabled;
-	// goog,v4l2-enabled;
-	goog,touch_offload_ids = /bits/ 8 <'t' 'k' '4' '0'>;
+	goog,panel_map = <&google_tk4a 0>,
+			 <&google_tk4b 1>;
+	goog,touch_offload_ids = /bits/ 8 <'t' 'k' '4' '0' 't' 'k' '4' '1'>;
 	goog,display-resolution = /bits/ 16 <1080 2424>;
 	goog,channel-num = /bits/ 16 <16 36>;
 	goog,offload-caps-data-types = /bits/ 16 <0x1F>;
@@ -20,9 +20,6 @@
 	goog,default-palm-disabled;
 
 	synaptics,pixels-per-mm = <17>;
-	goog,panel_map = <&google_tk4a 0>,
-			 <&google_tk4b 1>;
-
 	synaptics,panel_map = <&google_tk4a>,
 			      <&google_tk4b>;
 	synaptics,firmware_names = "synaptics.img",
