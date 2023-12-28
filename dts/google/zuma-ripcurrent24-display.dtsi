@@ -62,6 +62,7 @@
 };
 
 &drmdsim1 {
+	status = "okay";
 	panel@5 {
 		compatible = "google,km4";
 		label = "google-km4";

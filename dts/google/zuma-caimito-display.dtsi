@@ -6,9 +6,17 @@
  *
  */
 
-#include "google-dts-base/devices/ripcurrent/zuma-ripcurrent-display.dtsi"
+#include <dt-bindings/gpio/gpio.h>
 
 &drmdsim0 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+
+	panel@0 {
+		touch = <&spitouch>;
+	};
+
 	panel@1 {
 		compatible = "samsung,emul";
 		label = "samsung-emul";
@@ -17,35 +25,45 @@
 		/* reset, power */
 		reset-gpios = <&gpp0 0 GPIO_ACTIVE_HIGH>;
 	};
-	panel@2 {
-		compatible = "google,hk3";
-		label = "google-hk3";
-		channel = <0>;
+};
 
-		/* reset, power */
-		reset-gpios = <&gpp0 0 GPIO_ACTIVE_HIGH>;
-		vci-supply = <&m_ldo14_reg>;
-		vddi-supply = <&s_bucka_reg>;
-		vddd-supply = <&disp_vddd>;
-	};
-	panel@3 {
-		compatible = "google,bigsurf";
-		label = "google-bigsurf";
-		channel = <0>;
-
-		/* reset, power */
-		reset-gpios = <&gpp0 0 GPIO_ACTIVE_HIGH>;
-		vci-supply = <&m_ldo14_reg>;
-		vddi-supply = <&s_bucka_reg>;
-		vddd-supply = <&disp_vddd>;
-	};
+&drmdsim1 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	/* If used, override it in product dtsi */
+	status = "disabled";
 };
 
 &disp_vddd {
+	status = "okay";
 	gpio = <&gpp21 4 GPIO_ACTIVE_HIGH>;
 };
 
 &drmdp {
+	status = "okay";
 	aux-orientation = "auto";
 };
 
+&m_ldo14_reg {
+	/delete-property/ regulator-always-on;
+};
+
+&m_ldo22_reg {
+	/delete-property/ regulator-always-on;
+};
+
+&s_ldo8_reg {
+	/delete-property/ regulator-always-on;
+};
+
+&drmdecon0 {
+	status = "okay";
+};
+
+&drmdecon1 {
+	status = "disabled";
+};
+
+&drmdecon2 {
+	status = "okay";
+};
