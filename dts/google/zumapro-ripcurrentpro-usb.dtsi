@@ -13,3 +13,7 @@
 &usbdrd_dwc3 {
 	maximum-speed = "super-speed";
 };
+
+&usbdrd_phy0 {
+	extcon = <&max77759tcpc>;
+};
