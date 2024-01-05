@@ -123,6 +123,7 @@
 		reset-gpios = <&gpp16 2 GPIO_ACTIVE_LOW>;
 
 		cirrus,bst-dcm-en = <0>;
+		cirrus,pwle-zero-cross-en;
 		cirrus,vpbr-enable;
 		cirrus,vpbr-thld-uv = <2800000>;	/* 2.8V */
 		cirrus,bst-expl-mode-disable;
@@ -157,6 +158,7 @@
 		reset-gpios = <&gph2 3 GPIO_ACTIVE_LOW>;
 
 		cirrus,bst-dcm-en = <0>;
+		cirrus,pwle-zero-cross-en;
 		cirrus,vpbr-enable;
 		cirrus,vpbr-thld-uv = <2800000>;	/* 2.8V */
 		cirrus,bst-expl-mode-disable;
