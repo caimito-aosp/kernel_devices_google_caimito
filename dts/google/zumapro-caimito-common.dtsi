@@ -31,4 +31,5 @@
 #include "zuma-caimito-typec.dtsi"
 #include "zumapro-caimito-usecases.dtsi"
 #include "zumapro-cp-s5400-thermal-zone.dtsi"
+#include "zumapro-caimito-sbbm.dtsi"
 
