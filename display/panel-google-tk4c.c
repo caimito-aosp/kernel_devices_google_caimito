@@ -18,9 +18,7 @@
 #include "panel/panel-samsung-drv.h"
 #include "gs_drm/gs_display_mode.h"
 
-
-/* TODO: b/310801601#comment11 - Update with DSC v1.2a from complete OP code. */
-/* PPS Setting DSC 1.1 SCR v4 */
+/* PPS Setting DSC 1.2a */
 static const struct drm_dsc_config pps_config = {
 	.line_buf_depth = 9,
 	.bits_per_component = 8,
@@ -37,9 +35,9 @@ static const struct drm_dsc_config pps_config = {
 	.rc_quant_incr_limit1 = 11,
 	.rc_quant_incr_limit0 = 11,
 	.initial_xmit_delay = 512,
-	.initial_dec_delay = 594,
+	.initial_dec_delay = 526,
 	.block_pred_enable = true,
-	.first_line_bpg_offset = 15,
+	.first_line_bpg_offset = 12,
 	.initial_offset = 6144,
 	.rc_buf_thresh = {
 		14, 28, 42, 56,
@@ -58,24 +56,24 @@ static const struct drm_dsc_config pps_config = {
 		{.range_min_qp = 3, .range_max_qp = 8, .range_bpg_offset = 56},
 		{.range_min_qp = 3, .range_max_qp = 9, .range_bpg_offset = 56},
 		{.range_min_qp = 3, .range_max_qp = 10, .range_bpg_offset = 54},
-		{.range_min_qp = 5, .range_max_qp = 10, .range_bpg_offset = 54},
-		{.range_min_qp = 5, .range_max_qp = 11, .range_bpg_offset = 52},
-		{.range_min_qp = 5, .range_max_qp = 11, .range_bpg_offset = 52},
-		{.range_min_qp = 9, .range_max_qp = 12, .range_bpg_offset = 52},
-		{.range_min_qp = 12, .range_max_qp = 13, .range_bpg_offset = 52}
+		{.range_min_qp = 5, .range_max_qp = 11, .range_bpg_offset = 54},
+		{.range_min_qp = 5, .range_max_qp = 12, .range_bpg_offset = 52},
+		{.range_min_qp = 5, .range_max_qp = 13, .range_bpg_offset = 52},
+		{.range_min_qp = 7, .range_max_qp = 13, .range_bpg_offset = 52},
+		{.range_min_qp = 13, .range_max_qp = 15, .range_bpg_offset = 52}
 	},
 	.rc_model_size = 8192,
 	.flatness_min_qp = 3,
 	.flatness_max_qp = 12,
 	.initial_scale_value = 32,
 	.scale_decrement_interval = 7,
-	.scale_increment_interval = 2241,
-	.nfl_bpg_offset = 308,
+	.scale_increment_interval = 2517,
+	.nfl_bpg_offset = 246,
 	.slice_bpg_offset = 258,
 	.final_offset = 4336,
 	.vbr_enable = false,
 	.slice_chunk_size = 540,
-	.dsc_version_minor = 1,
+	.dsc_version_minor = 2,
 	.dsc_version_major = 1,
 	.native_422 = false,
 	.native_420 = false,
@@ -89,6 +87,8 @@ static const struct drm_dsc_config pps_config = {
 
 static const u8 test_key_enable[] = { 0xF0, 0x5A, 0x5A };
 static const u8 test_key_disable[] = { 0xF0, 0xA5, 0xA5 };
+static const u8 test_key_fc_enable[] = { 0xFC, 0x5A, 0x5A };
+static const u8 test_key_fc_disable[] = { 0xFC, 0xA5, 0xA5 };
 static const u8 ltps_update[] = { 0xF7, 0x2F };
 static const u8 pixel_off[] = { 0x22 };
 
@@ -129,20 +129,8 @@ static const struct exynos_dsi_cmd tk4c_init_cmds[] = {
 	/* TE on */
 	EXYNOS_DSI_CMD_SEQ(MIPI_DCS_SET_TEAR_ON),
 
-	/* TE width setting */
-	EXYNOS_DSI_CMD0(test_key_enable),
-	EXYNOS_DSI_CMD_SEQ(0xB9, 0x51),
-	EXYNOS_DSI_CMD_SEQ(0xB0, 0x00, 0x08, 0xB9),
-	EXYNOS_DSI_CMD_SEQ(0xB9, 0x00, 0x09, 0x4B, 0x00, 0x00, 0x0B, 0x00, 0x09, 0x90, 0x00, 0x09, 0x90),
-	EXYNOS_DSI_CMD0(test_key_disable),
-
-	/* TE2 width setting */
-	EXYNOS_DSI_CMD0(test_key_enable),
-	EXYNOS_DSI_CMD_SEQ(0xB0, 0x00, 0x01, 0xB9),
-	EXYNOS_DSI_CMD_SEQ(0xB9, 0x51),
-	EXYNOS_DSI_CMD_SEQ(0xB0, 0x00, 0x26, 0xB9),
-	EXYNOS_DSI_CMD_SEQ(0xB9, 0x00, 0x00, 0x0F, 0x00, 0x00, 0x3C, 0x00, 0x09, 0x90, 0x00, 0x09, 0x90),
-	EXYNOS_DSI_CMD0(test_key_disable),
+	/* TE width setting (MTP'ed) */
+	/* TE2 width setting (MTP'ed) */
 
 	/* CASET: 1080 */
 	EXYNOS_DSI_CMD_SEQ(MIPI_DCS_SET_COLUMN_ADDRESS, 0x00, 0x00, 0x04, 0x37),
@@ -150,7 +138,15 @@ static const struct exynos_dsi_cmd tk4c_init_cmds[] = {
 	/* PASET: 2424 */
 	EXYNOS_DSI_CMD_SEQ(MIPI_DCS_SET_PAGE_ADDRESS, 0x00, 0x00, 0x09, 0x77),
 
-	/* TODO: b/310801601#comment11 - FFC settings with complete OP code */
+	/* FFC Setting @756Mbps */
+	EXYNOS_DSI_CMD0(test_key_enable),
+	EXYNOS_DSI_CMD0(test_key_fc_enable),
+	EXYNOS_DSI_CMD_SEQ(0xB0, 0x00, 0x3A, 0xC5),
+	EXYNOS_DSI_CMD_SEQ(0xC5, 0x6C, 0x5C),
+	EXYNOS_DSI_CMD_SEQ(0xB0, 0x00, 0x36, 0xC5),
+	EXYNOS_DSI_CMD_SEQ(0xC5, 0x11, 0x10, 0x50, 0x05),
+	EXYNOS_DSI_CMD0(test_key_disable),
+	EXYNOS_DSI_CMD0(test_key_fc_disable),
 };
 static DEFINE_EXYNOS_CMD_SET(tk4c_init);
 
@@ -266,22 +262,15 @@ static void tk4c_set_hbm_mode(struct exynos_panel *ctx,
 
 	EXYNOS_DCS_BUF_ADD_SET(ctx, test_key_enable);
 	if (ctx->hbm_mode) {
-		/* TODO: b/310801601#comment11 - Update FGZ mode settings with complete OP code */
-		// EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x61, 0x68);
-		// EXYNOS_DCS_BUF_ADD(ctx, 0x68, 0xXX, 0xXX, 0xXX, 0xXX, 0xXX, 0xXX, 0xXX, 0xXX);
+		/* FGZ mode setting */
+		EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x61, 0x68);
+		EXYNOS_DCS_BUF_ADD(ctx, 0x68, 0xB0, 0x2C, 0x6A, 0x80, 0x00, 0x00, 0xF5, 0xC4);
 	}
 
 	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x01, 0xBD);
-
-	if (ctx->hbm_mode) {
-		EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x00);
-		EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x2E, 0xBD);
-		EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x00, 0x01);
-	} else {
-		EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x01);
-		EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x2E, 0xBD);
-		EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x00, 0x02);
-	}
+	EXYNOS_DCS_BUF_ADD(ctx, 0xBD, ctx->hbm_mode ? 0x80 : 0x81);
+	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x2E, 0xBD);
+	EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x00, ctx->hbm_mode ? 0x01 : 0x02);
 
 	EXYNOS_DCS_BUF_ADD_SET(ctx, ltps_update);
 	EXYNOS_DCS_BUF_ADD_SET_AND_FLUSH(ctx, test_key_disable);
@@ -425,14 +414,14 @@ static int tk4c_panel_probe(struct mipi_dsi_device *dsi)
 }
 
 static const struct exynos_display_underrun_param underrun_param = {
-	.te_idle_us = 500,
+	.te_idle_us = 350,
 	.te_var = 1,
 };
 
 static const u16 WIDTH_MM = 65, HEIGHT_MM = 146;
 static const u16 HDISPLAY = 1080, VDISPLAY = 2424;
 static const u16 HFP = 32, HSA = 12, HBP = 16;
-static const u16 VFP = 12, VSA = 4, VBP = 15;
+static const u16 VFP = 8, VSA = 4, VBP = 16;
 
 #define TK4C_DSC {\
 	.enabled = true,\
@@ -455,7 +444,7 @@ static const struct exynos_panel_mode tk4c_modes[] = {
 		.exynos_mode = {
 			.mode_flags = MIPI_DSI_CLOCK_NON_CONTINUOUS,
 			.vblank_usec = 120,
-			.te_usec = 8450,
+			.te_usec = 8360,
 			.bpc = 8,
 			.dsc = TK4C_DSC,
 			.underrun_param = &underrun_param,
@@ -570,14 +559,18 @@ const struct exynos_panel_desc google_tk4c = {
 	.num_binned_lp = ARRAY_SIZE(tk4c_binned_lp),
 	.panel_func = &tk4c_drm_funcs,
 	.exynos_panel_func = &tk4c_exynos_funcs,
-	.reset_timing_ms = {1, 1, 5},
+	.reset_timing_ms = {1, 1, 1},
 	.reg_ctrl_enable = {
 		{PANEL_REG_ID_VDDI, 0},
-		{PANEL_REG_ID_VCI, 0},
-		{PANEL_REG_ID_VDDD, 10},
+		{PANEL_REG_ID_VCI, 10},
+	},
+	.reg_ctrl_post_enable = {
+		{PANEL_REG_ID_VDDD, 5},
+	},
+	.reg_ctrl_pre_disable = {
+		{PANEL_REG_ID_VDDD, 0},
 	},
 	.reg_ctrl_disable = {
-		{PANEL_REG_ID_VDDD, 0},
 		{PANEL_REG_ID_VCI, 0},
 		{PANEL_REG_ID_VDDI, 0},
 	},
