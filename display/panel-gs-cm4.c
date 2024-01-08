@@ -212,21 +212,13 @@ static const u8 aod_off[] = { MIPI_DCS_WRITE_CONTROL_DISPLAY, 0x20 };
 static const u8 pixel_off[] = { 0x22 };
 
 static const struct gs_dsi_cmd cm4_lp_low_cmds[] = {
-	GS_DSI_CMDLIST(unlock_cmd_f0),
-	GS_DSI_REV_CMD(PANEL_REV_LT(PANEL_REV_EVT1), 0xB0, 0x00, 0x52, 0x94),       /* Global Para */
-	GS_DSI_REV_CMD(PANEL_REV_LT(PANEL_REV_EVT1), 0x94, 0x01, 0x06, 0xDC, 0x02), /* AOD Low Mode, 10nit */
-	GS_DSI_REV_CMD(PANEL_REV_GE(PANEL_REV_EVT1), 0x53, 0x24),                   /* WRCTRLD */
-	GS_DSI_REV_CMD(PANEL_REV_GE(PANEL_REV_EVT1), 0x51, 0x01, 0x6D),             /* AOD Low Mode, 10nit */
-	GS_DSI_CMDLIST(lock_cmd_f0),
+	/* AOD Low Mode, 10nit */
+	GS_DSI_CMD(MIPI_DCS_SET_DISPLAY_BRIGHTNESS, 0x01, 0x6D),
 };
 
 static const struct gs_dsi_cmd cm4_lp_high_cmds[] = {
-	GS_DSI_CMDLIST(unlock_cmd_f0),
-	GS_DSI_REV_CMD(PANEL_REV_LT(PANEL_REV_EVT1), 0xB0, 0x00, 0x52, 0x94),       /* Global Para */
-	GS_DSI_REV_CMD(PANEL_REV_LT(PANEL_REV_EVT1), 0x94, 0x00, 0x06, 0xDC, 0x02), /* AOD High Mode, 50nit */
-	GS_DSI_REV_CMD(PANEL_REV_GE(PANEL_REV_EVT1), 0x53, 0x24),                   /* WRCTRLD */
-	GS_DSI_REV_CMD(PANEL_REV_GE(PANEL_REV_EVT1), 0x51, 0x02, 0xF6),             /* AOD High Mode, 50nit */
-	GS_DSI_CMDLIST(lock_cmd_f0),
+	/* AOD High Mode, 50nit */
+	GS_DSI_CMD(MIPI_DCS_SET_DISPLAY_BRIGHTNESS, 0x02, 0xF6),
 };
 
 static const struct gs_binned_lp cm4_binned_lp[] = {
@@ -1117,13 +1109,16 @@ static void cm4_set_lp_mode(struct gs_panel *ctx, const struct gs_panel_mode *pm
 
 	DPU_ATRACE_BEGIN(__func__);
 
-	GS_DCS_WRITE_CMD(dev, MIPI_DCS_SET_DISPLAY_OFF);
-	cm4_wait_for_vsync_done(ctx, pmode);
-	GS_DCS_BUF_ADD_CMDLIST(dev, aod_on);
+	/* enforce manual and peak to have a smooth transition */
 	GS_DCS_BUF_ADD_CMDLIST(dev, unlock_cmd_f0);
-	/* AOD Low Mode, 10nit */
-	GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x52, 0x94);
-	GS_DCS_BUF_ADD_CMD(dev, 0x94, 0x01, 0x07, 0x6A, 0x02);
+	GS_DCS_BUF_ADD_CMD(dev, 0xBD, 0x21);
+	GS_DCS_BUF_ADD_CMD(dev, 0x60, !test_bit(FEAT_OP_NS, ctx->sw_status.feat) ? 0x00 : 0x18);
+	GS_DCS_BUF_ADD_CMDLIST(dev, freq_update);
+	GS_DCS_BUF_ADD_CMDLIST_AND_FLUSH(dev, lock_cmd_f0);
+
+	cm4_wait_for_vsync_done(ctx, pmode);
+	GS_DCS_BUF_ADD_CMDLIST(dev, unlock_cmd_f0);
+	GS_DCS_BUF_ADD_CMDLIST(dev, aod_on);
 	/* Fixed TE: sync on */
 	GS_DCS_BUF_ADD_CMD(dev, 0xB9, 0x51);
 	/* Auto frame insertion: 1Hz */
@@ -1143,7 +1138,6 @@ static void cm4_set_lp_mode(struct gs_panel *ctx, const struct gs_panel_mode *pm
 	GS_DCS_BUF_ADD_CMD(dev, 0xBD, 0x22, 0x22, 0x22, 0x22);
 	GS_DCS_BUF_ADD_CMDLIST(dev, freq_update);
 	GS_DCS_BUF_ADD_CMDLIST_AND_FLUSH(dev, lock_cmd_f0);
-	GS_DCS_WRITE_CMD(dev, MIPI_DCS_SET_DISPLAY_ON);
 
 	ctx->hw_status.vrefresh = 30;
 	ctx->hw_status.te_freq = 30;
@@ -1163,21 +1157,24 @@ static void cm4_set_nolp_mode(struct gs_panel *ctx, const struct gs_panel_mode *
 	DPU_ATRACE_BEGIN(__func__);
 
 	cm4_wait_for_vsync_done(ctx, pmode);
-	GS_DCS_WRITE_CMD(dev, MIPI_DCS_SET_DISPLAY_OFF);
-
 	GS_DCS_BUF_ADD_CMDLIST(dev, unlock_cmd_f0);
-	/* disabling AOD low Mode is a must before aod-off */
-	GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x52, 0x94);
-	GS_DCS_BUF_ADD_CMD(dev, 0x94, 0x00);
-	GS_DCS_BUF_ADD_CMDLIST(dev, lock_cmd_f0);
-	GS_DCS_BUF_ADD_CMDLIST_AND_FLUSH(dev, aod_off);
+	/* manual mode 30Hz */
+	GS_DCS_BUF_ADD_CMD(dev, 0xBD, 0x21);
+	GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x01, 0x60);
+	GS_DCS_BUF_ADD_CMD(dev, 0x60, 0x00);
+	GS_DCS_BUF_ADD_CMDLIST(dev, freq_update);
+	GS_DCS_BUF_ADD_CMDLIST_AND_FLUSH(dev, lock_cmd_f0);
+
+	cm4_wait_for_vsync_done(ctx, pmode);
+	GS_DCS_BUF_ADD_CMDLIST(dev, unlock_cmd_f0);
+	GS_DCS_BUF_ADD_CMDLIST(dev, aod_off);
+	GS_DCS_BUF_ADD_CMDLIST_AND_FLUSH(dev, lock_cmd_f0);
 
 	cm4_wait_for_vsync_done(ctx, pmode);
 	cm4_set_panel_feat(ctx, pmode, idle_vrefresh, true);
 	/* backlight control and dimming */
 	cm4_write_display_mode(ctx, &pmode->mode);
 	cm4_change_frequency(ctx, pmode);
-	GS_DCS_WRITE_CMD(dev, MIPI_DCS_SET_DISPLAY_ON);
 
 	DPU_ATRACE_END(__func__);
 
@@ -1270,10 +1267,12 @@ static int cm4_enable(struct drm_panel *panel)
 	cm4_write_display_mode(ctx, mode); /* dimming and HBM */
 	cm4_change_frequency(ctx, pmode);
 
-	if (pmode->gs_mode.is_lp_mode)
+	if (pmode->gs_mode.is_lp_mode) {
 		cm4_set_lp_mode(ctx, pmode);
-	else if (needs_reset || (ctx->panel_state == GPANEL_STATE_BLANK))
 		GS_DCS_WRITE_CMD(dev, MIPI_DCS_SET_DISPLAY_ON);
+	} else if (needs_reset || (ctx->panel_state == GPANEL_STATE_BLANK)) {
+		GS_DCS_WRITE_CMD(dev, MIPI_DCS_SET_DISPLAY_ON);
+	}
 
 	DPU_ATRACE_END(__func__);
 

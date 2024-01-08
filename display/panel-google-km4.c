@@ -272,17 +272,13 @@ static const u8 aod_off[] = { MIPI_DCS_WRITE_CONTROL_DISPLAY, 0x20 };
 static const u8 pixel_off[] = { 0x22 };
 
 static const struct exynos_dsi_cmd km4_lp_low_cmds[] = {
-	EXYNOS_DSI_CMD0(unlock_cmd_f0),
-	EXYNOS_DSI_CMD_SEQ(0xB0, 0x00, 0x52, 0x94), /*Global Para*/
-	EXYNOS_DSI_CMD_SEQ(0x94, 0x01, 0x07, 0x35, 0x02), /* AOD Low Mode, 10nit */
-	EXYNOS_DSI_CMD0(lock_cmd_f0),
+	/* AOD Low Mode, 10nit */
+	EXYNOS_DSI_CMD_SEQ(MIPI_DCS_SET_DISPLAY_BRIGHTNESS, 0x01, 0x6D),
 };
 
 static const struct exynos_dsi_cmd km4_lp_high_cmds[] = {
-	EXYNOS_DSI_CMD0(unlock_cmd_f0),
-	EXYNOS_DSI_CMD_SEQ(0xB0, 0x00, 0x52, 0x94), /*Global Para*/
-	EXYNOS_DSI_CMD_SEQ(0x94, 0x00, 0x07, 0x35, 0x02), /* AOD High Mode, 50nit */
-	EXYNOS_DSI_CMD0(lock_cmd_f0),
+	/* AOD High Mode, 50nit */
+	EXYNOS_DSI_CMD_SEQ(MIPI_DCS_SET_DISPLAY_BRIGHTNESS, 0x02, 0xF6),
 };
 
 static const struct exynos_binned_lp km4_binned_lp[] = {
@@ -1179,13 +1175,16 @@ static void km4_set_lp_mode(struct exynos_panel *ctx, const struct exynos_panel_
 
 	DPU_ATRACE_BEGIN(__func__);
 
-	EXYNOS_DCS_WRITE_SEQ(ctx, MIPI_DCS_SET_DISPLAY_OFF);
-	km4_wait_for_vsync_done(ctx, pmode);
-	EXYNOS_DCS_BUF_ADD_SET(ctx, aod_on);
+	/* enforce manual and peak to have a smooth transition */
 	EXYNOS_DCS_BUF_ADD_SET(ctx, unlock_cmd_f0);
-	/* AOD Low Mode, 10nit */
-	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x52, 0x94);
-	EXYNOS_DCS_BUF_ADD(ctx, 0x94, 0x01, 0x07, 0x6A, 0x02);
+	EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x21);
+	EXYNOS_DCS_BUF_ADD(ctx, 0x60, !test_bit(FEAT_OP_NS, spanel->feat) ? 0x00 : 0x18);
+	EXYNOS_DCS_BUF_ADD_SET(ctx, freq_update);
+	EXYNOS_DCS_BUF_ADD_SET_AND_FLUSH(ctx, lock_cmd_f0);
+
+	km4_wait_for_vsync_done(ctx, pmode);
+	EXYNOS_DCS_BUF_ADD_SET(ctx, unlock_cmd_f0);
+	EXYNOS_DCS_BUF_ADD_SET(ctx, aod_on);
 	/* Fixed TE: sync on */
 	EXYNOS_DCS_BUF_ADD(ctx, 0xB9, 0x51);
 	/* Auto frame insertion: 1Hz */
@@ -1205,7 +1204,6 @@ static void km4_set_lp_mode(struct exynos_panel *ctx, const struct exynos_panel_
 	EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x22, 0x22, 0x22, 0x22);
 	EXYNOS_DCS_BUF_ADD_SET(ctx, freq_update);
 	EXYNOS_DCS_BUF_ADD_SET_AND_FLUSH(ctx, lock_cmd_f0);
-	EXYNOS_DCS_WRITE_SEQ(ctx, MIPI_DCS_SET_DISPLAY_ON);
 
 	spanel->hw.vrefresh = 30;
 	spanel->hw.te_freq = 30;
@@ -1225,21 +1223,24 @@ static void km4_set_nolp_mode(struct exynos_panel *ctx, const struct exynos_pane
 	DPU_ATRACE_BEGIN(__func__);
 
 	km4_wait_for_vsync_done(ctx, pmode);
-	EXYNOS_DCS_WRITE_SEQ(ctx, MIPI_DCS_SET_DISPLAY_OFF);
-
 	EXYNOS_DCS_BUF_ADD_SET(ctx, unlock_cmd_f0);
-	/* disabling AOD low Mode is a must before aod-off */
-	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x52, 0x94);
-	EXYNOS_DCS_BUF_ADD(ctx, 0x94, 0x00);
-	EXYNOS_DCS_BUF_ADD_SET(ctx, lock_cmd_f0);
-	EXYNOS_DCS_BUF_ADD_SET_AND_FLUSH(ctx, aod_off);
+	/* manual mode 30Hz */
+	EXYNOS_DCS_BUF_ADD(ctx, 0xBD, 0x21);
+	EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x01, 0x60);
+	EXYNOS_DCS_BUF_ADD(ctx, 0x60, 0x00);
+	EXYNOS_DCS_BUF_ADD_SET(ctx, freq_update);
+	EXYNOS_DCS_BUF_ADD_SET_AND_FLUSH(ctx, lock_cmd_f0);
+
+	km4_wait_for_vsync_done(ctx, pmode);
+	EXYNOS_DCS_BUF_ADD_SET(ctx, unlock_cmd_f0);
+	EXYNOS_DCS_BUF_ADD_SET(ctx, aod_off);
+	EXYNOS_DCS_BUF_ADD_SET_AND_FLUSH(ctx, lock_cmd_f0);
 
 	km4_wait_for_vsync_done(ctx, pmode);
 	km4_set_panel_feat(ctx, pmode, idle_vrefresh, true);
 	/* backlight control and dimming */
 	km4_write_display_mode(ctx, &pmode->mode);
 	km4_change_frequency(ctx, pmode);
-	EXYNOS_DCS_WRITE_SEQ(ctx, MIPI_DCS_SET_DISPLAY_ON);
 
 	DPU_ATRACE_END(__func__);
 
@@ -1336,10 +1337,12 @@ static int km4_enable(struct drm_panel *panel)
 	km4_write_display_mode(ctx, mode); /* dimming and HBM */
 	km4_change_frequency(ctx, pmode);
 
-	if (pmode->exynos_mode.is_lp_mode)
+	if (pmode->exynos_mode.is_lp_mode) {
 		km4_set_lp_mode(ctx, pmode);
-	else if (needs_reset || (ctx->panel_state == PANEL_STATE_BLANK))
 		EXYNOS_DCS_WRITE_SEQ(ctx, MIPI_DCS_SET_DISPLAY_ON);
+	} else if (needs_reset || (ctx->panel_state == PANEL_STATE_BLANK)) {
+		EXYNOS_DCS_WRITE_SEQ(ctx, MIPI_DCS_SET_DISPLAY_ON);
+	}
 
 	DPU_ATRACE_END(__func__);
 
