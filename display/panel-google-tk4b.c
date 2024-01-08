@@ -951,7 +951,7 @@ struct exynos_panel_desc google_tk4b = {
 		{PANEL_REG_ID_VDDD, 10},
 	},
 	.reg_ctrl_disable = {
-		{PANEL_REG_ID_VDDD, 0},
+		{PANEL_REG_ID_VDDD, 10},
 		{PANEL_REG_ID_VCI, 0},
 		{PANEL_REG_ID_VDDI, 0},
 	},
