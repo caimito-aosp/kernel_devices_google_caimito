@@ -3,7 +3,6 @@
 # (platform common modules are from vendor_kernel_boot_modules.zumapro)
 #
 panel-google-bigsurf.ko
-panel-google-cm4.ko
 panel-google-hk3.ko
 panel-google-km4.ko
 panel-google-shoreline.ko
