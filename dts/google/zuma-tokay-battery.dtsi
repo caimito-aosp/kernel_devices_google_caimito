@@ -23,6 +23,10 @@
 	google,chg-topoff-limits = <250 250 250 500 500 500>;
 	google,pullback-current;
 
+#ifdef ZUMA_BMS_ENABLE_CHG_PROFILE_SWITCH
+	google,enable-switch-chg-profile;
+#endif
+
 	google_debug_chg_profile {
 		google,chg-battery-capacity = <4558>;
 

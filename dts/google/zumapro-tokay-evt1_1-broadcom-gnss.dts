@@ -8,6 +8,7 @@
 /dts-v1/;
 /plugin/;
 
+#define ZUMA_BMS_ENABLE_CHG_PROFILE_SWITCH
 #include "zumapro-caimito-common.dtsi"
 #include "zumapro-tokay-common.dtsi"
 #include "google-dts-base/zumapro-phone-gps.dtsi"
