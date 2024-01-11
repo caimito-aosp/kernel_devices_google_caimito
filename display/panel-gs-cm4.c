@@ -1007,15 +1007,32 @@ static void cm4_update_za(struct gs_panel *ctx)
 	}
 }
 
-//TODO: Get correct DBV threshold
-#define CM4_ACL_ENHANCED_THRESHOLD_DBV 3865
+#define CM4_ACL_ENHANCED_THRESHOLD_DBV 3726
 
-static u8 get_acl_mode_setting(enum gs_acl_mode acl_mode)
+static u8 get_acl_mode_setting(enum gs_acl_mode acl_mode, u32 panel_rev)
 {
+	/*
+	 * CM4 ACL mode and setting:
+	 *
+	 * ENHANCED is default mode
+	 *
+	 * Till EVT1_1
+	 *    ENHANCED   - 12%   (0x03)
+	 * DVT1
+	 *    NORMAL     - 12.5% (0x02)
+	 * LATER
+	 *    NORMAL     - 15%   (0x02)
+	 */
+
+	if (acl_mode != ACL_OFF && panel_rev >= PANEL_REV_DVT1) {
+		acl_mode = ACL_NORMAL;
+	}
+
 	switch (acl_mode) {
 	case ACL_OFF:
 		return 0x00;
 	case ACL_NORMAL:
+		return 0x02;
 	case ACL_ENHANCED:
 		return 0x03;
 	}
@@ -1034,7 +1051,7 @@ static void cm4_set_acl_mode(struct gs_panel *ctx, enum gs_acl_mode mode)
 		ctx->sw_status.acl_mode = ACL_OFF;
 
 	if (ctx->sw_status.acl_mode != ctx->hw_status.acl_mode) {
-		u8 setting = get_acl_mode_setting(ctx->sw_status.acl_mode);
+		u8 setting = get_acl_mode_setting(ctx->sw_status.acl_mode, ctx->panel_rev);
 
 		GS_DCS_WRITE_CMD(dev, 0x55, setting);
 		ctx->hw_status.acl_mode = ctx->sw_status.acl_mode;
