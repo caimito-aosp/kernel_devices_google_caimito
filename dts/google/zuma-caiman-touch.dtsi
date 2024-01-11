@@ -19,6 +19,7 @@
 
 	synaptics,pixels-per-mm = <19>;
 	synaptics,panel_map = <&google_gs_cm4>;
+	synaptics,suffix-fw-name = "S3908TG";
 
 	synaptics,pt05_high = /bits/ 16 <
 700 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 700
