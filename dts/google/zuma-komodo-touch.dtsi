@@ -16,6 +16,7 @@
 	goog,offload-caps-coord-filter;
 	goog,default-grip-disabled;
 	goog,default-palm-disabled;
+	goog,lptw-coords = <672 2217>;
 
 	synaptics,pixels-per-mm = <19>;
 	synaptics,panel_map = <&google_gs_km4>;
