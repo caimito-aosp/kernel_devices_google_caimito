@@ -482,8 +482,12 @@ static void cm4_set_panel_feat(struct gs_panel *ctx, const struct gs_panel_mode 
 				GS_DCS_BUF_ADD_CMD(dev, 0xB9, 0x51);
 				/* TE width */
 				GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x08, 0xB9);
-				GS_DCS_BUF_ADD_CMD(dev, 0xB9, 0x0B, 0x0E, 0x00, 0x1F, 0x0B, 0x0E,
-						   0x00, 0x1F);
+				if (ctx->panel_rev >= PANEL_REV_EVT1)
+					GS_DCS_BUF_ADD_CMD(dev, 0xB9, 0x0B, 0x1E, 0x00, 0x1F, 0x0B, 0x1E,
+							   0x00, 0x1F);
+				else
+					GS_DCS_BUF_ADD_CMD(dev, 0xB9, 0x0B, 0x0E, 0x00, 0x1F, 0x0B, 0x0E,
+							   0x00, 0x1F);
 #ifndef PANEL_FACTORY_BUILD
 				val = (drm_mode_vrefresh(&pmode->mode) == 120) ||
 						test_bit(FEAT_OP_NS, feat) ? 0x00 : 0x01;
@@ -497,7 +501,10 @@ static void cm4_set_panel_feat(struct gs_panel *ctx, const struct gs_panel_mode 
 			GS_DCS_BUF_ADD_CMD(dev, 0xB9, 0x04);
 			/* TE width */
 			GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x04, 0xB9);
-			GS_DCS_BUF_ADD_CMD(dev, 0xB9, 0x0B, 0x0E, 0x00, 0x1F);
+			if (ctx->panel_rev >= PANEL_REV_EVT1)
+				GS_DCS_BUF_ADD_CMD(dev, 0xB9, 0x0B, 0x1E, 0x00, 0x1F);
+			else
+				GS_DCS_BUF_ADD_CMD(dev, 0xB9, 0x0B, 0x0E, 0x00, 0x1F);
 		}
 	}
 
