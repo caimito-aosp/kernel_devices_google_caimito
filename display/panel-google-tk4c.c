@@ -99,6 +99,13 @@ static const struct exynos_dsi_cmd tk4c_off_cmds[] = {
 static DEFINE_EXYNOS_CMD_SET(tk4c_off);
 
 static const struct exynos_dsi_cmd tk4c_lp_cmds[] = {
+	/* AOD Power Setting */
+	EXYNOS_DSI_CMD0(test_key_enable),
+	EXYNOS_DSI_CMD_SEQ(0xB0, 0x00, 0x04, 0xF6),
+	EXYNOS_DSI_CMD_SEQ(0xF6, 0x28), /* Default */
+	EXYNOS_DSI_CMD0(test_key_disable),
+
+	/* AOD Mode On Setting */
 	EXYNOS_DSI_CMD_SEQ(MIPI_DCS_WRITE_CONTROL_DISPLAY, 0x24),
 };
 static DEFINE_EXYNOS_CMD_SET(tk4c_lp);
@@ -147,6 +154,24 @@ static const struct exynos_dsi_cmd tk4c_init_cmds[] = {
 	EXYNOS_DSI_CMD_SEQ(0xC5, 0x11, 0x10, 0x50, 0x05),
 	EXYNOS_DSI_CMD0(test_key_disable),
 	EXYNOS_DSI_CMD0(test_key_fc_disable),
+
+	/* VDDD LDO Setting */
+	EXYNOS_DSI_CMD0(test_key_fc_enable),
+	EXYNOS_DSI_CMD_SEQ(0xB0, 0x00, 0x58, 0xD7),
+	EXYNOS_DSI_CMD_SEQ(0xD7, 0x0A),
+	EXYNOS_DSI_CMD_SEQ(0xB0, 0x00, 0x5B, 0xD7),
+	EXYNOS_DSI_CMD_SEQ(0xD7, 0x0A),
+	EXYNOS_DSI_CMD_SEQ(0xFE, 0x80),
+	EXYNOS_DSI_CMD_SEQ(0xFE, 0x00),
+	EXYNOS_DSI_CMD0(test_key_fc_disable),
+
+	/* TSP HSYNC setting, MTP'ed from DVT */
+	EXYNOS_DSI_CMD0_REV(test_key_enable, PANEL_REV_LT(PANEL_REV_DVT1)),
+	EXYNOS_DSI_CMD_SEQ_REV(PANEL_REV_LT(PANEL_REV_DVT1), 0xB0, 0x00, 0x42, 0xB9),
+	EXYNOS_DSI_CMD_SEQ_REV(PANEL_REV_LT(PANEL_REV_DVT1), 0xB9, 0x19),
+	EXYNOS_DSI_CMD_SEQ_REV(PANEL_REV_LT(PANEL_REV_DVT1), 0xB0, 0x00, 0x46, 0xB9),
+	EXYNOS_DSI_CMD_SEQ_REV(PANEL_REV_LT(PANEL_REV_DVT1), 0xB9, 0xB0),
+	EXYNOS_DSI_CMD0_REV(test_key_disable, PANEL_REV_LT(PANEL_REV_DVT1)),
 };
 static DEFINE_EXYNOS_CMD_SET(tk4c_init);
 
