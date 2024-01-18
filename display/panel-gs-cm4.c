@@ -1268,6 +1268,9 @@ static int cm4_enable(struct drm_panel *panel)
 
 	GS_DCS_BUF_ADD_CMDLIST(dev, unlock_cmd_f0);
 	GS_DCS_BUF_ADD_CMD(dev, 0xC3, is_fhd ? 0x0D : 0x0C);
+	/* 8/10bit config for QHD/FHD */
+	GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x01, 0xF2);
+	GS_DCS_BUF_ADD_CMD(dev, 0xF2, is_fhd ? 0x81 : 0x01);
 	GS_DCS_BUF_ADD_CMDLIST_AND_FLUSH(dev, lock_cmd_f0);
 
 	cm4_update_panel_feat(ctx, true);
