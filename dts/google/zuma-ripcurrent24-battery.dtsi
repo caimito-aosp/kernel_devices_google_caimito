@@ -6,20 +6,6 @@
  *
  */
 
-/ {
-	fragment@battery {
-		target-path = "/";
-		__overlay__ {
-
-			google_bms {
-				nvmem-names = "9-00500";
-				google,bee-name = "9-00500";
-			};
-
-		};
-	};
-};
-
 &google_battery {
 	google,batt-id-1-atl {
 		google,batt-id = <1>;
