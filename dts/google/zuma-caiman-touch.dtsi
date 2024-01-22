@@ -19,7 +19,7 @@
 	goog,lptw-coords = <640 2068>;
 
 	synaptics,pixels-per-mm = <19>;
-	synaptics,panel_map = <&google_gs_cm4>;
+	synaptics,panel_map = <&google_gs_cm4 0>;
 	synaptics,suffix-fw-name = "S3908TG";
 
 	synaptics,pt05_high = /bits/ 16 <
