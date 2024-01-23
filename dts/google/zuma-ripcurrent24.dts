@@ -9,7 +9,7 @@
 /plugin/;
 
 #include "zuma-24-common.dtsi"
-#include "google-dts-base/zumapro-board-gps.dtsi"
+#include "google-dts-base/zumapro-board-ignss.dtsi"
 #include "zuma-ripcurrent24-ultrasonic-udfps.dtsi"
 #include "zuma-ripcurrent24-battery.dtsi"
 #include "google-dts-base/zuma-board-bcl.dtsi"
