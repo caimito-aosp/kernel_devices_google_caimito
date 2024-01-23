@@ -631,6 +631,9 @@ static int tk4b_set_brightness(struct exynos_panel *ctx, u16 br)
 		return exynos_dcs_set_brightness(ctx, 0);
 	}
 
+	if (IS_HBM_ON_IRC_OFF(ctx->hbm_mode) && br == ctx->desc->brt_capability->hbm.level.max)
+		br = 0xfff;
+
 	brightness = (br & 0xff) << 8 | br >> 8;
 
 	if (spanel->idle_exit_dimming_delay_ts &&
