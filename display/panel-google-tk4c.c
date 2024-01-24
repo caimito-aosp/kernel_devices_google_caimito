@@ -590,7 +590,7 @@ const struct exynos_panel_desc google_tk4c = {
 	.num_binned_lp = ARRAY_SIZE(tk4c_binned_lp),
 	.panel_func = &tk4c_drm_funcs,
 	.exynos_panel_func = &tk4c_exynos_funcs,
-	.reset_timing_ms = {1, 1, 1},
+	.reset_timing_ms = {-1, 1, 1},
 	.reg_ctrl_enable = {
 		{PANEL_REG_ID_VDDI, 0},
 		{PANEL_REG_ID_VCI, 10},
