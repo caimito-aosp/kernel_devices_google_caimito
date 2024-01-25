@@ -64,7 +64,8 @@
 		vci-supply = <&m_ldo14_reg>;
 		vddi-supply = <&s_bucka_reg>;
 		vddd-supply = <&disp_vddd>;
-		vddd-gpios = <&gpp21 5 GPIO_ACTIVE_HIGH>;
+		vddd-gpios = <&gpp21 5 GPIO_ACTIVE_LOW>;
+		vddd_gpio_fixed_level = <0>;
 	};
 
 	panel@3 {
