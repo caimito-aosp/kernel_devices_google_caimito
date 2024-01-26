@@ -39,8 +39,6 @@ struct km4_panel {
 	bool force_za_off;
 	/** @hw_za_enabled: whether zonal attenuation is enabled in hw */
 	bool hw_za_enabled;
-	/** @force_fi: force to keep frame insertion enabled */
-	bool force_fi;
 	/**
 	 * @is_pixel_off: pixel-off command is sent to panel. Only sending normal-on or resetting
 	 *		  panel can recover to normal mode after entering pixel-off state.
@@ -393,23 +391,26 @@ static u32 km4_get_min_idle_vrefresh(struct gs_panel *ctx, const struct gs_panel
 	return min_idle_vrefresh;
 }
 
-static void km4_panel_disable_fi(struct gs_panel *ctx)
+static void km4_set_panel_feat_auto_fi(struct gs_panel *ctx)
 {
-	const struct km4_panel *spanel = to_spanel(ctx);
 	struct device *dev = ctx->dev;
+	bool enabled;
+	u8 val;
 
-	if (spanel->force_fi)
-		return;
+	enabled = test_bit(FEAT_FI_AUTO, ctx->sw_status.feat);
+	val = enabled ? 0x33 : 0x00;
 
-	GS_DCS_BUF_ADD_CMDLIST(dev, unlock_cmd_f0);
 	GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x10, 0xBD);
-	GS_DCS_BUF_ADD_CMD(dev, 0xBD, 0x00);
+	GS_DCS_BUF_ADD_CMD(dev, 0xBD, val);
 	GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x82, 0xBD);
-	GS_DCS_BUF_ADD_CMD(dev, 0xBD, 0x00, 0x00);
-	GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x80, 0xBD);
-	GS_DCS_BUF_ADD_CMD(dev, 0xBD, 0x16);
-	GS_DCS_BUF_ADD_CMDLIST(dev, freq_update);
-	GS_DCS_BUF_ADD_CMDLIST_AND_FLUSH(dev, lock_cmd_f0);
+	GS_DCS_BUF_ADD_CMD(dev, 0xBD, val, val);
+
+	if (!enabled) {
+		GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x80, 0xBD);
+		GS_DCS_BUF_ADD_CMD(dev, 0xBD, 0x16);
+	}
+
+	dev_dbg(ctx->dev, "%s: auto fi %s\n", __func__, enabled ? "enabled" : "disabled");
 }
 
 static void km4_set_panel_feat_te(struct gs_panel *ctx, unsigned long *feat,
@@ -715,10 +716,10 @@ static void km4_set_panel_feat(struct gs_panel *ctx, const struct gs_panel_mode 
 		irc_mode_changed = (ctx->sw_status.irc_mode == ctx->hw_status.irc_mode);
 	}
 
-	dev_dbg(dev, "ns=%d ee=%d hbm=%d irc=%d auto=%d fps=%u idle_fps=%u te=%u vrr=%d\n",
+	dev_dbg(dev, "ns=%d ee=%d hbm=%d irc=%d auto=%d fi=%d fps=%u idle_fps=%u te=%u vrr=%d\n",
 		test_bit(FEAT_OP_NS, feat), test_bit(FEAT_EARLY_EXIT, feat),
 		test_bit(FEAT_HBM, feat), ctx->sw_status.irc_mode, test_bit(FEAT_FRAME_AUTO, feat),
-		vrefresh, idle_vrefresh, te_freq, is_vrr);
+		test_bit(FEAT_FI_AUTO, feat), vrefresh, idle_vrefresh, te_freq, is_vrr);
 
 	/* Unlock */
 	GS_DCS_BUF_ADD_CMDLIST(dev, unlock_cmd_f0);
@@ -755,6 +756,12 @@ static void km4_set_panel_feat(struct gs_panel *ctx, const struct gs_panel_mode 
 	 * Early-exit: enable or disable
 	 */
 	km4_set_panel_feat_early_exit(ctx, feat, vrefresh);
+
+	/*
+	 * Auto FI: enable or disable
+	 */
+	if (test_bit(FEAT_FI_AUTO, changed_feat))
+		km4_set_panel_feat_auto_fi(ctx);
 
 	/*
 	 * Frequency setting: FI, frequency, idle frequency
@@ -953,11 +960,24 @@ static void km4_refresh_ctrl(struct gs_panel *ctx, u32 ctrl)
 
 	DPU_ATRACE_BEGIN(__func__);
 
-	if (ctrl & GS_PANEL_REFRESH_CTRL_FI) {
-		dev_dbg(dev, "%s: performing a frame insertion\n", __func__);
-		GS_DCS_BUF_ADD_CMDLIST(dev, unlock_cmd_f0);
-		GS_DCS_BUF_ADD_CMD(dev, 0xF7, 0x02);
-		GS_DCS_BUF_ADD_CMDLIST_AND_FLUSH(dev, lock_cmd_f0);
+	if (ctrl & GS_PANEL_REFRESH_CTRL_FI_AUTO) {
+		set_bit(FEAT_FI_AUTO, ctx->sw_status.feat);
+		km4_update_panel_feat(ctx, false);
+	} else {
+		clear_bit(FEAT_FI_AUTO, ctx->sw_status.feat);
+		km4_update_panel_feat(ctx, false);
+
+		if (ctrl & GS_PANEL_REFRESH_CTRL_FI_REFRESH_RATE_MASK) {
+			/* TODO(b/323251635): support setting frame insertion rate */
+			dev_warn(dev, "%s: setting frame insertion rate unsupported\n", __func__);
+		} else {
+			/* TODO(b/323251635): parse frame count for inserting multiple frames */
+
+			dev_dbg(dev, "%s: manually inserting frame\n", __func__);
+			GS_DCS_BUF_ADD_CMDLIST(dev, unlock_cmd_f0);
+			GS_DCS_BUF_ADD_CMD(dev, 0xF7, 0x02);
+			GS_DCS_BUF_ADD_CMDLIST_AND_FLUSH(dev, lock_cmd_f0);
+		}
 	}
 
 	DPU_ATRACE_END(__func__);
@@ -1318,9 +1338,6 @@ static int km4_enable(struct drm_panel *panel)
 		GS_DCS_WRITE_DELAY_CMD(dev, 120, MIPI_DCS_EXIT_SLEEP_MODE);
 		gs_panel_send_cmdset(ctx, &km4_init_cmdset);
 		spanel->is_pixel_off = false;
-#ifndef PANEL_FACTORY_BUILD
-		km4_panel_disable_fi(ctx);
-#endif
 		ctx->dsi_hs_clk = MIPI_DSI_FREQ_DEFAULT;
 	}
 
@@ -2058,7 +2075,6 @@ static void km4_debugfs_init(struct drm_panel *panel, struct dentry *root)
 	debugfs_create_bool("force_changeable_te2", 0644, panel_root,
 			    &spanel->force_changeable_te2);
 	debugfs_create_bool("force_za_off", 0644, panel_root, &spanel->force_za_off);
-	debugfs_create_bool("force_fi", 0644, panel_root, &spanel->force_fi);
 	debugfs_create_u32("hw_acl_mode", 0644, panel_root, &ctx->hw_status.acl_mode);
 	dput(csroot);
 panel_out:
@@ -2072,6 +2088,11 @@ static void km4_panel_init(struct gs_panel *ctx)
 
 #ifdef PANEL_FACTORY_BUILD
 	ctx->idle_data.panel_idle_enabled = false;
+	set_bit(FEAT_FRAME_AUTO, ctx->sw_status.feat);
+	set_bit(FEAT_FI_AUTO, ctx->sw_status.feat);
+#else
+	clear_bit(FEAT_FI_AUTO, ctx->sw_status.feat);
+	clear_bit(FEAT_FRAME_AUTO, ctx->sw_status.feat);
 #endif
 
 	ctx->thermal->tz = thermal_zone_get_zone_by_name("disp_therm");
@@ -2081,9 +2102,6 @@ static void km4_panel_init(struct gs_panel *ctx)
 	if (pmode) {
 		dev_info(ctx->dev, "%s: set mode: %s\n", __func__, pmode->mode.name);
 		km4_set_panel_feat(ctx, pmode, 0, true);
-#ifndef PANEL_FACTORY_BUILD
-		km4_panel_disable_fi(ctx);
-#endif
 	}
 }
 
