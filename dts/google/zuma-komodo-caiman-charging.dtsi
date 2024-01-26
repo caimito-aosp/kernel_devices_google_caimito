@@ -23,4 +23,6 @@
 
 &ln8411_dc {
 	status = "okay";
+
+	ln8411,si-fet-ovp-drive;
 };
