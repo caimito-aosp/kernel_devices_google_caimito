@@ -528,6 +528,18 @@ static void km4_set_panel_feat_early_exit(struct gs_panel *ctx, unsigned long *f
 	}
 }
 
+static void km4_set_panel_feat_tsp_sync(struct gs_panel *ctx) {
+	struct device *dev = ctx->dev;
+
+	/* Fixed 240Hz TSP Vsync */
+	GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x3C, 0xB9);
+	GS_DCS_BUF_ADD_CMD(dev, 0xB9, 0x19, 0x09); /* Sync On */
+	GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x05, 0xF2); /* Global para */
+	GS_DCS_BUF_ADD_CMD(dev, 0xF2, 0xD0); /* 240Hz setting */
+	GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x41, 0xB9); /* Global para */
+	GS_DCS_BUF_ADD_CMD(dev, 0xB9, 0x02); /* TSP Sync setting */
+}
+
 static void km4_set_panel_feat_frequency(struct gs_panel *ctx, unsigned long *feat, u32 vrefresh,
 					 u32 idle_vrefresh, bool is_vrr)
 {
@@ -795,6 +807,10 @@ static void km4_set_panel_feat(struct gs_panel *ctx, const struct gs_panel_mode 
 	 */
 	if (test_bit(FEAT_FI_AUTO, changed_feat))
 		km4_set_panel_feat_auto_fi(ctx, test_bit(FEAT_FI_AUTO, feat));
+
+	/* TSP Sync setting */
+	if (enforce)
+		km4_set_panel_feat_tsp_sync(ctx);
 
 	/*
 	 * Frequency setting: FI, frequency, idle frequency
@@ -1373,8 +1389,6 @@ static const struct gs_dsi_cmd km4_init_cmds[] = {
 	GS_DSI_CMD(MIPI_DCS_SET_PAGE_ADDRESS, 0x00, 0x00, 0x0B, 0xAF),
 
 	GS_DSI_CMDLIST(unlock_cmd_f0),
-	GS_DSI_CMD(0xB0, 0x00, 0x3C, 0xB9), /* Global para */
-	GS_DSI_CMD(0xB9, 0x19, 0x09), /* Sync On */
 
 	/* FFC: off, 165MHz, MIPI Speed 1368 Mbps */
 	GS_DSI_CMD(0xB0, 0x00, 0x36, 0xC5),
