@@ -416,6 +416,18 @@ static void cm4_set_panel_feat_auto_fi(struct gs_panel *ctx)
 	dev_dbg(ctx->dev, "%s: auto fi %s\n", __func__, enabled ? "enabled" : "disabled");
 }
 
+static void cm4_set_panel_feat_tsp_sync(struct gs_panel *ctx) {
+	struct device *dev = ctx->dev;
+
+	/* Fixed 240Hz TSP Vsync */
+	GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x3C, 0xB9);
+	GS_DCS_BUF_ADD_CMD(dev, 0xB9, 0x19, 0x09); /* Sync On */
+	GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x05, 0xF2); /* Global para */
+	GS_DCS_BUF_ADD_CMD(dev, 0xF2, 0xD0); /* 240Hz setting */
+	GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x41, 0xB9); /* Global para */
+	GS_DCS_BUF_ADD_CMD(dev, 0xB9, 0x02); /* TSP Sync setting */
+}
+
 /**
  * cm4_set_panel_feat - configure panel features
  * @ctx: gs_panel struct
@@ -585,6 +597,10 @@ static void cm4_set_panel_feat(struct gs_panel *ctx, const struct gs_panel_mode 
 	 */
 	if (test_bit(FEAT_FI_AUTO, changed_feat))
 		cm4_set_panel_feat_auto_fi(ctx);
+
+	/* TSP Sync setting */
+	if (enforce)
+		cm4_set_panel_feat_tsp_sync(ctx);
 
 	/*
 	 * Frequency setting: FI, frequency, idle frequency
@@ -1277,9 +1293,6 @@ static const struct gs_dsi_cmd cm4_init_cmds[] = {
 	GS_DSI_CMD(MIPI_DCS_SET_PAGE_ADDRESS, 0x00, 0x00, 0x0B, 0x27),
 
 	GS_DSI_CMDLIST(unlock_cmd_f0),
-	/* TSP sync enable */
-	GS_DSI_CMD(0xB0, 0x00, 0x3C, 0xB9), /* Global para */
-	GS_DSI_CMD(0xB9, 0x19, 0x09), /* Sync On */
 
 	/* FFC: off, 165MHz, MIPI Speed 1368 Mbps */
 	GS_DSI_CMD(0xB0, 0x00, 0x36, 0xC5),
