@@ -9,6 +9,7 @@
 /plugin/;
 
 #include "zumapro-caimito-common.dtsi"
+#include "google-dts-base/zumapro-board-cp-s5400-sit-pre-dvt.dtsi"
 #include "zumapro-komodo-common.dtsi"
 #include "google-dts-base/zumapro-phone-gps.dtsi"
 #include "google-dts-base/max777xx-fwupdate.dtsi"
