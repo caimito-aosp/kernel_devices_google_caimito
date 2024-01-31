@@ -163,6 +163,13 @@ static const struct gs_dsi_cmd tk4c_init_cmds[] = {
 	GS_DSI_REV_CMD(PANEL_REV_LT(PANEL_REV_DVT1), 0xB9, 0x19),
 	GS_DSI_REV_CMD(PANEL_REV_LT(PANEL_REV_DVT1), 0xB0, 0x00, 0x46, 0xB9),
 	GS_DSI_REV_CMD(PANEL_REV_LT(PANEL_REV_DVT1), 0xB9, 0xB0),
+
+	/* FGZ common settings, MTP'ed from DVT */
+	GS_DSI_REV_CMD_REV(PANEL_REV_LT(PANEL_REV_DVT1), 0xB0, 0x00, 0x30, 0x68),
+	GS_DSI_REV_CMD_REV(PANEL_REV_LT(PANEL_REV_DVT1), 0x68, 0x32, 0xFF, 0x04,
+		0x08, 0x10, 0x15, 0x29, 0x67, 0xA5),
+	GS_DSI_REV_CMD_REV(PANEL_REV_LT(PANEL_REV_DVT1), 0xB0, 0x00, 0x1C, 0x62),
+	GS_DSI_REV_CMD_REV(PANEL_REV_LT(PANEL_REV_DVT1), 0x62, 0x1D, 0x5F),
 	GS_DSI_REV_CMDLIST(PANEL_REV_LT(PANEL_REV_DVT1), test_key_disable),
 };
 static DEFINE_GS_CMDSET(tk4c_init);
@@ -289,6 +296,9 @@ static void tk4c_set_hbm_mode(struct gs_panel *ctx, enum gs_hbm_mode mode)
 			GS_DCS_BUF_ADD_CMD(dev, 0x68, 0xB0, 0x2C, 0x6A, 0x80, 0x00, 0x00, 0x00,
 					   0x00);
 		}
+	} else {
+		/* FGZ Mode OFF */
+		GS_DCS_BUF_ADD_CMD(dev, 0x68, 0xB0, 0x2C, 0x6A, 0x80, 0x00, 0x00, 0x00, 0x00);
 	}
 
 	GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x01, 0xBD);
