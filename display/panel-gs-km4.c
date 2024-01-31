@@ -842,6 +842,7 @@ static void km4_update_refresh_mode(struct gs_panel *ctx, const struct gs_panel_
 	 */
 	if (ctx->mode_in_progress == MODE_RES_IN_PROGRESS) {
 		dev_dbg(ctx->dev, "%s: RRS in progress without RR change, skip\n", __func__);
+		notify_panel_mode_changed(ctx);
 		return;
 	}
 
@@ -869,7 +870,7 @@ static void km4_update_refresh_mode(struct gs_panel *ctx, const struct gs_panel_
 	 */
 	ctx->idle_data.panel_idle_vrefresh = idle_vrefresh;
 	km4_set_panel_feat(ctx, pmode, idle_vrefresh, false);
-	schedule_work(&ctx->state_notify);
+	notify_panel_mode_changed(ctx);
 
 	dev_dbg(ctx->dev, "%s: display state is notified\n", __func__);
 }
@@ -880,6 +881,9 @@ static void km4_change_frequency(struct gs_panel *ctx, const struct gs_panel_mod
 	u32 idle_vrefresh = 0;
 
 	if (vrefresh > ctx->op_hz) {
+		/* resolution may has been changed but refresh rate */
+		if (ctx->mode_in_progress == MODE_RES_AND_RR_IN_PROGRESS)
+			notify_panel_mode_changed(ctx);
 		dev_err(ctx->dev, "invalid freq setting: op_hz=%u, vrefresh=%u\n", ctx->op_hz,
 			vrefresh);
 		return;
@@ -947,7 +951,7 @@ static bool km4_set_self_refresh(struct gs_panel *ctx, bool enable)
 	if (pmode->gs_mode.is_lp_mode) {
 		/* set 1Hz while self refresh is active, otherwise clear it */
 		ctx->idle_data.panel_idle_vrefresh = enable ? 1 : 0;
-		schedule_work(&ctx->state_notify);
+		notify_panel_mode_changed(ctx);
 		return false;
 	}
 
