@@ -503,7 +503,7 @@ const struct brightness_capability tk4c_brightness_capability = {
 	.normal = {
 		.nits = {
 			.min = 2,
-			.max = 1250,
+			.max = 1200,
 		},
 		.level = {
 			.min = 184,
@@ -511,20 +511,20 @@ const struct brightness_capability tk4c_brightness_capability = {
 		},
 		.percentage = {
 			.min = 0,
-			.max = 68,
+			.max = 67,
 		},
 	},
 	.hbm = {
 		.nits = {
-			.min = 1250,
-			.max = 1850,
+			.min = 1200,
+			.max = 1800,
 		},
 		.level = {
 			.min = 3428,
 			.max = 4095,
 		},
 		.percentage = {
-			.min = 68,
+			.min = 67,
 			.max = 100,
 		},
 	},
@@ -574,7 +574,7 @@ const struct exynos_panel_desc google_tk4c = {
 	.data_lane_cnt = 4,
 	.max_brightness = 4095,
 	.min_brightness = 2,
-	.dft_brightness = 1268,    /* 140 nits */
+	.dft_brightness = 1290,    /* 140 nits */
 	.brt_capability = &tk4c_brightness_capability,
 	/* supported HDR format bitmask : 1(DOLBY_VISION), 2(HDR10), 3(HLG) */
 	.hdr_formats = BIT(2) | BIT(3),
