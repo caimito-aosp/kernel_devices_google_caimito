@@ -44,18 +44,6 @@
 	aux-orientation = "auto";
 };
 
-&m_ldo14_reg {
-	/delete-property/ regulator-always-on;
-};
-
-&m_ldo22_reg {
-	/delete-property/ regulator-always-on;
-};
-
-&s_ldo8_reg {
-	/delete-property/ regulator-always-on;
-};
-
 &drmdecon0 {
 	status = "okay";
 };
