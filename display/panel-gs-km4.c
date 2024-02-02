@@ -1288,6 +1288,7 @@ static void km4_enforce_manual_and_peak(struct gs_panel *ctx)
 static void km4_set_lp_mode(struct gs_panel *ctx, const struct gs_panel_mode *pmode)
 {
 	struct device *dev = ctx->dev;
+	const u16 brightness = gs_panel_get_brightness(ctx);
 
 	dev_dbg(dev, "%s\n", __func__);
 
@@ -1317,6 +1318,8 @@ static void km4_set_lp_mode(struct gs_panel *ctx, const struct gs_panel_mode *pm
 	GS_DCS_BUF_ADD_CMD(dev, 0xBD, 0x22, 0x22, 0x22, 0x22);
 	GS_DCS_BUF_ADD_CMDLIST(dev, freq_update);
 	GS_DCS_BUF_ADD_CMDLIST_AND_FLUSH(dev, lock_cmd_f0);
+
+	gs_panel_set_binned_lp_helper(ctx, brightness);
 
 	ctx->hw_status.vrefresh = 30;
 	ctx->hw_status.te_freq = 30;
