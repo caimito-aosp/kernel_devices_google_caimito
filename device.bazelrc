@@ -4,5 +4,5 @@
 
 build:caimito --//private/google-modules/soc/gs:gs_kernel_build=//private/devices/google/caimito:zumapro_caimito
 build:caimito --//private/google-modules/soc/gs:gs_soc_module=//private/devices/google/caimito:zumapro_soc.caimito
-
+build:caimito --//private/google-modules/aoc/alsa:radio=s5400
 build:caimito --//private/google-modules/touch/common:touch_udfps_notification=enabled
