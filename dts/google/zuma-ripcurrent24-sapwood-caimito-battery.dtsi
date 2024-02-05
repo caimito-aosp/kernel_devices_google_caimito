@@ -9,20 +9,6 @@
 #include "zuma-ripcurrent24-battery.dtsi"
 #include "google-dts-base/zuma-max777xx_fwupdate.dtsi"
 
-/ {
-	fragment@battery {
-		target-path = "/";
-		__overlay__ {
-
-			google_bms {
-				nvmem-names = "9-00500";
-				google,bee-name = "9-00500";
-			};
-
-		};
-	};
-};
-
 &google_battery {
 	google,fg-psy-name = "max77779fg";
  };

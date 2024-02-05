@@ -43,20 +43,6 @@
 };
 
 #ifndef ZUMA_BMS_I2CM
-/ {
-	fragment@battery {
-		target-path = "/";
-		__overlay__ {
-
-			google_bms {
-				nvmem-names = "10-00500";
-				google,bee-name = "10-00500";
-			};
-
-		};
-	};
-};
-
 &hsi2c_10 {
 	#address-cells = <1>;
 	#size-cells = <0>;
@@ -69,20 +55,6 @@
 	#include "google-dts-base/zuma-max777xx-eeprom.dtsi"
 };
 #else
-/ {
-	fragment@battery {
-		target-path = "/";
-		__overlay__ {
-
-			google_bms {
-				nvmem-names = "20-00500";
-				google,bee-name = "20-00500";
-			};
-
-		};
-	};
-};
-
 /* zuma-max777xx.dtsi must be included before this */
 &max77779_i2cm {
 	status = "okay";
@@ -112,6 +84,7 @@
 	max77779,wlc-en = <&p9xxx_gpio 1 GPIO_ACTIVE_HIGH>;
 	max77779,wlc-spoof = <&p9xxx_gpio 5 GPIO_ACTIVE_HIGH>;
 	max77779,wlc-spoof-vbyp = <6>;	/* VBYP=5.3V */
+	max77779,wcin-inlim-headroom = <40000>;
 };
 
 &max77779_sp {
