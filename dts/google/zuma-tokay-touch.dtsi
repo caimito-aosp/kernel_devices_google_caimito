@@ -19,7 +19,7 @@
 	goog,offload-caps-coord-filter;
 	goog,default-grip-disabled;
 	goog,default-palm-disabled;
-	goog,lptw-coords = <540 1755>;
+	goog,lptw-tracking-area = <390 690 1605 1905>;
 
 	synaptics,pixels-per-mm = <17>;
 	synaptics,panel_map = <&google_tk4a 0>,
