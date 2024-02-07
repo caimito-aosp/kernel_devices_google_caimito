@@ -32,4 +32,4 @@
 #include "zuma-caimito-usb.dtsi"
 #include "zuma-caimito-typec.dtsi"
 #include "zumapro-cp-s5400-thermal-zone.dtsi"
-
+#include "zumapro-cp-s5400-proto.dtsi"
