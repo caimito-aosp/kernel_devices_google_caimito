@@ -539,6 +539,14 @@ static void cm4_set_panel_feat(struct gs_panel *ctx, const struct gs_panel_mode 
 			GS_DCS_BUF_ADD_CMD(dev, 0x92, 0x00, 0x00, 0xFF, 0xD0);
 		else /* IRC_OFF or IRC_FLAT_DEFAULT */
 			GS_DCS_BUF_ADD_CMD(dev, 0x92, 0x70, 0x26, 0xFF, 0xDC);
+		/* SP settings (burn-in compensation) */
+		if (ctx->panel_rev >= PANEL_REV_DVT1) {
+			GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x02, 0xF3, 0x68);
+			if (ctx->sw_status.irc_mode == IRC_FLAT_Z)
+				GS_DCS_BUF_ADD_CMD(dev, 0x68, 0x77, 0x77, 0x86, 0xE1, 0xE1, 0xF0);
+			else
+				GS_DCS_BUF_ADD_CMD(dev, 0x68, 0x11, 0x1A, 0x13, 0x18, 0x21, 0x18);
+		}
 	}
 
 	/*
