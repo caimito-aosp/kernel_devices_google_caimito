@@ -45,9 +45,9 @@ struct km4_panel {
 	 */
 	bool is_pixel_off;
 	/**
-	 * @is_mrr: indicates panel is running in mrr mode
+	 * @is_mrr_v1: indicates panel is running in mrr v1 mode
 	 */
-	bool is_mrr;
+	bool is_mrr_v1;
 };
 
 #define to_spanel(ctx) container_of(ctx, struct km4_panel, base)
@@ -372,7 +372,7 @@ static u32 km4_get_idle_mode(struct gs_panel *ctx, const struct gs_panel_mode *p
 	struct km4_panel *spanel = to_spanel(ctx);
 	const int vrefresh = drm_mode_vrefresh(&pmode->mode);
 
-	if (spanel->is_mrr)
+	if (spanel->is_mrr_v1)
 		return (vrefresh == 60) ? GIDLE_MODE_ON_SELF_REFRESH : GIDLE_MODE_ON_INACTIVITY;
 
 	return pmode->idle_mode;
@@ -502,7 +502,7 @@ static void km4_set_panel_feat_early_exit(struct gs_panel *ctx, unsigned long *f
 
 	GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x01, 0xBD);
 	GS_DCS_BUF_ADD_CMD(dev, 0xBD, val);
-	if (spanel->is_mrr) {
+	if (spanel->is_mrr_v1) {
 		GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x10, 0xBD);
 		val = test_bit(FEAT_EARLY_EXIT, feat) ? 0x22 : 0x00;
 		GS_DCS_BUF_ADD_CMD(dev, 0xBD, val);
@@ -698,12 +698,13 @@ static void km4_set_panel_feat(struct gs_panel *ctx, const struct gs_panel_mode 
 	unsigned long *feat = ctx->sw_status.feat;
 	u32 vrefresh = drm_mode_vrefresh(&pmode->mode);
 	u32 te_freq = gs_drm_mode_te_freq(&pmode->mode);
-	bool is_vrr = gs_is_vrr_mode(pmode);
+	bool is_vrr = !spanel->is_mrr_v1 && gs_is_vrr_mode(pmode);
 	bool irc_mode_changed;
 	u8 val;
 	DECLARE_BITMAP(changed_feat, FEAT_MAX);
 
-	if (!spanel->is_mrr) {
+	/* override settings if mrr v2 or vrr */
+	if (!spanel->is_mrr_v1) {
 		vrefresh = 1;
 		idle_vrefresh = 0;
 		set_bit(FEAT_EARLY_EXIT, feat);
@@ -714,8 +715,6 @@ static void km4_set_panel_feat(struct gs_panel *ctx, const struct gs_panel_mode 
 			else
 				clear_bit(FEAT_OP_NS, feat);
 		}
-	} else {
-		is_vrr = false;
 	}
 
 	/* Create bitmap of changed feature values to modify */
@@ -733,10 +732,10 @@ static void km4_set_panel_feat(struct gs_panel *ctx, const struct gs_panel_mode 
 		irc_mode_changed = (ctx->sw_status.irc_mode == ctx->hw_status.irc_mode);
 	}
 
-	dev_dbg(dev, "ns=%d ee=%d hbm=%d irc=%d auto=%d fi=%d fps=%u idle_fps=%u te=%u vrr=%d\n",
-		test_bit(FEAT_OP_NS, feat), test_bit(FEAT_EARLY_EXIT, feat),
-		test_bit(FEAT_HBM, feat), ctx->sw_status.irc_mode, test_bit(FEAT_FRAME_AUTO, feat),
-		test_bit(FEAT_FI_AUTO, feat), vrefresh, idle_vrefresh, te_freq, is_vrr);
+	dev_dbg(dev, "hbm=%u irc=%u ns=%u vrr=%u fi=%u@a,%u@m ee=%u rr=%u-%u:%u\n",
+		test_bit(FEAT_HBM, feat), ctx->sw_status.irc_mode, test_bit(FEAT_OP_NS, feat),
+		is_vrr, test_bit(FEAT_FRAME_AUTO, feat), test_bit(FEAT_FI_AUTO, feat),
+		test_bit(FEAT_EARLY_EXIT, feat), idle_vrefresh ?: vrefresh, vrefresh, te_freq);
 
 	/* Unlock */
 	GS_DCS_BUF_ADD_CMDLIST(dev, unlock_cmd_f0);
@@ -832,7 +831,7 @@ static void km4_update_refresh_mode(struct gs_panel *ctx, const struct gs_panel_
 	dev_dbg(ctx->dev, "%s: mode: %s set idle_vrefresh: %u\n", __func__, pmode->mode.name,
 		idle_vrefresh);
 
-	if (spanel->is_mrr) {
+	if (spanel->is_mrr_v1) {
 		u32 vrefresh = drm_mode_vrefresh(&pmode->mode);
 		if (idle_vrefresh)
 			set_bit(FEAT_FRAME_AUTO, ctx->sw_status.feat);
@@ -984,12 +983,11 @@ static bool km4_set_self_refresh(struct gs_panel *ctx, bool enable)
 }
 
 #ifndef PANEL_FACTORY_BUILD
-static void km4_refresh_ctrl(struct gs_panel *ctx, u32 ctrl)
+static bool km4_update_refresh_ctrl_feat(struct gs_panel *ctx)
 {
-	struct device *dev = ctx->dev;
+	const u32 ctrl = ctx->refresh_ctrl;
 	struct km4_panel *spanel = to_spanel(ctx);
-
-	DPU_ATRACE_BEGIN(__func__);
+	bool mrr_changed = false;
 
 	if (ctrl & GS_PANEL_REFRESH_CTRL_FI_AUTO)
 		set_bit(FEAT_FI_AUTO, ctx->sw_status.feat);
@@ -998,21 +996,30 @@ static void km4_refresh_ctrl(struct gs_panel *ctx, u32 ctrl)
 
 	if (ctrl & (GS_PANEL_REFRESH_CTRL_IDLE_ENABLED |
 		    GS_PANEL_REFRESH_CTRL_TE_TYPE_CHANGEABLE)) {
-		if (!spanel->is_mrr) {
-			spanel->is_mrr = true;
+		if (gs_is_vrr_mode(ctx->current_mode)) {
+			dev_err(ctx->dev, "%s: using vrr display mode for mrr\n", __func__);
+		} else if (!spanel->is_mrr_v1) {
+			mrr_changed = true;
+			spanel->is_mrr_v1 = true;
 			ctx->gs_connector->ignore_op_rate = true;
-			km4_change_frequency(ctx, ctx->current_mode);
 		}
-	} else {
-		if (spanel->is_mrr) {
-			spanel->is_mrr = false;
-			ctx->gs_connector->ignore_op_rate = false;
-			km4_change_frequency(ctx, ctx->current_mode);
-		}
+	} else if (spanel->is_mrr_v1) {
+		mrr_changed = true;
+		spanel->is_mrr_v1 = false;
+		ctx->gs_connector->ignore_op_rate = false;
 	}
+	return mrr_changed;
+}
 
-	km4_update_panel_feat(ctx, false);
+static void km4_refresh_ctrl(struct gs_panel *ctx)
+{
+	struct device *dev = ctx->dev;
+	const u32 ctrl = ctx->refresh_ctrl;
 
+	DPU_ATRACE_BEGIN(__func__);
+
+	if (km4_update_refresh_ctrl_feat(ctx))
+		km4_change_frequency(ctx, ctx->current_mode);
 
 	if (ctrl & GS_PANEL_REFRESH_CTRL_FI_REFRESH_RATE_MASK) {
 		/* TODO(b/323251635): support setting frame insertion rate */
@@ -1219,7 +1226,7 @@ static unsigned int km4_get_te_usec(struct gs_panel *ctx, const struct gs_panel_
 	if (vrefresh != 60 || gs_is_vrr_mode(pmode)) {
 		return pmode->gs_mode.te_usec;
 	} else {
-		if (spanel->is_mrr) {
+		if (spanel->is_mrr_v1) {
 			return(test_bit(FEAT_OP_NS, ctx->sw_status.feat) ? KM4_TE_USEC_60HZ_NS :
 									    KM4_TE_USEC_60HZ_HS);
 		} else {
@@ -1396,6 +1403,9 @@ static int km4_enable(struct drm_panel *panel)
 	GS_DCS_BUF_ADD_CMD(dev, 0xF2, is_fhd ? 0x81 : 0x01);
 	GS_DCS_BUF_ADD_CMDLIST_AND_FLUSH(dev, lock_cmd_f0);
 
+#ifndef PANEL_FACTORY_BUILD
+	km4_update_refresh_ctrl_feat(ctx);
+#endif
 	km4_update_panel_feat(ctx, true);
 	km4_write_display_mode(ctx, mode); /* dimming and HBM */
 	km4_change_frequency(ctx, pmode);
@@ -2130,20 +2140,20 @@ panel_out:
 #endif
 }
 
+/* this function is called at drm bridge atomic_enable() while presenting 1st frame */
 static void km4_panel_init(struct gs_panel *ctx)
 {
 	struct km4_panel *spanel = to_spanel(ctx);
 	const struct gs_panel_mode *pmode = ctx->current_mode;
 
 #ifdef PANEL_FACTORY_BUILD
-	spanel->is_mrr = true;
+	spanel->is_mrr_v1 = true;
 	ctx->idle_data.panel_idle_enabled = false;
 	set_bit(FEAT_FRAME_AUTO, ctx->sw_status.feat);
 	set_bit(FEAT_FI_AUTO, ctx->sw_status.feat);
 #else
-	spanel->is_mrr = false;
-	clear_bit(FEAT_FI_AUTO, ctx->sw_status.feat);
-	clear_bit(FEAT_FRAME_AUTO, ctx->sw_status.feat);
+	spanel->is_mrr_v1 = false;
+	km4_update_refresh_ctrl_feat(ctx);
 #endif
 
 	ctx->thermal->tz = thermal_zone_get_zone_by_name("disp_therm");
@@ -2153,6 +2163,7 @@ static void km4_panel_init(struct gs_panel *ctx)
 	if (pmode) {
 		dev_info(ctx->dev, "%s: set mode: %s\n", __func__, pmode->mode.name);
 		km4_set_panel_feat(ctx, pmode, 0, true);
+		km4_change_frequency(ctx, pmode);
 	}
 }
 

@@ -847,9 +847,10 @@ static void cm4_wait_one_vblank(struct gs_panel *ctx)
 	DPU_ATRACE_END(__func__);
 }
 
-static void cm4_refresh_ctrl(struct gs_panel *ctx, u32 ctrl)
+static void cm4_refresh_ctrl(struct gs_panel *ctx)
 {
 	struct device *dev = ctx->dev;
+	u32 ctrl = ctx->refresh_ctrl;
 
 	DPU_ATRACE_BEGIN(__func__);
 
