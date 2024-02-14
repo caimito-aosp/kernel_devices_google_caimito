@@ -259,6 +259,10 @@ kernel_build(
     }),
     build_config = ":device_build_config",
     collect_unstripped_modules = True,
+    defconfig_fragments = select({
+        "//private/google-modules/soc/gs:kunit_enabled": ["kunit_defconfig"],
+        "//conditions:default": [],
+    }),
     dtstree = "//private/devices/google/caimito/dts:caimito.dt",
     kconfig_ext = "//private/google-modules/soc/gs:Kconfig.ext",
     kmi_symbol_list = select({
@@ -446,6 +450,10 @@ lto_dependant_kernel_module(
         "drivers/ufs/ufs-pixel-fips140.ko",
     ],
     makefile = ["//private/google-modules/soc/gs:Makefile"],
+    test_outs = [
+        # TODO(b/323263169) enable this.
+        # "drivers/soc/google/gsa/gsa_test.ko"
+    ],
     visibility = [
         # keep sorted
         "//private/devices/google:__subpackages__",
