@@ -210,7 +210,12 @@ static const u8 aod_off[] = { MIPI_DCS_WRITE_CONTROL_DISPLAY, 0x20 };
 static const u8 pixel_off[] = { 0x22 };
 
 static const struct gs_dsi_cmd cm4_lp_low_cmds[] = {
-	/* AOD Low Mode, 10nit */
+	/* AOD Low Mode, 2nit */
+	GS_DSI_CMD(MIPI_DCS_SET_DISPLAY_BRIGHTNESS, 0x00, 0xB0),
+};
+
+static const struct gs_dsi_cmd cm4_lp_med_cmds[] = {
+	/* AOD Med Mode, 10nit */
 	GS_DSI_CMD(MIPI_DCS_SET_DISPLAY_BRIGHTNESS, 0x01, 0x6D),
 };
 
@@ -220,8 +225,11 @@ static const struct gs_dsi_cmd cm4_lp_high_cmds[] = {
 };
 
 static const struct gs_binned_lp cm4_binned_lp[] = {
+	/* low threshold 4 nits */
+	BINNED_LP_MODE_TIMING("low", 240, cm4_lp_low_cmds, CM4_TE2_RISING_EDGE_OFFSET,
+			      CM4_TE2_FALLING_EDGE_OFFSET),
 	/* low threshold 40 nits */
-	BINNED_LP_MODE_TIMING("low", 686, cm4_lp_low_cmds, CM4_TE2_RISING_EDGE_OFFSET,
+	BINNED_LP_MODE_TIMING("med", 686, cm4_lp_med_cmds, CM4_TE2_RISING_EDGE_OFFSET,
 			      CM4_TE2_FALLING_EDGE_OFFSET),
 	BINNED_LP_MODE_TIMING("high", 3271, cm4_lp_high_cmds, CM4_TE2_RISING_EDGE_OFFSET,
 			      CM4_TE2_FALLING_EDGE_OFFSET),
