@@ -45,15 +45,6 @@
 			};
 		};
 	};
-
-	panel@1 {
-		compatible = "samsung,emul";
-		label = "samsung-emul";
-		channel = <0>;
-
-		/* reset, power */
-		reset-gpios = <&gpp0 0 GPIO_ACTIVE_HIGH>;
-	};
 };
 
 &disp_vddd {

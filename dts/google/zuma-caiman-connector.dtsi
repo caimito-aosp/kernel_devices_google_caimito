@@ -40,6 +40,15 @@
 					vddd-supply = <&disp_vddd>;
 					vddd-gpios = <&gpp21 5 GPIO_ACTIVE_HIGH>;
 				};
+
+				panel@1 {
+					compatible = "google,panel-gs-simple";
+					label = "samsung-emul";
+					channel = <0>;
+
+					/* reset, power */
+					reset-gpios = <&gpp0 0 GPIO_ACTIVE_HIGH>;
+				};
 			};
 		};
 	};
