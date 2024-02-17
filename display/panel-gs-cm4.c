@@ -1147,6 +1147,30 @@ static void cm4_wait_for_vsync_done(struct gs_panel *ctx, const struct gs_panel_
 	DPU_ATRACE_END(__func__);
 }
 
+static void cm4_enforce_manual_and_peak(struct gs_panel *ctx)
+{
+	struct device *dev = ctx->dev;
+
+	if (!ctx->current_mode)
+		return;
+
+	dev_dbg(dev, "%s\n", __func__);
+
+	GS_DCS_BUF_ADD_CMDLIST(dev, unlock_cmd_f0);
+	/* manual mode */
+	GS_DCS_BUF_ADD_CMD(dev, 0xBD, 0x21);
+	/* peak refresh rate */
+	if (ctx->current_mode->gs_mode.is_lp_mode) {
+		GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x01, 0x60);
+		GS_DCS_BUF_ADD_CMD(dev, 0x60, 0x00);
+	} else {
+		GS_DCS_BUF_ADD_CMD(dev, 0x60,
+				   !test_bit(FEAT_OP_NS, ctx->sw_status.feat) ? 0x00 : 0x18);
+	}
+	GS_DCS_BUF_ADD_CMDLIST(dev, freq_update);
+	GS_DCS_BUF_ADD_CMDLIST_AND_FLUSH(dev, lock_cmd_f0);
+}
+
 static void cm4_set_lp_mode(struct gs_panel *ctx, const struct gs_panel_mode *pmode)
 {
 	struct device *dev = ctx->dev;
@@ -1156,11 +1180,7 @@ static void cm4_set_lp_mode(struct gs_panel *ctx, const struct gs_panel_mode *pm
 	DPU_ATRACE_BEGIN(__func__);
 
 	/* enforce manual and peak to have a smooth transition */
-	GS_DCS_BUF_ADD_CMDLIST(dev, unlock_cmd_f0);
-	GS_DCS_BUF_ADD_CMD(dev, 0xBD, 0x21);
-	GS_DCS_BUF_ADD_CMD(dev, 0x60, !test_bit(FEAT_OP_NS, ctx->sw_status.feat) ? 0x00 : 0x18);
-	GS_DCS_BUF_ADD_CMDLIST(dev, freq_update);
-	GS_DCS_BUF_ADD_CMDLIST_AND_FLUSH(dev, lock_cmd_f0);
+	cm4_enforce_manual_and_peak(ctx);
 
 	cm4_wait_for_vsync_done(ctx, pmode);
 	GS_DCS_BUF_ADD_CMDLIST(dev, unlock_cmd_f0);
@@ -1203,13 +1223,8 @@ static void cm4_set_nolp_mode(struct gs_panel *ctx, const struct gs_panel_mode *
 	DPU_ATRACE_BEGIN(__func__);
 
 	cm4_wait_for_vsync_done(ctx, pmode);
-	GS_DCS_BUF_ADD_CMDLIST(dev, unlock_cmd_f0);
 	/* manual mode 30Hz */
-	GS_DCS_BUF_ADD_CMD(dev, 0xBD, 0x21);
-	GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x01, 0x60);
-	GS_DCS_BUF_ADD_CMD(dev, 0x60, 0x00);
-	GS_DCS_BUF_ADD_CMDLIST(dev, freq_update);
-	GS_DCS_BUF_ADD_CMDLIST_AND_FLUSH(dev, lock_cmd_f0);
+	cm4_enforce_manual_and_peak(ctx);
 
 	cm4_wait_for_vsync_done(ctx, pmode);
 	GS_DCS_BUF_ADD_CMDLIST(dev, unlock_cmd_f0);
@@ -1353,6 +1368,9 @@ static int cm4_disable(struct drm_panel *panel)
 	ctx->hw_status.acl_mode = 0;
 	ctx->hw_status.dbv = 0;
 	ctx->hw_status.irc_mode = IRC_FLAT_DEFAULT;
+
+	/* set manual and peak before turning off display */
+	cm4_enforce_manual_and_peak(ctx);
 
 	GS_DCS_WRITE_DELAY_CMD(dev, 20, MIPI_DCS_SET_DISPLAY_OFF);
 
