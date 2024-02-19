@@ -1984,7 +1984,6 @@ static void cm4_panel_init(struct gs_panel *ctx)
 
 #ifdef PANEL_FACTORY_BUILD
 	ctx->idle_data.panel_idle_enabled = false;
-	set_bit(FEAT_FRAME_AUTO, ctx->sw_status.feat);
 	set_bit(FEAT_FI_AUTO, ctx->sw_status.feat);
 #else
 	clear_bit(FEAT_FI_AUTO, ctx->sw_status.feat);

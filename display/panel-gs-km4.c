@@ -2158,7 +2158,6 @@ static void km4_panel_init(struct gs_panel *ctx)
 #ifdef PANEL_FACTORY_BUILD
 	spanel->is_mrr_v1 = true;
 	ctx->idle_data.panel_idle_enabled = false;
-	set_bit(FEAT_FRAME_AUTO, ctx->sw_status.feat);
 	set_bit(FEAT_FI_AUTO, ctx->sw_status.feat);
 #else
 	spanel->is_mrr_v1 = false;
