@@ -102,7 +102,7 @@ static const struct exynos_dsi_cmd tk4c_lp_cmds[] = {
 	/* AOD Power Setting */
 	EXYNOS_DSI_CMD0(test_key_enable),
 	EXYNOS_DSI_CMD_SEQ(0xB0, 0x00, 0x04, 0xF6),
-	EXYNOS_DSI_CMD_SEQ(0xF6, 0x28), /* Default */
+	EXYNOS_DSI_CMD_SEQ(0xF6, 0x25), /* Default */
 	EXYNOS_DSI_CMD0(test_key_disable),
 
 	/* AOD Mode On Setting */
@@ -298,7 +298,13 @@ static void tk4c_set_hbm_mode(struct exynos_panel *ctx,
 		EXYNOS_DCS_BUF_ADD(ctx, 0xB0, 0x00, 0x61, 0x68);
 		if (IS_HBM_ON_IRC_OFF(ctx->hbm_mode)) {
 			/* FGZ Mode ON */
-			EXYNOS_DCS_BUF_ADD(ctx, 0x68, 0xB0, 0x2C, 0x6A, 0x80, 0x00, 0x00, 0xF5, 0xC4);
+			if (ctx->panel_rev < PANEL_REV_DVT1) {
+				EXYNOS_DCS_BUF_ADD(ctx, 0x68, 0xB0, 0x2C, 0x6A, 0x80, 0x00, 0x00, 0xF5,
+					0xC4);
+			} else {
+				EXYNOS_DCS_BUF_ADD(ctx, 0x68, 0xB0, 0x2C, 0x6A, 0x80, 0x00, 0x00, 0xE4,
+					0xB6);
+			}
 		} else {
 			/* FGZ Mode OFF */
 			EXYNOS_DCS_BUF_ADD(ctx, 0x68, 0xB0, 0x2C, 0x6A, 0x80, 0x00, 0x00, 0x00, 0x00);

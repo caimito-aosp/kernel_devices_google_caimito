@@ -97,7 +97,7 @@ static const struct gs_dsi_cmd tk4c_lp_cmds[] = {
 	/* AOD Power Setting */
 	GS_DSI_CMDLIST(test_key_enable),
 	GS_DSI_CMD(0xB0, 0x00, 0x04, 0xF6),
-	GS_DSI_CMD(0xF6, 0x28), /* Default */
+	GS_DSI_CMD(0xF6, 0x25), /* Default */
 	GS_DSI_CMDLIST(test_key_disable),
 
 	/* AOD Mode On Setting */
@@ -289,8 +289,13 @@ static void tk4c_set_hbm_mode(struct gs_panel *ctx, enum gs_hbm_mode mode)
 		GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x61, 0x68);
 		if (GS_IS_HBM_ON_IRC_OFF(ctx->hbm_mode)) {
 			/* FGZ Mode ON */
-			GS_DCS_BUF_ADD_CMD(dev, 0x68, 0xB0, 0x2C, 0x6A, 0x80, 0x00, 0x00, 0xF5,
-					   0xC4);
+			if (ctx->panel_rev < PANEL_REV_DVT1) {
+				GS_DCS_BUF_ADD_CMD(dev, 0x68, 0xB0, 0x2C, 0x6A, 0x80, 0x00, 0x00, 0xF5,
+					0xC4);
+			} else {
+				GS_DCS_BUF_ADD_CMD(dev, 0x68, 0xB0, 0x2C, 0x6A, 0x80, 0x00, 0x00, 0xE4,
+					0xB6);
+			}
 		} else {
 			/* FGZ Mode OFF */
 			GS_DCS_BUF_ADD_CMD(dev, 0x68, 0xB0, 0x2C, 0x6A, 0x80, 0x00, 0x00, 0x00,
