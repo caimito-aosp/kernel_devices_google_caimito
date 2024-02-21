@@ -373,7 +373,6 @@
 					"regulator",
 					"regulator",
 					"regulator",
-					"gpio",
 					"pinctrl";
 				power-up-seq-delays-us =
 					<0
