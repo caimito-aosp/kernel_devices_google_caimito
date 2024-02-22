@@ -1691,9 +1691,6 @@ static void km4_pre_update_ffc(struct gs_panel *ctx)
 {
 	struct device *dev = ctx->dev;
 
-	/* TODO(b/318876121): remove when getting valid clock data */
-	return;
-
 	dev_dbg(dev, "%s\n", __func__);
 
 	DPU_ATRACE_BEGIN(__func__);
@@ -1710,10 +1707,6 @@ static void km4_pre_update_ffc(struct gs_panel *ctx)
 static void km4_update_ffc(struct gs_panel *ctx, unsigned int hs_clk)
 {
 	struct device *dev = ctx->dev;
-
-	/* TODO(b/318876121): remove when getting valid clock data */
-	if (hs_clk == 0)
-		return;
 
 	dev_dbg(dev, "%s: hs_clk: current=%d, target=%d\n", __func__, ctx->dsi_hs_clk, hs_clk);
 

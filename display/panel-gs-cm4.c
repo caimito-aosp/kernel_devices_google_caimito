@@ -200,6 +200,9 @@ static const struct drm_dsc_config fhd_pps_config = {
 #define WIDTH_MM 66
 #define HEIGHT_MM 147
 
+#define MIPI_DSI_FREQ_DEFAULT 1368
+#define MIPI_DSI_FREQ_ALTERNATIVE 1288
+
 #define PROJECT "CM4"
 
 static const u8 unlock_cmd_f0[] = { 0xF0, 0x5A, 0x5A };
@@ -1278,9 +1281,9 @@ static const struct gs_dsi_cmd cm4_init_cmds[] = {
 	GS_DSI_CMD(0xB0, 0x00, 0x3C, 0xB9), /* Global para */
 	GS_DSI_CMD(0xB9, 0x19, 0x09), /* Sync On */
 
-	/* FFC: 165MHz, MIPI Speed 1368 Mbps */
+	/* FFC: off, 165MHz, MIPI Speed 1368 Mbps */
 	GS_DSI_CMD(0xB0, 0x00, 0x36, 0xC5),
-	GS_DSI_CMD(0xC5, 0x11, 0x10, 0x50, 0x05, 0x4D, 0x31, 0x40, 0x00, 0x40, 0x00, 0x40, 0x00,
+	GS_DSI_CMD(0xC5, 0x10, 0x10, 0x50, 0x05, 0x4D, 0x31, 0x40, 0x00, 0x40, 0x00, 0x40, 0x00,
 		   0x4D, 0x31, 0x40, 0x00, 0x40, 0x00, 0x40, 0x00, 0x4D, 0x31, 0x40, 0x00, 0x40,
 		   0x00, 0x40, 0x00, 0x4D, 0x31, 0x40, 0x00, 0x40, 0x00, 0x40, 0x00),
 
@@ -1337,6 +1340,7 @@ static int cm4_enable(struct drm_panel *panel)
 		GS_DCS_WRITE_DELAY_CMD(dev, 120, MIPI_DCS_EXIT_SLEEP_MODE);
 		gs_panel_send_cmdset(ctx, &cm4_init_cmdset);
 		spanel->is_pixel_off = false;
+		ctx->dsi_hs_clk = MIPI_DSI_FREQ_DEFAULT;
 	}
 
 	GS_DCS_BUF_ADD_CMDLIST(dev, unlock_cmd_f0);
@@ -1587,6 +1591,63 @@ static void cm4_normal_mode_work(struct gs_panel *ctx)
 		if (ctx->thermal)
 			ctx->thermal->pending_temp_update = true;
 	}
+}
+
+static void cm4_pre_update_ffc(struct gs_panel *ctx)
+{
+	struct device *dev = ctx->dev;
+
+	dev_dbg(dev, "%s\n", __func__);
+
+	DPU_ATRACE_BEGIN(__func__);
+
+	GS_DCS_BUF_ADD_CMDLIST(dev, unlock_cmd_f0);
+	/* FFC off */
+	GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x36, 0xC5);
+	GS_DCS_BUF_ADD_CMD(dev, 0xC5, 0x10);
+	GS_DCS_BUF_ADD_CMDLIST_AND_FLUSH(dev, lock_cmd_f0);
+
+	DPU_ATRACE_END(__func__);
+}
+
+static void cm4_update_ffc(struct gs_panel *ctx, unsigned int hs_clk)
+{
+	struct device *dev = ctx->dev;
+
+	dev_dbg(dev, "%s: hs_clk: current=%d, target=%d\n", __func__, ctx->dsi_hs_clk, hs_clk);
+
+	DPU_ATRACE_BEGIN(__func__);
+
+	GS_DCS_BUF_ADD_CMDLIST(dev, unlock_cmd_f0);
+
+	if (hs_clk != MIPI_DSI_FREQ_DEFAULT && hs_clk != MIPI_DSI_FREQ_ALTERNATIVE) {
+		dev_warn(dev, "%s: invalid hs_clk=%d for FFC\n", __func__, hs_clk);
+	} else if (ctx->dsi_hs_clk != hs_clk) {
+		dev_info(dev, "%s: updating for hs_clk=%d\n", __func__, hs_clk);
+		ctx->dsi_hs_clk = hs_clk;
+
+		/* Update FFC */
+		GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x37, 0xC5);
+		if (hs_clk == MIPI_DSI_FREQ_DEFAULT)
+			GS_DCS_BUF_ADD_CMD(dev, 0xC5, 0x10, 0x50, 0x05, 0x4D, 0x31, 0x40, 0x00,
+					   0x40, 0x00, 0x40, 0x00, 0x4D, 0x31, 0x40, 0x00, 0x40,
+					   0x00, 0x40, 0x00, 0x4D, 0x31, 0x40, 0x00, 0x40, 0x00,
+					   0x40, 0x00, 0x4D, 0x31, 0x40, 0x00, 0x40, 0x00, 0x40,
+					   0x00);
+		else /* MIPI_DSI_FREQ_ALTERNATIVE */
+			GS_DCS_BUF_ADD_CMD(dev, 0xC5, 0x10, 0x50, 0x05, 0x51, 0xFD, 0x40, 0x00,
+					   0x40, 0x00, 0x40, 0x00, 0x51, 0xFD, 0x40, 0x00, 0x40,
+					   0x00, 0x40, 0x00, 0x51, 0xFD, 0x40, 0x00, 0x40, 0x00,
+					   0x40, 0x00, 0x51, 0xFD, 0x40, 0x00, 0x40, 0x00, 0x40,
+					   0x00);
+	}
+
+	/* FFC on */
+	GS_DCS_BUF_ADD_CMD(dev, 0xB0, 0x00, 0x36, 0xC5);
+	GS_DCS_BUF_ADD_CMD(dev, 0xC5, 0x11);
+	GS_DCS_BUF_ADD_CMDLIST_AND_FLUSH(dev, lock_cmd_f0);
+
+	DPU_ATRACE_END(__func__);
 }
 
 static const struct gs_display_underrun_param underrun_param = {
@@ -2108,6 +2169,8 @@ static const struct gs_panel_funcs cm4_gs_funcs = {
 	.get_te_usec = cm4_get_te_usec,
 	.set_acl_mode = cm4_set_acl_mode,
 	.run_normal_mode_work = cm4_normal_mode_work,
+	.pre_update_ffc = cm4_pre_update_ffc,
+	.update_ffc = cm4_update_ffc,
 };
 
 static const struct gs_brightness_configuration cm4_btr_configs[] = {
@@ -2254,6 +2317,7 @@ static struct gs_panel_desc google_cm4 = {
 	.is_idle_supported = true,
 	.panel_func = &cm4_drm_funcs,
 	.gs_panel_func = &cm4_gs_funcs,
+	.default_dsi_hs_clk = MIPI_DSI_FREQ_DEFAULT,
 	.reset_timing_ms = { 1, 1, 5 },
 	.reg_ctrl_desc = &cm4_reg_ctrl_desc,
 };
