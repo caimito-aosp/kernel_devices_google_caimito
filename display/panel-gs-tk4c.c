@@ -381,6 +381,60 @@ static void tk4c_get_panel_rev(struct gs_panel *ctx, u32 id)
 	gs_panel_get_panel_rev(ctx, rev);
 }
 
+static int tk4c_atomic_check(struct gs_panel *ctx, struct drm_atomic_state *state)
+{
+	struct drm_connector *conn = &ctx->gs_connector->base;
+	struct drm_connector_state *new_conn_state = drm_atomic_get_new_connector_state(state, conn);
+	struct drm_crtc_state *old_crtc_state, *new_crtc_state;
+	const struct gs_panel_mode *pmode;
+	bool was_lp_mode, is_lp_mode;
+
+	if (!ctx->current_mode || drm_mode_vrefresh(&ctx->current_mode->mode) == 120 ||
+		!new_conn_state || !new_conn_state->crtc)
+		return 0;
+
+	new_crtc_state = drm_atomic_get_new_crtc_state(state, new_conn_state->crtc);
+	old_crtc_state = drm_atomic_get_old_crtc_state(state, new_conn_state->crtc);
+	if (!old_crtc_state || !new_crtc_state || !new_crtc_state->active)
+		return 0;
+
+	was_lp_mode = ctx->current_mode->gs_mode.is_lp_mode;
+	/* don't skip update when switching between AoD and normal mode */
+	pmode = gs_panel_get_mode(ctx, &new_crtc_state->mode);
+	if (pmode) {
+		is_lp_mode = pmode->gs_mode.is_lp_mode;
+		if ((was_lp_mode && !is_lp_mode) || (!was_lp_mode && is_lp_mode))
+			new_crtc_state->color_mgmt_changed = true;
+	} else {
+		dev_err(ctx->dev, "%s: no new mode\n", __func__);
+	}
+
+	if (!drm_atomic_crtc_effectively_active(old_crtc_state) ||
+		(was_lp_mode && drm_mode_vrefresh(&new_crtc_state->mode) == 60)) {
+		struct drm_display_mode *mode = &new_crtc_state->adjusted_mode;
+
+		/* set clock to max refresh rate on resume or AOD exit to 60Hz */
+		mode->clock = mode->htotal * mode->vtotal * 120 / 1000;
+		if (mode->clock != new_crtc_state->mode.clock) {
+			new_crtc_state->mode_changed = true;
+			ctx->gs_connector->needs_commit = true;
+			dev_dbg(ctx->dev, "raise mode (%s) clock to 120hz on %s\n",
+				mode->name,
+				!drm_atomic_crtc_effectively_active(old_crtc_state) ?
+				"resume" : "lp exit");
+		}
+	} else if (old_crtc_state->adjusted_mode.clock != old_crtc_state->mode.clock) {
+		/* clock hacked in last commit due to resume or lp exit, undo that */
+		new_crtc_state->mode_changed = true;
+		new_crtc_state->adjusted_mode.clock = new_crtc_state->mode.clock;
+		ctx->gs_connector->needs_commit = false;
+		dev_dbg(ctx->dev, "restore mode (%s) clock after resume or lp exit\n",
+			new_crtc_state->mode.name);
+	}
+
+	return 0;
+}
+
 static void tk4c_set_nolp_mode(struct gs_panel *ctx, const struct gs_panel_mode *pmode)
 {
 	if (!gs_is_panel_active(ctx))
@@ -582,6 +636,7 @@ static const struct gs_panel_funcs tk4c_gs_funcs = {
 	.mode_set = tk4c_mode_set,
 	.get_panel_rev = tk4c_get_panel_rev,
 	.read_id = gs_panel_read_slsi_ddic_id,
+	.atomic_check = tk4c_atomic_check,
 };
 
 const struct gs_panel_brightness_desc tk4c_brightness_desc = {
