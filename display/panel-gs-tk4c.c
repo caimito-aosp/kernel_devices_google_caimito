@@ -105,23 +105,23 @@ static const struct gs_dsi_cmd tk4c_lp_cmds[] = {
 };
 static DEFINE_GS_CMDSET(tk4c_lp);
 
-static const struct gs_dsi_cmd tk4c_lp_2nits_cmd[] = {
+static const struct gs_dsi_cmd tk4c_lp_night_cmd[] = {
 	GS_DSI_CMD(0x51, 0x00, 0xB8),
 };
 
-static const struct gs_dsi_cmd tk4c_lp_10nits_cmd[] = {
+static const struct gs_dsi_cmd tk4c_lp_low_cmd[] = {
 	GS_DSI_CMD(0x51, 0x01, 0x7E),
 };
-static const struct gs_dsi_cmd tk4c_lp_50nits_cmd[] = {
+static const struct gs_dsi_cmd tk4c_lp_high_cmd[] = {
 	GS_DSI_CMD(0x51, 0x03, 0x1A),
 };
 
 static const struct gs_binned_lp tk4c_binned_lp[] = {
-	/* 0 to 8 nits */
-	BINNED_LP_MODE_TIMING("night", 360, tk4c_lp_2nits_cmd, 12, 12 + 50),
+	/* night threshold 4 nits */
+	BINNED_LP_MODE_TIMING("night", 252, tk4c_lp_night_cmd, 12, 12 + 50),
 	/* low threshold 40 nits */
-	BINNED_LP_MODE_TIMING("low", 716, tk4c_lp_10nits_cmd, 12, 12 + 50),
-	BINNED_LP_MODE_TIMING("high", 4095, tk4c_lp_50nits_cmd, 12, 12 + 50),
+	BINNED_LP_MODE_TIMING("low", 716, tk4c_lp_low_cmd, 12, 12 + 50),
+	BINNED_LP_MODE_TIMING("high", 4095, tk4c_lp_high_cmd, 12, 12 + 50),
 };
 
 static const struct gs_dsi_cmd tk4c_init_cmds[] = {

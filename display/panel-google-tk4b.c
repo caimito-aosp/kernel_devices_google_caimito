@@ -67,6 +67,12 @@ static const struct exynos_dsi_cmd tk4b_lp_off_cmds[] = {
 	EXYNOS_DSI_CMD_SEQ(MIPI_DCS_SET_DISPLAY_BRIGHTNESS, 0x00, 0x00),
 };
 
+static const struct exynos_dsi_cmd tk4b_lp_night_cmds[] = {
+	/* 2 nit */
+	EXYNOS_DSI_CMD_SEQ(0x6F, 0x04),
+	EXYNOS_DSI_CMD_SEQ(MIPI_DCS_SET_DISPLAY_BRIGHTNESS, 0x00, 0x03),
+};
+
 static const struct exynos_dsi_cmd tk4b_lp_low_cmds[] = {
 	/* 10 nit */
 	EXYNOS_DSI_CMD_SEQ(0x6F, 0x04),
@@ -85,6 +91,8 @@ static const struct exynos_dsi_cmd tk4b_lp_high_cmds[] = {
 static const struct exynos_binned_lp tk4b_binned_lp[] = {
 	BINNED_LP_MODE("off", 0, tk4b_lp_off_cmds),
 	/* rising = 0, falling = 45 */
+	/* night threshold 4 nits */
+	BINNED_LP_MODE_TIMING("night", 104, tk4b_lp_night_cmds, 0, 45),
 	/* low threshold 40 nits */
 	BINNED_LP_MODE_TIMING("low", 932, tk4b_lp_low_cmds, 0, 45),
 	BINNED_LP_MODE_TIMING("high", 3574, tk4b_lp_high_cmds, 0, 45),
